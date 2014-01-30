@@ -15,6 +15,7 @@
 #define DRIVER_S5FH_S5FH_SERIAL_INTERFACE_H_INCLUDED
 
 #include <driver_s5fh/ImportExport.h>
+#include <driver_s5fh/S5FHDataStructures.h>
 #include <driver_s5fh/S5FHReceiveThread.h>
 
 #include <icl_comm_serial/Serial.h>
@@ -34,6 +35,9 @@ public:
   S5FHSerialInterface(const std::string &dev_name);
 
   ~S5FHSerialInterface();
+
+  // function for sending packages via serial device to the S5FH
+  bool sendPacket(const SerialPacket& packet);
 
 private:
 

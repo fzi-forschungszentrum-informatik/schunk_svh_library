@@ -16,6 +16,8 @@
 
 #include "driver_s5fh/ImportExport.h"
 
+#include "icl_comm_serial/Serial.h"
+
 namespace driver_s5fh {
 
 /*! Basic communication with the SCHUNK five finger hand.
@@ -25,9 +27,14 @@ class DRIVER_S5FH_IMPORT_EXPORT S5FHSerialInterface
 public:
   /*! Constructs a serial interface class for basic communication with the SCHUNK five finger hand.
    */
-  S5FHSerialInterface();
+  S5FHSerialInterface(const std::string &dev_name);
 
   ~S5FHSerialInterface();
+
+private:
+
+  // pointer to serial interface object
+  icl_comm::serial::Serial *m_serial_device;
 
 };
 

@@ -3,12 +3,16 @@ ICMAKER_SET("driver_s5fh" IDE_FOLDER ${DRIVER_S5FH_IDE_FOLDER})
 
 ICMAKER_ADD_SOURCES(
   Logging.cpp
+  S5FHController.cpp
+  S5FHFingerManager.cpp
   S5FHSerialInterface.cpp
 )
 
 ICMAKER_ADD_HEADERS(
   ImportExport.h
   Logging.h
+  S5FHController.h
+  S5FHFingerManager.h
   S5FHSerialInterface.h
 )
 

@@ -14,9 +14,13 @@
 #ifndef DRIVER_S5FH_S5FH_SERIAL_INTERFACE_H_INCLUDED
 #define DRIVER_S5FH_S5FH_SERIAL_INTERFACE_H_INCLUDED
 
-#include "driver_s5fh/ImportExport.h"
+#include <driver_s5fh/ImportExport.h>
+#include <driver_s5fh/S5FHReceiveThread.h>
 
-#include "icl_comm_serial/Serial.h"
+#include <icl_comm_serial/Serial.h>
+
+using icl_comm::serial::Serial;
+using icl_comm::serial::SerialFlags;
 
 namespace driver_s5fh {
 
@@ -34,7 +38,10 @@ public:
 private:
 
   // pointer to serial interface object
-  icl_comm::serial::Serial *m_serial_device;
+  Serial *m_serial_device;
+
+  // thread for receiving serial packages
+  S5FHReceiveThread *m_receive_thread;
 
 };
 

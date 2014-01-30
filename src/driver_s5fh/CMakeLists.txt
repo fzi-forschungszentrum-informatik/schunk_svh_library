@@ -13,6 +13,7 @@ ICMAKER_ADD_HEADERS(
   Logging.h
   S5FHController.h
   S5FHFingerManager.h
+  S5FHReceiveThread.h
   S5FHSerialInterface.h
 )
 

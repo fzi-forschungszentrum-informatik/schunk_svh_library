@@ -19,8 +19,13 @@
 
 namespace driver_s5fh {
 
+//! packet size consts
 const size_t cPACKET_APPENDIX_SIZE = 8;
 const size_t cDEFAULT_PACKET_SIZE = 48;
+
+//! packet headers
+const uint8_t PACKET_HEADER1 = 0x4C;
+const uint8_t PACKET_HEADER2 = 0xAA;
 
 /*!
  * \brief The SerialPacket holds the (non generated) header and data of one message to the S5FH-Hardware

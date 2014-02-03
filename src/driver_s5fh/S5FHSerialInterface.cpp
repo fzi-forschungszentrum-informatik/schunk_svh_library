@@ -21,8 +21,8 @@ namespace driver_s5fh {
 
 S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name)
 {
+  // create and open serial device
   m_serial_device = new Serial(dev_name.c_str(), SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8));
-  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), m_serial_device);
 
   if (m_serial_device != NULL)
   {
@@ -31,6 +31,9 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name)
       LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not open serial device: " << dev_name.c_str() << endl);
     }
   }
+
+  // create and start receive thread
+  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), m_serial_device);
 
   if (m_receive_thread != NULL)
   {
@@ -43,10 +46,12 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name)
 
 S5FHSerialInterface::~S5FHSerialInterface()
 {
+  // cancel and delete receive packet thread
   m_receive_thread->cancel();
-  m_serial_device->Close();
-
   delete m_receive_thread;
+
+  // close and delete serial device handler
+  m_serial_device->Close();
   delete m_serial_device;
 }
 

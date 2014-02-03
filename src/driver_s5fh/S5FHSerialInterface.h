@@ -36,7 +36,7 @@ public:
 
   ~S5FHSerialInterface();
 
-  // function for sending packages via serial device to the S5FH
+  // function for sending packets via serial device to the S5FH
   bool sendPacket(const SerialPacket& packet);
 
 private:
@@ -44,7 +44,7 @@ private:
   // pointer to serial interface object
   Serial *m_serial_device;
 
-  // thread for receiving serial packages
+  // thread for receiving serial packets
   S5FHReceiveThread *m_receive_thread;
 
 };

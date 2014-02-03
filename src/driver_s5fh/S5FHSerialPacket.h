@@ -19,6 +19,9 @@
 
 namespace driver_s5fh {
 
+const size_t cPACKET_APPENDIX_SIZE = 8;
+const size_t cDEFAULT_PACKET_SIZE = 48;
+
 /*!
  * \brief The SerialPacket holds the (non generated) header and data of one message to the S5FH-Hardware
  */
@@ -33,7 +36,5 @@ struct S5FHSerialPacket
 };
 
 }
-
-
 
 #endif // S5FHSERIALPACKET_H

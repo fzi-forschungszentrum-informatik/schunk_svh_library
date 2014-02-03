@@ -47,6 +47,10 @@ private:
   // thread for receiving serial packets
   S5FHReceiveThread *m_receive_thread;
 
+
+  // cecksum calulation
+  void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SerialPacket& packet);
+
 };
 
 }

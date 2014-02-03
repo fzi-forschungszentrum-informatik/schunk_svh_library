@@ -55,4 +55,17 @@ S5FHSerialInterface::~S5FHSerialInterface()
   delete m_serial_device;
 }
 
+// calculate checksums for serial packets
+void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SerialPacket& packet)
+{
+  check_sum1 = 0;
+  check_sum2 = 0;
+
+  for (size_t i; i < packet.data.size(); i++)
+  {
+    check_sum1 += packet.data[i];
+    check_sum1 ^= packet.data[i];
+  }
+}
+
 }

@@ -59,7 +59,7 @@ S5FHSerialInterface::~S5FHSerialInterface()
   delete m_serial_device;
 }
 
-bool S5FHSerialInterface::sendPacket(const SerialPacket& packet)
+bool S5FHSerialInterface::sendPacket(const S5FHSerialPacket& packet)
 {
   uint8_t check_sum1 = 0;
   uint8_t check_sum2 = 0;
@@ -85,7 +85,7 @@ bool S5FHSerialInterface::sendPacket(const SerialPacket& packet)
 }
 
 // calculate checksums for serial packets
-void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SerialPacket& packet)
+void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const S5FHSerialPacket& packet)
 {
   check_sum1 = 0;
   check_sum2 = 0;

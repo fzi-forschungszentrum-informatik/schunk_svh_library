@@ -15,7 +15,7 @@
 #define DRIVER_S5FH_S5FH_SERIAL_INTERFACE_H_INCLUDED
 
 #include <driver_s5fh/ImportExport.h>
-#include <driver_s5fh/S5FHDataStructures.h>
+#include <driver_s5fh/S5FHSerialPacket.h>
 #include <driver_s5fh/S5FHReceiveThread.h>
 
 #include <icl_comm_serial/Serial.h>
@@ -37,7 +37,7 @@ public:
   ~S5FHSerialInterface();
 
   // function for sending packets via serial device to the S5FH
-  bool sendPacket(const SerialPacket& packet);
+  bool sendPacket(const S5FHSerialPacket& packet);
 
 private:
 
@@ -69,7 +69,7 @@ private:
   };
 
   // cecksum calulation
-  void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SerialPacket& packet);
+  void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const S5FHSerialPacket& packet);
 
 };
 

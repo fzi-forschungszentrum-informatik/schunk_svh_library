@@ -42,6 +42,10 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name)
       LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not start the receive thread for the serial device!" << endl);
     }
   }
+
+  // initialize member varaibles
+  m_packets_received = 0;
+  m_packets_transmitted = 0;
 }
 
 S5FHSerialInterface::~S5FHSerialInterface()
@@ -53,6 +57,31 @@ S5FHSerialInterface::~S5FHSerialInterface()
   // close and delete serial device handler
   m_serial_device->Close();
   delete m_serial_device;
+}
+
+bool S5FHSerialInterface::sendPacket(const SerialPacket& packet)
+{
+  uint8_t check_sum1 = 0;
+  uint8_t check_sum2 = 0;
+  calcCheckSum(check_sum1, check_sum2, packet);
+
+  if (m_serial_device->IsOpen())
+  {
+    uint8_t header[] = { header1, header2, packet.index, packet.address };
+    m_serial_device->Write(&header, 4);
+
+    // TODO: Use conversion functions
+    //packet.data.size()
+
+  }
+  else
+  {
+    return false;
+  }
+
+  m_packets_transmitted++;
+
+  return true;
 }
 
 // calculate checksums for serial packets

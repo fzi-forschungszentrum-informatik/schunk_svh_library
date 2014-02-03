@@ -47,6 +47,13 @@ private:
   // thread for receiving serial packets
   S5FHReceiveThread *m_receive_thread;
 
+  // packet counters
+  unsigned int m_packets_received;
+  unsigned int m_packets_transmitted;
+
+  // packet headers
+  static const uint8_t header1 = 0x4C;
+  static const uint8_t header2 = 0xAA;
 
   // cecksum calulation
   void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SerialPacket& packet);

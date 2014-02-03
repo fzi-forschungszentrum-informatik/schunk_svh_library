@@ -12,8 +12,9 @@
  */
 //----------------------------------------------------------------------
 #include "driver_s5fh/S5FHSerialInterface.h"
-
 #include "driver_s5fh/Logging.h"
+
+#include <icl_comm/ByteOrderConversion.h>
 
 using icl_core::TimeSpan;
 
@@ -67,12 +68,11 @@ bool S5FHSerialInterface::sendPacket(const S5FHSerialPacket& packet)
 
   if (m_serial_device->IsOpen())
   {
-    uint8_t header[] = { header1, header2, packet.index, packet.address };
-    m_serial_device->Write(&header, 4);
+    size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
+    icl_comm::ArrayBuilder<> send_array(size);
+    send_array << header1 << header2 << packet << check_sum1 << check_sum2;
 
-    // TODO: Use conversion functions
-    //packet.data.size()
-
+    m_serial_device->Write(send_array.array.data(), size);
   }
   else
   {

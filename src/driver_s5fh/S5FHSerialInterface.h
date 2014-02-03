@@ -36,7 +36,7 @@ public:
 
   ~S5FHSerialInterface();
 
-  // function for sending packages via serial device to the S5FH
+  // function for sending packets via serial device to the S5FH
   bool sendPacket(const SerialPacket& packet);
 
 private:
@@ -44,8 +44,32 @@ private:
   // pointer to serial interface object
   Serial *m_serial_device;
 
-  // thread for receiving serial packages
+  // thread for receiving serial packets
   S5FHReceiveThread *m_receive_thread;
+
+  // packet counters
+  unsigned int m_packets_received;
+  unsigned int m_packets_transmitted;
+
+  // packet headers
+  static const uint8_t header1 = 0x4C;
+  static const uint8_t header2 = 0xAA;
+
+  // enum for receive packet state machine
+  enum State
+  {
+    eSM_HEADER1,
+    eSM_HEADER2,
+    eSM_INDEX,
+    eSM_ADDRESS,
+    eSM_LENGTH,
+    eSM_DATA,
+    eSM_CHECKSUM,
+    eSM_COMPLETE
+  };
+
+  // cecksum calulation
+  void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SerialPacket& packet);
 
 };
 

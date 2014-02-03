@@ -21,8 +21,8 @@ namespace driver_s5fh {
 
 S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name)
 {
+  // create and open serial device
   m_serial_device = new Serial(dev_name.c_str(), SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8));
-  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), m_serial_device);
 
   if (m_serial_device != NULL)
   {
@@ -32,6 +32,9 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name)
     }
   }
 
+  // create and start receive thread
+  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), m_serial_device);
+
   if (m_receive_thread != NULL)
   {
     if (!m_receive_thread->start())
@@ -39,15 +42,59 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name)
       LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not start the receive thread for the serial device!" << endl);
     }
   }
+
+  // initialize member varaibles
+  m_packets_received = 0;
+  m_packets_transmitted = 0;
 }
 
 S5FHSerialInterface::~S5FHSerialInterface()
 {
+  // cancel and delete receive packet thread
   m_receive_thread->cancel();
-  m_serial_device->Close();
-
   delete m_receive_thread;
+
+  // close and delete serial device handler
+  m_serial_device->Close();
   delete m_serial_device;
+}
+
+bool S5FHSerialInterface::sendPacket(const SerialPacket& packet)
+{
+  uint8_t check_sum1 = 0;
+  uint8_t check_sum2 = 0;
+  calcCheckSum(check_sum1, check_sum2, packet);
+
+  if (m_serial_device->IsOpen())
+  {
+    uint8_t header[] = { header1, header2, packet.index, packet.address };
+    m_serial_device->Write(&header, 4);
+
+    // TODO: Use conversion functions
+    //packet.data.size()
+
+  }
+  else
+  {
+    return false;
+  }
+
+  m_packets_transmitted++;
+
+  return true;
+}
+
+// calculate checksums for serial packets
+void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SerialPacket& packet)
+{
+  check_sum1 = 0;
+  check_sum2 = 0;
+
+  for (size_t i; i < packet.data.size(); i++)
+  {
+    check_sum1 += packet.data[i];
+    check_sum1 ^= packet.data[i];
+  }
 }
 
 }

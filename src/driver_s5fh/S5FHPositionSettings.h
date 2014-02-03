@@ -15,6 +15,7 @@
 #define S5FHPOSITIONSETTINGS_H
 
 #include <icl_core/BaseTypes.h>
+#include <icl_comm/ByteOrderConversion.h>
 
 namespace driver_s5fh {
 
@@ -23,6 +24,7 @@ namespace driver_s5fh {
  */
 struct S5FHPositionSettings
 {
+public:
   //! Reference signal minimum value
   float wmn;
   //! Reference signal maximum value
@@ -45,8 +47,25 @@ struct S5FHPositionSettings
   float kd;
 };
 
+//! overload stream operator to easily serialize data
+template <typename TArray>
+icl_comm::ArrayBuilder<TArray>& operator << (icl_comm::ArrayBuilder<TArray>& ab, const S5FHPositionSettings& data)
+{
+  ab << data.wmn
+     << data.wmx
+     << data.dwmx
+     << data.ky
+     << data.dt
+     << data.imn
+     << data.imx
+     << data.kp
+     << data.ki
+     << data.kd;
+  return ab;
+}
 
-//ArrayBuilder& operator << (ArrayBuilder& ab,const S5FHPositionSettings& data);
+
+
 
 }
 

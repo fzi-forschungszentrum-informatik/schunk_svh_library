@@ -19,7 +19,6 @@
 
 namespace driver_s5fh {
 
-
 /*!
  * \brief The S5FHFirmwareInfo  holds the data of a firmware response from the hardware
  */

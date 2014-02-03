@@ -15,6 +15,7 @@
 #define S5FHCURRENTSETTINGS_H
 
 #include <icl_core/BaseTypes.h>
+#include <icl_comm/ByteOrderConversion.h>
 
 namespace driver_s5fh {
 
@@ -45,6 +46,22 @@ struct S5FHCurrentSettings
   float umx;
 };
 
+//! overload stream operator to easily serialize data
+template <typename TArray>
+icl_comm::ArrayBuilder<TArray>& operator << (icl_comm::ArrayBuilder<TArray>& ab, const S5FHCurrentSettings& data)
+{
+  ab << data.wmn
+     << data.wmx
+     << data.ky
+     << data.dt
+     << data.imn
+     << data.imx
+     << data.kp
+     << data.ki
+     << data.umn
+     << data.umx;
+  return ab;
+}
 
 }
 

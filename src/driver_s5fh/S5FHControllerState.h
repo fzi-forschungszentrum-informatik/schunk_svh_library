@@ -36,6 +36,19 @@ struct S5FHControllerState
   //! Enable/Disbale of current controller (0x0001 to Activate)
   uint16_t cur_ctrl;
 };
+//! overload stream operator to easily serialize data
+template <typename TArray>
+icl_comm::ArrayBuilder<TArray>& operator << (icl_comm::ArrayBuilder<TArray>& ab, const S5FHControllerState& data)
+{
+  ab << data.pwm_fault
+     << data.pwm_otw
+     << data.pwm_reset
+     << data.pwm_active
+     << data.pos_ctrl
+     << data.cur_ctrl;
+  return ab;
+}
+
 
 }
 

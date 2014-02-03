@@ -6,25 +6,34 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Lars pfotzer
- * \date    2014-01-30
+ * \author  Georg Heppner
+ * \date    2014-02-03
  *
  */
 //----------------------------------------------------------------------
-#ifndef DRIVER_S5FH_S5FH_DATA_STRUCTURES_H_INCLUDED
-#define DRIVER_S5FH_S5FH_DATA_STRUCTURES_H_INCLUDED
+#ifndef S5FHSERIALPACKET_H
+#define S5FHSERIALPACKET_H
 
 #include <icl_core/BaseTypes.h>
+#include <icl_core/Vector.h>
 
 namespace driver_s5fh {
 
-struct SerialPacket
+/*!
+ * \brief The SerialPacket holds the (non generated) header and data of one message to the S5FH-Hardware
+ */
+struct S5FHSerialPacket
 {
+  //! Continiously incremented counter per package
   uint8_t index;
+  //! Adress denotes the actual function of the package
   uint8_t address;
-  uint8_t data[];
+  //! Payload of the package
+  icl_core::Vector <uint8_t> data;
 };
 
 }
 
-#endif
+
+
+#endif // S5FHSERIALPACKET_H

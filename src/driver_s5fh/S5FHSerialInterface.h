@@ -39,6 +39,12 @@ public:
   //! function for sending packets via serial device to the S5FH
   bool sendPacket(const S5FHSerialPacket& packet);
 
+  //! transmitted packets count getter
+  unsigned int transmittedPacketCount() { return m_packets_transmitted; }
+
+  //! received packets count getter
+  unsigned int receivedPacketCount() { return m_packets_received; }
+
 private:
 
   //! pointer to serial interface object

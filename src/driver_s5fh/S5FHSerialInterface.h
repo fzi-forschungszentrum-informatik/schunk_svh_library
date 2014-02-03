@@ -55,6 +55,19 @@ private:
   static const uint8_t header1 = 0x4C;
   static const uint8_t header2 = 0xAA;
 
+  // enum for receive packet state machine
+  enum State
+  {
+    eSM_HEADER1,
+    eSM_HEADER2,
+    eSM_INDEX,
+    eSM_ADDRESS,
+    eSM_LENGTH,
+    eSM_DATA,
+    eSM_CHECKSUM,
+    eSM_COMPLETE
+  };
+
   // cecksum calulation
   void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SerialPacket& packet);
 

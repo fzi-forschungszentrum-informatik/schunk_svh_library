@@ -17,6 +17,7 @@
 #include <icl_comm/ByteOrderConversion.h>
 
 using icl_core::TimeSpan;
+using icl_comm::serial::SerialFlags;
 
 namespace driver_s5fh {
 
@@ -34,7 +35,7 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name)
   }
 
   // create and start receive thread
-  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), m_serial_device);
+  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), this, m_serial_device);
 
   if (m_receive_thread != NULL)
   {
@@ -70,7 +71,7 @@ bool S5FHSerialInterface::sendPacket(const S5FHSerialPacket& packet)
   {
     size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
     icl_comm::ArrayBuilder<> send_array(size);
-    send_array << header1 << header2 << packet << check_sum1 << check_sum2;
+    send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
 
     m_serial_device->Write(send_array.array.data(), size);
   }

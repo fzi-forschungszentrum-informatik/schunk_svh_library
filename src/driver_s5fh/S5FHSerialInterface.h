@@ -21,7 +21,6 @@
 #include <icl_comm_serial/Serial.h>
 
 using icl_comm::serial::Serial;
-using icl_comm::serial::SerialFlags;
 
 namespace driver_s5fh {
 
@@ -45,37 +44,25 @@ public:
   //! received packets count getter
   unsigned int receivedPacketCount() { return m_packets_received; }
 
-private:
+  //! increase received counter
+  void increaseReceivedCounter() { m_packets_received++; }
+
+protected:
 
   //! pointer to serial interface object
   Serial *m_serial_device;
-
-  //! thread for receiving serial packets
-  S5FHReceiveThread *m_receive_thread;
 
   //! packet counters
   unsigned int m_packets_received;
   unsigned int m_packets_transmitted;
 
-  //! packet headers
-  static const uint8_t header1 = 0x4C;
-  static const uint8_t header2 = 0xAA;
-
-  //! enum for receive packet state machine
-  enum State
-  {
-    eSM_HEADER1,
-    eSM_HEADER2,
-    eSM_INDEX,
-    eSM_ADDRESS,
-    eSM_LENGTH,
-    eSM_DATA,
-    eSM_CHECKSUM,
-    eSM_COMPLETE
-  };
-
   //! cecksum calculation
   void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const S5FHSerialPacket& packet);
+
+private:
+
+  //! thread for receiving serial packets
+  S5FHReceiveThread *m_receive_thread;
 
 };
 

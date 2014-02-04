@@ -5,6 +5,7 @@ ICMAKER_ADD_SOURCES(
   Logging.cpp
   S5FHController.cpp
   S5FHFingerManager.cpp
+  S5FHReceiveThread.cpp
   S5FHSerialInterface.cpp
 )
 

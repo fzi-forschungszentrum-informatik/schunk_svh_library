@@ -38,6 +38,7 @@ public:
 
   virtual ~S5FHReceiveThread();
 
+  //! run method of the thread
   virtual void run();
 
   //! received packets count getter
@@ -50,9 +51,6 @@ private:
 
   //! pointer to serial device object
   Serial* m_serial_device;
-
-  //! state machine processing received data
-  bool receiveData();
 
   //! enum for receive packet state machine
   enum
@@ -67,12 +65,18 @@ private:
     eRS_COMPLETE
   } typedef tState;
 
+  //! current state of the state machine
   tState m_received_state;
 
+  //! received packet created from serial data in the state machine
   S5FHSerialPacket* m_received_packet;
 
   //! packets counter
   unsigned int m_packets_received;
+
+  //! state machine processing received data
+  bool receiveData();
+
 };
 
 }

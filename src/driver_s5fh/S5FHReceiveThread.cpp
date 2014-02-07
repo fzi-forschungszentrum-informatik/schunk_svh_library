@@ -89,33 +89,35 @@ bool S5FHReceiveThread::receiveData()
     }
     case eRS_INDEX:
     {
-      // start with a new empty package
+      //! start with an empty package
       m_received_packet = new S5FHSerialPacket();
 
-      uint8_t data_byte = 0;
-      if (m_serial_device->Read(&data_byte, sizeof(uint8_t)))
+      //! read index data byte
+      uint8_t index = 0;
+      if (m_serial_device->Read(&index, sizeof(uint8_t)))
       {
-        m_received_packet->index = data_byte;
+        m_received_packet->index = index;
         m_received_state = eRS_ADDRESS;
       }
       break;
     }
     case eRS_ADDRESS:
     {
-      uint8_t data_byte = 0;
-      if (m_serial_device->Read(&data_byte, sizeof(uint8_t)))
+      //! read address data byte
+      uint8_t address = 0;
+      if (m_serial_device->Read(&address, sizeof(uint8_t)))
       {
-        m_received_packet->address = data_byte;
+        m_received_packet->address = address;
         m_received_state = eRS_LENGTH;
       }
       break;
     }
     case eRS_LENGTH:
     {
+      //! read data length and resize data vector
       uint16_t length = 0;
-      if (m_serial_device->Read(&(length), sizeof(uint16_t)))
+      if (m_serial_device->Read(&length, sizeof(uint16_t)))
       {
-        length = 40;
         m_received_packet->data = std::vector<uint8_t>(length, 0);
         m_received_state = eRS_DATA;
       }
@@ -123,6 +125,7 @@ bool S5FHReceiveThread::receiveData()
     }
     case eRS_DATA:
     {
+      //! read received data
       if (m_serial_device->Read(&(m_received_packet->data), m_received_packet->data.size()))
       {
         m_received_state = eRS_CHECKSUM;
@@ -136,6 +139,7 @@ bool S5FHReceiveThread::receiveData()
       if (m_serial_device->Read(&checksum1, sizeof(uint8_t))
           && m_serial_device->Read(&checksum2, sizeof(uint8_t)))
       {
+        //! probe for correct checksum
         for (size_t i = 0; i < m_received_packet->data.size(); i++)
         {
           checksum1 -= m_received_packet->data[i];
@@ -158,9 +162,7 @@ bool S5FHReceiveThread::receiveData()
       m_packets_received++;
 
       //TODO: Add callback function to S5FH Controller and call from here:
-//      SerialPacketReceivedEventHandler handler = SerialPacketReceived;
-//      if (handler != null)
-//        handler(this, packet);
+
       m_received_state = eRS_HEADER1;
       break;
     }

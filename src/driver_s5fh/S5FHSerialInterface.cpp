@@ -35,7 +35,7 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name, ReceivedPa
   }
 
   // create and start receive thread
-  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), this, m_serial_device, received_packet_callback);
+  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), m_serial_device, received_packet_callback);
 
   if (m_receive_thread != NULL)
   {

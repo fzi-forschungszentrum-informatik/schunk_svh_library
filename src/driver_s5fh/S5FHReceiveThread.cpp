@@ -20,10 +20,9 @@
 
 namespace driver_s5fh {
 
-S5FHReceiveThread::S5FHReceiveThread(const TimeSpan& period, S5FHSerialInterface* interface,
-                                     Serial *device, ReceivedPacketCallback const & received_callback)
+S5FHReceiveThread::S5FHReceiveThread(const TimeSpan& period, Serial *device,
+                                     ReceivedPacketCallback const & received_callback)
   : PeriodicThread("S5FHReceiveThread", period),
-    m_serial_interface(interface),
     m_serial_device(device),
     m_received_state(eRS_HEADER1),
     m_received_packet(NULL),

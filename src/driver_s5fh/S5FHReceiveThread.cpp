@@ -25,7 +25,8 @@ S5FHReceiveThread::S5FHReceiveThread(const TimeSpan& period, S5FHSerialInterface
     m_serial_interface(interface),
     m_serial_device(device),
     m_received_state(eRS_HEADER1),
-    m_received_packet(NULL)
+    m_received_packet(NULL),
+    m_packets_received(0)
 {
 }
 
@@ -154,7 +155,7 @@ bool S5FHReceiveThread::receiveData()
     }
     case eRS_COMPLETE:
     {
-      //m_serial_interface->increaseReceivedCounter();
+      m_packets_received++;
 
       //TODO: Add callback function to S5FH Controller and call from here:
 //      SerialPacketReceivedEventHandler handler = SerialPacketReceived;

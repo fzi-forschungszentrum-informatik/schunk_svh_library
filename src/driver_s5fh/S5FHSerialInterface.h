@@ -41,25 +41,16 @@ public:
   //! transmitted packets count getter
   unsigned int transmittedPacketCount() { return m_packets_transmitted; }
 
-  //! received packets count getter
-  unsigned int receivedPacketCount() { return m_packets_received; }
-
-  //! increase received counter
-  void increaseReceivedCounter() { m_packets_received++; }
-
-protected:
+private:
 
   //! pointer to serial interface object
   Serial *m_serial_device;
 
   //! packet counters
-  unsigned int m_packets_received;
   unsigned int m_packets_transmitted;
 
   //! cecksum calculation
   void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const S5FHSerialPacket& packet);
-
-private:
 
   //! thread for receiving serial packets
   S5FHReceiveThread *m_receive_thread;

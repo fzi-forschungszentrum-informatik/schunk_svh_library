@@ -40,6 +40,9 @@ public:
 
   virtual void run();
 
+  //! received packets count getter
+  unsigned int receivedPacketCount() { return m_packets_received; }
+
 private:
 
   //! pointer to serial interface object
@@ -67,6 +70,9 @@ private:
   tState m_received_state;
 
   S5FHSerialPacket* m_received_packet;
+
+  //! packets counter
+  unsigned int m_packets_received;
 };
 
 }

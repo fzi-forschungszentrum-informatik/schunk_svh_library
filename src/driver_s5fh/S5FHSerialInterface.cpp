@@ -46,7 +46,6 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name)
   }
 
   // initialize member varaibles
-  m_packets_received = 0;
   m_packets_transmitted = 0;
 }
 

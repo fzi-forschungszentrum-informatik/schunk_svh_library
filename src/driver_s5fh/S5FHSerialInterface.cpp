@@ -64,7 +64,12 @@ bool S5FHSerialInterface::sendPacket(const S5FHSerialPacket& packet)
 {
   uint8_t check_sum1 = 0;
   uint8_t check_sum2 = 0;
-  calcCheckSum(check_sum1, check_sum2, packet);
+
+  for (size_t i; i < packet.data.size(); i++)
+  {
+    check_sum1 += packet.data[i];
+    check_sum2 ^= packet.data[i];
+  }
 
   if (m_serial_device->IsOpen())
   {
@@ -82,19 +87,6 @@ bool S5FHSerialInterface::sendPacket(const S5FHSerialPacket& packet)
   m_packets_transmitted++;
 
   return true;
-}
-
-// calculate checksums for serial packets
-void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const S5FHSerialPacket& packet)
-{
-  check_sum1 = 0;
-  check_sum2 = 0;
-
-  for (size_t i; i < packet.data.size(); i++)
-  {
-    check_sum1 += packet.data[i];
-    check_sum1 ^= packet.data[i];
-  }
 }
 
 }

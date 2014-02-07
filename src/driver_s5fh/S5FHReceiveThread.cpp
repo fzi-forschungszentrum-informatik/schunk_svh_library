@@ -20,13 +20,15 @@
 
 namespace driver_s5fh {
 
-S5FHReceiveThread::S5FHReceiveThread(const TimeSpan& period, S5FHSerialInterface* interface, Serial *device)
+S5FHReceiveThread::S5FHReceiveThread(const TimeSpan& period, S5FHSerialInterface* interface,
+                                     Serial *device, ReceivedPacketCallback const & received_callback)
   : PeriodicThread("S5FHReceiveThread", period),
     m_serial_interface(interface),
     m_serial_device(device),
     m_received_state(eRS_HEADER1),
     m_received_packet(NULL),
-    m_packets_received(0)
+    m_packets_received(0),
+    m_received_callback(received_callback)
 {
 }
 
@@ -161,7 +163,11 @@ bool S5FHReceiveThread::receiveData()
     {
       m_packets_received++;
 
-      //TODO: Add callback function to S5FH Controller and call from here:
+      //! packet received callback function
+      if (m_received_callback)
+      {
+        m_received_callback(*m_received_packet, m_packets_received);
+      }
 
       m_received_state = eRS_HEADER1;
       break;

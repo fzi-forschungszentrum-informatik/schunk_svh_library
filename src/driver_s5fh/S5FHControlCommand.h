@@ -25,8 +25,7 @@ typedef S5FHControlCommand uint32_t;
 
 //! overload stream operator to easily serialize data
 //! slightly uneccessary at this point but put in anayway to make sure it is used :)
-template <typename TArray>
-icl_comm::ArrayBuilder<TArray>& operator << (icl_comm::ArrayBuilder<TArray>& ab, const S5FHControlCommand& data)
+inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHControlCommand& data)
 {
   return ab << data;
 }

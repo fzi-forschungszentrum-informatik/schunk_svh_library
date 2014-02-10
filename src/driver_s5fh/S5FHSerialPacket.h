@@ -39,15 +39,13 @@ struct S5FHSerialPacket
   //! Adress denotes the actual function of the package
   uint8_t address;
   //! Payload of the package
-  icl_core::Vector <uint8_t> data;
+  std::vector <uint8_t> data;
 };
 
 //! overload stream operator to easily serialize data
-template <typename TArray>
-icl_comm::ArrayBuilder<TArray>& operator << (icl_comm::ArrayBuilder<TArray>& ab, const S5FHSerialPacket& data)
+inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHSerialPacket& data)
 {
-  //FIXME/TODO:  Currently the ArrayBuilder implementation does not support arrays
-  ab << data.index << data.address << data.data.size() << data.data;
+  ab << data.index << data.address << static_cast<u_int16_t>(data.data.size()) << data.data;
   return ab;
 }
 

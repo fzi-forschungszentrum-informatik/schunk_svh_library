@@ -48,8 +48,7 @@ public:
 };
 
 //! overload stream operator to easily serialize data
-template <typename TArray>
-icl_comm::ArrayBuilder<TArray>& operator << (icl_comm::ArrayBuilder<TArray>& ab, const S5FHPositionSettings& data)
+inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHPositionSettings& data)
 {
   ab << data.wmn
      << data.wmx

@@ -74,7 +74,7 @@ bool S5FHSerialInterface::sendPacket(const S5FHSerialPacket& packet)
   if (m_serial_device->IsOpen())
   {
     size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
-    icl_comm::ArrayBuilder<> send_array(size);
+    icl_comm::ArrayBuilder send_array(size);
     send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
 
     m_serial_device->Write(send_array.array.data(), size);

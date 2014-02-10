@@ -37,8 +37,7 @@ struct S5FHControllerState
   uint16_t cur_ctrl;
 };
 //! overload stream operator to easily serialize data
-template <typename TArray>
-icl_comm::ArrayBuilder<TArray>& operator << (icl_comm::ArrayBuilder<TArray>& ab, const S5FHControllerState& data)
+inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHControllerState& data)
 {
   ab << data.pwm_fault
      << data.pwm_otw

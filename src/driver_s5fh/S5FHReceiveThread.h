@@ -17,6 +17,7 @@
 #include <icl_core/TimeSpan.h>
 #include <icl_core_thread/PeriodicThread.h>
 #include <icl_comm_serial/Serial.h>
+#include <icl_comm/ByteOrderConversion.h>
 
 #include <driver_s5fh/Logging.h>
 #include <driver_s5fh/S5FHSerialPacket.h>
@@ -69,8 +70,14 @@ private:
   //! current state of the state machine
   tState m_received_state;
 
-  //! received packet created from serial data in the state machine
-  S5FHSerialPacket* m_received_packet;
+  //! length of received serial data
+  u_int16_t m_length;
+
+  //! length of received serial data
+  std::vector<u_int8_t> m_data;
+
+  //! pointer to array builder object for packet receive
+  icl_comm::ArrayBuilder* m_ab;
 
   //! packets counter
   unsigned int m_packets_received;
@@ -80,6 +87,7 @@ private:
 
   //! function callback for received packages
   ReceivedPacketCallback m_received_callback;
+
 };
 
 }

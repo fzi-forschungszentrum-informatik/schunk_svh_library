@@ -41,7 +41,7 @@ public:
   S5FHReceiveThread(const TimeSpan& period, Serial* device,
                     ReceivedPacketCallback const & received_callback);
 
-  virtual ~S5FHReceiveThread();
+  virtual ~S5FHReceiveThread() {}
 
   //! run method of the thread
   virtual void run();

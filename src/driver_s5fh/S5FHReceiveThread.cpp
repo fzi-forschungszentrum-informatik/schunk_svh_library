@@ -119,9 +119,11 @@ bool S5FHReceiveThread::receiveData()
     case eRS_LENGTH:
     {
       // read data length
-      m_length = 0;
-      if (m_serial_device->Read(&m_length, sizeof(uint16_t)))
+      uint16_t length = 0;
+      if (m_serial_device->Read(&length, sizeof(uint16_t)))
       {
+        m_ab->appendWithoutConversion(length);
+        *m_ab >> m_length;
         m_received_state = eRS_DATA;
       }
       break;
@@ -166,7 +168,7 @@ bool S5FHReceiveThread::receiveData()
     {
       // start with an empty package
       S5FHSerialPacket received_packet;
-      // TODO: received_packet << m_ab;
+      // TODO: m_ab >> received_packet;
 
       m_packets_received++;
 

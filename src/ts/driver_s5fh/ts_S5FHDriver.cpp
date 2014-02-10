@@ -17,6 +17,7 @@
 #include <driver_s5fh/S5FHPositionSettings.h>
 #include <driver_s5fh/S5FHCurrentSettings.h>
 #include <driver_s5fh/S5FHSerialPacket.h>
+#include <driver_s5fh/S5FHControllerState.h>
 
 using icl_comm::ArrayBuilder;
 using namespace driver_s5fh;
@@ -38,7 +39,7 @@ BOOST_AUTO_TEST_CASE(ConvertSettingsTest)
 
 BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
 {
-  std::cout << "Testing Conversion of Serial Packet" << std::endl;
+  //std::cout << "Testing Conversion of Serial Packet" << std::endl;
 
 
   ArrayBuilder payload(40);
@@ -65,7 +66,20 @@ BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
   packet >> test_serial_packet_in;
 
   BOOST_CHECK_EQUAL(test_serial_packet,test_serial_packet_in);
-
 }
+
+BOOST_AUTO_TEST_CASE(ConvertControllerState)
+{
+  ArrayBuilder payload;
+  S5FHControllerState controllerstate = {0x001F,0x001F,0x0200,0x0200,0x0001,0x0001};
+  S5FHControllerState controllerstate_out;
+    // Convert to byte Stream
+  payload << controllerstate;
+    // convert back
+  payload >> controllerstate_out;
+
+  BOOST_CHECK_EQUAL(controllerstate,controllerstate_out);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -42,7 +42,7 @@ public:
   }
 
   //! overwrite position controller parameters of finger index
-  void setCurrentSettings(size_t index, const S5FHPositionSettings& position_settings)
+  void setPositionSettings(size_t index, const S5FHPositionSettings& position_settings)
   {
     m_position_settings[index] = position_settings;
   }

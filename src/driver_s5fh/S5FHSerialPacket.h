@@ -16,6 +16,8 @@
 
 #include <icl_core/BaseTypes.h>
 #include <icl_core/Vector.h>
+#include <iostream>
+#include <iomanip>
 
 #include <icl_comm/ByteOrderConversion.h>
 
@@ -40,14 +42,34 @@ struct S5FHSerialPacket
   uint8_t address;
   //! Payload of the package
   std::vector <uint8_t> data;
+
+  //!
+  //! \brief S5FHSerialPacket contains the send and received data in raw format (bytewise)
+  //! \param data_length initial size to set the data length to. NOTE: To Deserialize a packet this value HAS TO BE SET!
+  //!
+  S5FHSerialPacket(size_t data_length=0):
+    data(data_length,0)
+  {
+  }
+
+  //! Compares two S5FHSerialPackets objects.
+  bool operator == (const S5FHSerialPacket& other) const
+  {
+    return
+      (index == other.index
+       && address == other.address
+       && data == other.data);
+  }
 };
 
 //! overload stream operator to easily serialize data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHSerialPacket& data)
-{
-  ab << data.index << data.address << static_cast<u_int16_t>(data.data.size()) << data.data;
-  return ab;
-}
+icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHSerialPacket& data);
+
+//! overload stream operator to easily Deserialize data
+icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHSerialPacket& data);
+
+//! Output Stream operator
+std::ostream& operator << (std::ostream& o, const S5FHSerialPacket& sp);
 
 
 }

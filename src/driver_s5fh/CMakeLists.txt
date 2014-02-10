@@ -7,6 +7,7 @@ ICMAKER_ADD_SOURCES(
   S5FHFingerManager.cpp
   S5FHReceiveThread.cpp
   S5FHSerialInterface.cpp
+  S5FHSerialPacket.cpp
 )
 
 ICMAKER_ADD_HEADERS(

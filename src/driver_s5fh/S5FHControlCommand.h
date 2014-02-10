@@ -19,8 +19,15 @@
 
 namespace driver_s5fh {
 
-//! ControlCommands are given as a single target position for the position controller (given in ticks)
-typedef S5FHControlCommand uint32_t;
+/*!
+ * \brief ControlCommands are given as a single target position for the position controller (given in ticks)
+ */
+struct S5FHControlCommand
+{
+  //! Returned position value of the motor [Ticks]
+  int32_t position;
+
+} typedef S5FHControlCommand;
 
 
 //! overload stream operator to easily serialize data

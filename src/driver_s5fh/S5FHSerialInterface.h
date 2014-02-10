@@ -31,7 +31,7 @@ class DRIVER_S5FH_IMPORT_EXPORT S5FHSerialInterface
 public:
   /*! Constructs a serial interface class for basic communication with the SCHUNK five finger hand.
    */
-  S5FHSerialInterface(const std::string &dev_name);
+  S5FHSerialInterface(const std::string &dev_name, const ReceivedPacketCallback &received_packet_callback);
 
   ~S5FHSerialInterface();
 

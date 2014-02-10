@@ -21,20 +21,24 @@
 #include <driver_s5fh/Logging.h>
 #include <driver_s5fh/S5FHSerialPacket.h>
 
+#include <boost/function.hpp>
+
 using icl_core::TimeSpan;
 using icl_core::thread::PeriodicThread;
 using icl_comm::serial::Serial;
 
 namespace driver_s5fh {
 
-class S5FHSerialInterface;
+//! definition of boost function callback for received packages
+typedef boost::function<void (const S5FHSerialPacket& packet, unsigned int packet_count)> ReceivedPacketCallback;
 
 /*! Thread for periodically receiving messages from the serial device.
  */
 class S5FHReceiveThread : public PeriodicThread
 {
 public:
-  S5FHReceiveThread(const TimeSpan& period, S5FHSerialInterface* interface, Serial* device);
+  S5FHReceiveThread(const TimeSpan& period, Serial* device,
+                    ReceivedPacketCallback const & received_callback);
 
   virtual ~S5FHReceiveThread();
 
@@ -45,9 +49,6 @@ public:
   unsigned int receivedPacketCount() { return m_packets_received; }
 
 private:
-
-  //! pointer to serial interface object
-  S5FHSerialInterface* m_serial_interface;
 
   //! pointer to serial device object
   Serial* m_serial_device;
@@ -77,6 +78,8 @@ private:
   //! state machine processing received data
   bool receiveData();
 
+  //! function callback for received packages
+  ReceivedPacketCallback m_received_callback;
 };
 
 }

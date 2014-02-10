@@ -15,10 +15,12 @@
 
 #include "driver_s5fh/Logging.h"
 
+
 namespace driver_s5fh {
 
 S5FHFingerManager::S5FHFingerManager()
 {
+  m_controller = new S5FHController();
 }
 
 S5FHFingerManager::~S5FHFingerManager()

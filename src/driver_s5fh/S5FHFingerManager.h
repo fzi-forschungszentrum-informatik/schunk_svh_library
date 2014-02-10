@@ -15,6 +15,7 @@
 #define DRIVER_S5FH_S5FH_FINGER_MANAGER_H_INCLUDED
 
 #include "driver_s5fh/ImportExport.h"
+#include "driver_s5fh/S5FHController.h"
 
 namespace driver_s5fh {
 
@@ -41,6 +42,12 @@ public:
     eS5FH_PINKY,
     eS5FH_FINGER_SPREAD
   } typedef S5FHDOF;
+
+private:
+
+  //! pointer to s5fh controller
+  S5FHController *m_controller;
+
 };
 
 }

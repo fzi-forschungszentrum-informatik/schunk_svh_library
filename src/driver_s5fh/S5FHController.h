@@ -6,7 +6,8 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Lars pfotzer
+ * \author  Lars Pfotzer
+ * \author  Georg Heppner
  * \date    2014-01-30
  *
  */

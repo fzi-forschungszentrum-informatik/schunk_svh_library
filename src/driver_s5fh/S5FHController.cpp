@@ -25,4 +25,9 @@ S5FHController::~S5FHController()
 {
 }
 
+void S5FHController::setControllerTarget(size_t index, const S5FHControlCommand& target_position)
+{
+
+}
+
 }

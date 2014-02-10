@@ -27,7 +27,7 @@ struct S5FHControlCommand
   //! Returned position value of the motor [Ticks]
   int32_t position;
 
-} typedef S5FHControlCommand;
+};
 
 
 //! overload stream operator to easily serialize data

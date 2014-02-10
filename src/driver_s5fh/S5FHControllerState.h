@@ -35,6 +35,17 @@ struct S5FHControllerState
   uint16_t pos_ctrl;
   //! Enable/Disbale of current controller (0x0001 to Activate)
   uint16_t cur_ctrl;
+
+  bool operator == (const S5FHControllerState& other) const
+  {
+    return
+      (pwm_fault == other.pwm_fault
+       && pwm_otw == other.pwm_otw
+       && pwm_reset == other.pwm_reset
+       && pwm_active == other.pwm_active
+       && pos_ctrl == other.pos_ctrl
+       && cur_ctrl == other.cur_ctrl);
+  }
 };
 //! overload stream operator to easily serialize data
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHControllerState& data)
@@ -46,6 +57,34 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
      << data.pos_ctrl
      << data.cur_ctrl;
   return ab;
+}
+
+//! overload stream operator to easily serialize data
+inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControllerState& data)
+{
+  ab >> data.cur_ctrl
+     >> data.pos_ctrl
+     >> data.pwm_active
+     >> data.pwm_reset
+     >> data.pwm_otw
+     >> data.pwm_fault;
+  return ab;
+}
+
+//! Output Stream operator
+inline std::ostream& operator << (std::ostream& o, const S5FHControllerState& cs)
+{
+  o << std::setw(4) << std::setfill('0') << std::hex
+    << "pwm_fault " << "0x" << static_cast<int>(cs.pwm_fault) << " "
+    << "pwm_otw " << "0x" << static_cast<int>(cs.pwm_otw) << " "
+    << "pwm_reset " << "0x" << static_cast<int>(cs.pwm_reset) << " "
+    << "pwm_active " << "0x" << static_cast<int>(cs.pwm_active) << " "
+    << "pos_ctr " << "0x" <<  static_cast<int>(cs.pos_ctrl) << " "
+    << "cur_ctrl " << "0x" << static_cast<int>(cs.cur_ctrl) << " "
+    << std::endl;
+  // Reset Output stream to decimal output .. otherwise it may confuse people
+  std::cout << std::dec ;
+  return o;
 }
 
 

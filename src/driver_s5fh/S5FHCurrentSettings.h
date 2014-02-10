@@ -62,6 +62,22 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
   return ab;
 }
 
+//! overload stream operator to easily serialize data
+inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHCurrentSettings& data)
+{
+  ab >> data.umx
+     >> data.umn
+     >> data.ki
+     >> data.kp
+     >> data.imx
+     >> data.imn
+     >> data.dt
+     >> data.ky
+     >> data.wmx
+     >> data.wmn;
+  return ab;
+}
+
 }
 
 

@@ -29,6 +29,14 @@ struct S5FHControllerFeedback
   int16_t current;
 };
 
+//! overload stream operator to easily serialize data
+inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControllerFeedback& data)
+{
+  ab >> data.current
+     >> data.position;
+  return ab;
+}
+
 
 }
 

@@ -34,6 +34,24 @@ struct S5FHFirmwareInfo
   uint8_t text[48];
 };
 
+//! overload stream operator to easily serialize data
+inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHFirmwareInfo& data)
+{
+  // Stream operator can not handle arrays (due to missing size information) to make things easy we just copy the data around. Feel free to do something else
+  std::vector<uint8_t> text(48);
+  std::vector<uint8_t> s5fh(5);
+
+  ab >> text
+     >> data.version_minor
+     >> data.version_major
+     >> s5fh;
+
+  std::copy (text.begin(),text.end(),data.text);
+  std::copy (s5fh.begin(),s5fh.end(),data.s5fh);
+
+  return ab;
+}
+
 }
 
 

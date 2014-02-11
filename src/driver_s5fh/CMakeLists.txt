@@ -24,6 +24,7 @@ ICMAKER_ADD_HEADERS(
   S5FHFingerManager.h
   S5FHReceiveThread.h
   S5FHSerialInterface.h
+  S5FHEncoderSettings.h
 )
 
 ICMAKER_LOCAL_CPPDEFINES(-DDRIVER_S5FH_EXPORT_SYMBOLS)

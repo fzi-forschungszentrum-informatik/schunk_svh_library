@@ -24,6 +24,7 @@
 #include <driver_s5fh/S5FHFirmwareInfo.h>
 #include <driver_s5fh/S5FHPositionSettings.h>
 #include <driver_s5fh/S5FHControllerState.h>
+#include <driver_s5fh/S5FHEncoderSettings.h>
 
 namespace driver_s5fh {
 
@@ -116,8 +117,12 @@ public:
    */
   void getEncoderValues();
 
-  //TODO: EncoderValues Type
-  //void setEncoderValues
+  /*!
+   * \brief sends a new set of encodervalues to the hardware
+   * \param encoder_settings to set (prescalers)
+   */
+  void setEncoderValues(const S5FHEncoderSettings& encoder_settings);
+
 
   /*!
    * \brief request a transmission of formware information
@@ -173,6 +178,8 @@ private:
   //! Currently active controllerstate on the HW Controller (indicates if PWM active etc.)
   S5FHControllerState m_controller_state;
 
+  //! Currently active encoder settings
+  S5FHEncoderSettings m_encoder_settings;
 
   // Hardware control
 

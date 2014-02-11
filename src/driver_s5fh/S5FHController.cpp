@@ -14,9 +14,12 @@
 #include "driver_s5fh/S5FHController.h"
 
 #include "driver_s5fh/Logging.h"
+#include <icl_comm/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
 
 namespace driver_s5fh {
+
+using icl_comm::ArrayBuilder;
 
 S5FHController::S5FHController(const std::string& serial_dev_name):
   m_serial_interface(new S5FHSerialInterface(serial_dev_name,boost::bind(&S5FHController::receivedPacketCallback,this,_1,_2)))
@@ -92,15 +95,20 @@ void S5FHController::getEncoderValues()
   m_serial_interface ->sendPacket(serial_packet);
 }
 
-//TODO: EncoderValues Type
-//void setEncoderValues
+void S5FHController::setEncoderValues(const S5FHEncoderSettings &encoder_settings)
+{
+  S5FHSerialPacket serial_packet(S5FH_SET_ENCODER_VALUES);
+  ArrayBuilder ab;
+  ab << encoder_settings;
+  serial_packet.data = ab.array;
+  m_serial_interface ->sendPacket(serial_packet);
+}
+
 
 void S5FHController::getFirmwareInfo()
 {
-  // Send packet that will request the firmware information:
   S5FHSerialPacket serial_packet(S5FH_GET_FIRMWARE_INFO,40);
   m_serial_interface->sendPacket(serial_packet);
-
 }
 
 

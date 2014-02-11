@@ -192,6 +192,8 @@ private:
   //! Serial interface for transmission and reveibing of data packets
   S5FHSerialInterface * m_serial_interface;
 
+  //! Bitmask to tell which fingers are enabled
+  u_int16_t m_enable_mask;
 
 
 

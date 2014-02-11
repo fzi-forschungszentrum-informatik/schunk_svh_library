@@ -14,10 +14,12 @@
 #include "driver_s5fh/S5FHController.h"
 
 #include "driver_s5fh/Logging.h"
+#include <boost/bind/bind.hpp>
 
 namespace driver_s5fh {
 
-S5FHController::S5FHController()
+S5FHController::S5FHController(const std::string& serial_dev_name):
+  m_serial_interface(new S5FHSerialInterface(serial_dev_name,boost::bind(&S5FHController::receivedPacketCallback,this,_1,_2)))
 {
 }
 
@@ -88,7 +90,7 @@ void S5FHController::getFirmwareInfo()
 }
 
 
-ReceivedPacketCallback S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsigned int packet_count)
+void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsigned int packet_count)
 {
 
 }

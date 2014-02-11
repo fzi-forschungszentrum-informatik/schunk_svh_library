@@ -34,7 +34,7 @@ class DRIVER_S5FH_IMPORT_EXPORT S5FHController
 public:
   /*! Constructs a controller class for the SCHUNK five finger hand.
    */
-  S5FHController();
+  S5FHController(const std::string& serial_dev_name);
 
   /*! SCHUNK five finger hand destructor
    *  Disable the serial device and shut down hand as far
@@ -109,7 +109,7 @@ public:
   void getFirmwareInfo();
 
 
-  ReceivedPacketCallback receivedPacketCallback(const S5FHSerialPacket& packet, unsigned int packet_count);
+  void receivedPacketCallback(const S5FHSerialPacket& packet, unsigned int packet_count);
 
 
  //! definition of boost function callback for received packages
@@ -135,7 +135,7 @@ private:
   // Hardware control
 
   //! Serial interface for transmission and reveibing of data packets
-  //S5FHSerialInterface m_serial_interface;
+  S5FHSerialInterface * m_serial_interface;
 
 
 

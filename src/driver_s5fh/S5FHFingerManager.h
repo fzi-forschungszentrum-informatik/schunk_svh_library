@@ -31,20 +31,6 @@ public:
 
   virtual ~S5FHFingerManager();
 
-  enum {
-    eS5FH_ALL = -1,
-    eS5FH_THUMB_FLEXION = 0,
-    eS5FH_THUMB_OPPOSITION, // wrist
-    eS5FH_INDEX_FINGER_DISTAL,
-    eS5FH_INDEX_FINGER_PROXIMAL,
-    eS5FH_MIDDLE_FINGER_DISTAL,
-    eS5FH_MIDDLE_FINGER_PROXIMAL,
-    eS5FH_RING_FINGER,
-    eS5FH_PINKY,
-    eS5FH_FINGER_SPREAD,
-    eS5FH_DIMENSION
-  } typedef S5FHDOF;
-
   //!
   //! \brief reset function for a single finger
   //! \param index

@@ -28,7 +28,7 @@
 namespace driver_s5fh {
 
 
-enum {
+enum{
   eS5FH_ALL = -1,
   eS5FH_THUMB_FLEXION = 0,
   eS5FH_THUMB_OPPOSITION, // wrist
@@ -83,13 +83,13 @@ public:
   //! \brief request feedback (position and current) to a specific channel
   //! \param channel Motorchannel the feedback should be provided for
   //!
-  void getControllerFeedback(const S5FHCHANNEL& channel);
+  void requestControllerFeedback(const S5FHCHANNEL& channel);
 
   /*!
    * \brief request the settings of the position controller for a specific channel
    * \param channel Motor to request the settings for
    */
-  void getPositionSettings(const S5FHCHANNEL& channel);
+  void requestPositionSettings(const S5FHCHANNEL& channel);
 
   /*!
    * \brief activate a new set of position controller settings for a specific channel
@@ -102,7 +102,7 @@ public:
    * \brief request the settings of the current controller for a specific channel
    * \param channel Motor to request the settings for
    */
-  void getCurrentSettings(const S5FHCHANNEL& channel);
+  void requestCurrentSettings(const S5FHCHANNEL& channel);
 
   /*!
    * \brief activate a new set of current controller settings for a specific channel
@@ -127,9 +127,35 @@ public:
 
   void receivedPacketCallback(const S5FHSerialPacket& packet, unsigned int packet_count);
 
+  /*!
+   * \brief request the latest stored controllerfeedback (current, position) from the controller.
+   * \param channel Motor to get the latest feedback to
+   * \param ControllerFeedback (current, encoder position) of the specified channel
+   * \return true if the feedback could be read, false otherwise
+   *
+   * Controllerfeedback (crurrent,channel) is stored in the controller once it is send by the hardware.
+   * This is the case once a controlCommand (TODO: MeCoVis is this correct?) has been send or the feedback has
+   * specifically been requested by using the getControllerFeedback() function
+   *
+   */
+   bool getControllerFeedback(const S5FHCHANNEL &channel,S5FHControllerFeedback& controller_feedback);
 
- //! definition of boost function callback for received packages
- //typedef boost::function<void (const S5FHSerialPacket& packet, unsigned int packet_count)> ReceivedPacketCallback;
+   /*!
+    * \brief request the latest stored positionsettings from the controller
+    * \param channel Motor to get the positionsettings for
+    * \param position_settings position settings to be returned
+    * \return true if the request was succesfull false otherwise
+    */
+   bool getPositionSettings(const S5FHCHANNEL &channel,S5FHPositionSettings& position_settings);
+
+   /*!
+    * \brief request the latest stored currentsettings from the controller
+    * \param channel Motor to get the currentsettings for
+    * \param position_settings current settings to be returned
+    * \return true if the request was succesfull false otherwise
+    */
+   bool getCurrentSettings(const S5FHCHANNEL &channel,S5FHPositionSettings& position_settings);
+
 
 private:
 

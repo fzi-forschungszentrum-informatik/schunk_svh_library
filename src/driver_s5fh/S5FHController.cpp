@@ -46,15 +46,16 @@ void S5FHController::disableChannel(const S5FHCHANNEL& channel)
 }
 
 
-void S5FHController::getControllerFeedback(const S5FHCHANNEL& channel)
+void S5FHController::requestControllerFeedback(const S5FHCHANNEL& channel)
 {
 
 }
 
 
-void S5FHController::getPositionSettings(const S5FHCHANNEL& channel)
+void S5FHController::requestPositionSettings(const S5FHCHANNEL& channel)
 {
-
+  S5FHSerialPacket serial_packet((S5FH_GET_POSITION_SETTINGS| static_cast<u_int8_t>(channel << 4)),40);
+  m_serial_interface ->sendPacket(serial_packet);
 }
 
 
@@ -64,8 +65,17 @@ void S5FHController::setPositionSettings(const S5FHCHANNEL& channel,const S5FHPo
 }
 
 
-void S5FHController::getCurrentSettings(const S5FHCHANNEL& channel)
+void S5FHController::requestCurrentSettings(const S5FHCHANNEL& channel)
 {
+  if (channel != eS5FH_ALL)
+  {
+    S5FHSerialPacket serial_packet((S5FH_GET_CURRENT_SETTINGS|static_cast<u_int8_t>(channel << 4)),40);
+    m_serial_interface ->sendPacket(serial_packet);
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Get Current Settings can only be requested with a specific channel, ALL was selected " << endl);
+  }
 
 }
 
@@ -78,7 +88,8 @@ void S5FHController::setCurrentSettings(const S5FHCHANNEL& channel,const S5FHCur
 
 void S5FHController::getEncoderValues()
 {
-
+  S5FHSerialPacket serial_packet(S5FH_GET_ENCODER_VALUES,40);
+  m_serial_interface ->sendPacket(serial_packet);
 }
 
 //TODO: EncoderValues Type
@@ -97,6 +108,49 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
 {
   // Todo: 1.Switch case to check what we got back
   // Todo: 2.Safe data in corresponding channel settings
+
+}
+
+bool S5FHController::getControllerFeedback(const S5FHCHANNEL &channel,S5FHControllerFeedback& controller_feedback)
+{
+  if(channel >= 0 && channel < m_controller_feedback.size())
+  {
+    controller_feedback = m_controller_feedback[channel];
+    return true;
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Feedback was requested for unknown channel: "<< channel << endl);
+    return false;
+  }
+}
+
+bool S5FHController::getPositionSettings(const S5FHCHANNEL &channel, S5FHPositionSettings &position_settings)
+{
+  if(channel >= 0 && channel < m_position_settings.size())
+  {
+    position_settings = m_position_settings[channel];
+    return true;
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Position settings were requested for unknown channel: "<< channel << endl);
+    return false;
+  }
+}
+
+bool S5FHController::getCurrentSettings(const S5FHCHANNEL &channel, S5FHPositionSettings &position_settings)
+{
+  if(channel >= 0 && channel < m_current_settings.size())
+  {
+    position_settings = m_position_settings[channel];
+    return true;
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Current settings were requested for unknown channel: "<< channel << endl);
+    return false;
+  }
 
 }
 

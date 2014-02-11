@@ -60,7 +60,7 @@ struct S5FHSerialPacket
   //! \brief S5FHSerialPacket contains the send and received data in raw format (bytewise)
   //! \param data_length initial size to set the data length to. NOTE: To Deserialize a packet this value HAS TO BE SET!
   //!
-  S5FHSerialPacket(uint8_t _address = S5FH_GET_CONTROL_FEEDBACK,size_t _data_length=0):
+  S5FHSerialPacket(size_t _data_length=0,uint8_t _address = S5FH_GET_CONTROL_FEEDBACK):
     address(_address),
     data(_data_length,0)
   {

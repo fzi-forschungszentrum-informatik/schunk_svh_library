@@ -86,12 +86,17 @@ void S5FHController::getEncoderValues()
 
 void S5FHController::getFirmwareInfo()
 {
+  // Send packet that will request the firmware information:
+  S5FHSerialPacket serial_packet(S5FH_GET_FIRMWARE_INFO,40);
+  m_serial_interface->sendPacket(serial_packet);
 
 }
 
 
 void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsigned int packet_count)
 {
+  // Todo: 1.Switch case to check what we got back
+  // Todo: 2.Safe data in corresponding channel settings
 
 }
 

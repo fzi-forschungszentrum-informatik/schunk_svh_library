@@ -32,7 +32,7 @@ const uint8_t PACKET_HEADER1 = 0x4C;
 const uint8_t PACKET_HEADER2 = 0xAA;
 
 //! adress constants for commands
-const uint8_t S5FH_GET_CONTROLLER_FEEDBACK = 0x00;
+const uint8_t S5FH_GET_CONTROL_FEEDBACK = 0x00;
 const uint8_t S5FH_SET_CONTROL_COMMAND = 0x01;
 const uint8_t S5FH_GET_POSITION_SETTINGS = 0x04;
 const uint8_t S5FH_SET_POSITION_SETTINGS = 0x05;
@@ -60,8 +60,9 @@ struct S5FHSerialPacket
   //! \brief S5FHSerialPacket contains the send and received data in raw format (bytewise)
   //! \param data_length initial size to set the data length to. NOTE: To Deserialize a packet this value HAS TO BE SET!
   //!
-  S5FHSerialPacket(size_t data_length=0):
-    data(data_length,0)
+  S5FHSerialPacket(uint8_t _address = S5FH_GET_CONTROL_FEEDBACK,size_t _data_length=0):
+    address(_address),
+    data(_data_length,0)
   {
   }
 

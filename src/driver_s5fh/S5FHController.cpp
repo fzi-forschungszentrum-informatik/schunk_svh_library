@@ -121,7 +121,7 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
 
 bool S5FHController::getControllerFeedback(const S5FHCHANNEL &channel,S5FHControllerFeedback& controller_feedback)
 {
-  if(channel >= 0 && channel < m_controller_feedback.size())
+  if(channel >= 0 && static_cast<u_int8_t>(channel) < m_controller_feedback.size())
   {
     controller_feedback = m_controller_feedback[channel];
     return true;
@@ -135,7 +135,7 @@ bool S5FHController::getControllerFeedback(const S5FHCHANNEL &channel,S5FHContro
 
 bool S5FHController::getPositionSettings(const S5FHCHANNEL &channel, S5FHPositionSettings &position_settings)
 {
-  if(channel >= 0 && channel < m_position_settings.size())
+  if(channel >= 0 && static_cast<u_int8_t>(channel) < m_position_settings.size())
   {
     position_settings = m_position_settings[channel];
     return true;
@@ -149,7 +149,7 @@ bool S5FHController::getPositionSettings(const S5FHCHANNEL &channel, S5FHPositio
 
 bool S5FHController::getCurrentSettings(const S5FHCHANNEL &channel, S5FHPositionSettings &position_settings)
 {
-  if(channel >= 0 && channel < m_current_settings.size())
+  if(channel >= 0 && static_cast<u_int8_t>(channel) < m_current_settings.size())
   {
     position_settings = m_position_settings[channel];
     return true;

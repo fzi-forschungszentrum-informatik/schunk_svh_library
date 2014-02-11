@@ -36,7 +36,7 @@ public:
   //! \param index
   //! \return
   //!
-  bool resetChannel(const S5FHDOF &channel);
+  bool resetChannel(const S5FHCHANNEL &channel);
 
   //!
   //! \brief set target position of a single finger
@@ -45,21 +45,21 @@ public:
   //! \param current
   //! \return
   //!
-  bool setTargetPosition(const S5FHDOF &channel, double position, double current);
+  bool setTargetPosition(const S5FHCHANNEL &channel, double position, double current);
 
   //!
   //! \brief overwrite current parameters
   //! \param index
   //! \return
   //!
-  bool setCurrentControllerParams(const S5FHDOF &channel);
+  bool setCurrentControllerParams(const S5FHCHANNEL &channel);
 
   //!
   //! \brief overwrite position parameters
   //! \param index
   //! \return
   //!
-  bool setPositionControllerParams(const S5FHDOF &channel);
+  bool setPositionControllerParams(const S5FHCHANNEL &channel);
 
 private:
 

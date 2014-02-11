@@ -38,13 +38,13 @@ S5FHFingerManager::~S5FHFingerManager()
 }
 
 //! reset function for a single finger
-bool S5FHFingerManager::resetChannel(const S5FHDOF &channel)
+bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 {
   return true;
 }
 
 //! set target position of a single finger
-bool S5FHFingerManager::setTargetPosition(const S5FHDOF &channel, double position, double current)
+bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double position, double current)
 {
   //TODO: Convert position into ticks
 
@@ -53,7 +53,7 @@ bool S5FHFingerManager::setTargetPosition(const S5FHDOF &channel, double positio
 }
 
 //! overwrite current parameters
-bool S5FHFingerManager::setCurrentControllerParams(const S5FHDOF &channel)
+bool S5FHFingerManager::setCurrentControllerParams(const S5FHCHANNEL &channel)
 {
   S5FHCurrentSettings current_settings;
   // TODO: set parameters
@@ -63,7 +63,7 @@ bool S5FHFingerManager::setCurrentControllerParams(const S5FHDOF &channel)
 }
 
 //! overwrite position parameters
-bool S5FHFingerManager::setPositionControllerParams(const S5FHDOF &channel)
+bool S5FHFingerManager::setPositionControllerParams(const S5FHCHANNEL &channel)
 {
   S5FHPositionSettings position_settings;
   // TODO: set parameters
@@ -117,9 +117,9 @@ void S5FHFingerManager::setCurrentSettingsDefaultParameters()
   default_current_settings[7] = cur_set_distal_joint;   // pinky
   default_current_settings[8] = cur_set_proximal_joint; // finger spread
 
-  for (size_t i = 0; i < eS5FH_DIMENSION; i++)
+  for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
   {
-    m_controller->setCurrentSettings(i, default_current_settings[i]);
+    m_controller->setCurrentSettings(static_cast<S5FHCHANNEL>(i), default_current_settings[i]);
   }
 }
 
@@ -145,7 +145,7 @@ void S5FHFingerManager::setPositionSettingsDefaultParameters()
 
   for (size_t i = 0; i < eS5FH_DIMENSION; i++)
   {
-    m_controller->setPositionSettings(i, default_position_settings[i]);
+    m_controller->setPositionSettings(static_cast<S5FHCHANNEL>(i), default_position_settings[i]);
   }
 }
 

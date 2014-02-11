@@ -12,6 +12,7 @@
  */
 //----------------------------------------------------------------------
 #include <driver_s5fh/S5FHSerialPacket.h>
+//#include <sstream>
 
 namespace driver_s5fh {
 
@@ -43,6 +44,18 @@ std::ostream& operator << (std::ostream& o, const S5FHSerialPacket& sp)
   std::cout << std::dec ;
   return o;
 }
+
+////! overload logging stream operator
+//icl_core::logging::ThreadStream& operator << (icl_core::logging::ThreadStream& stream, const S5FHSerialPacket& value)
+//{
+//  //.... well.. its out own fault... now we have to use this -> convert to stringstream witht the already overloaded ostream operator then convert the resulting string...
+//  std::stringstream interpreter;
+//  interpreter << value;
+//  std::string test;
+//  interpreter >> test;
+//  stream << test;
+//  return stream;
+//}
 
 }
 

@@ -20,6 +20,8 @@
 #include <iomanip>
 
 #include <icl_comm/ByteOrderConversion.h>
+//#include <icl_core_logging/ThreadStream.h>
+
 
 namespace driver_s5fh {
 
@@ -66,6 +68,7 @@ struct S5FHSerialPacket
   {
   }
 
+
   //! Compares two S5FHSerialPackets objects.
   bool operator == (const S5FHSerialPacket& other) const
   {
@@ -85,6 +88,8 @@ icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHSerialPacke
 //! Output Stream operator
 std::ostream& operator << (std::ostream& o, const S5FHSerialPacket& sp);
 
+//////! overload logging stream operator
+//icl_core::logging::ThreadStream& operator << (icl_core::logging::ThreadStream& stream, const S5FHSerialPacket& value);
 
 }
 

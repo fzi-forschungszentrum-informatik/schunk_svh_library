@@ -27,6 +27,22 @@
 
 namespace driver_s5fh {
 
+
+enum {
+  eS5FH_ALL = -1,
+  eS5FH_THUMB_FLEXION = 0,
+  eS5FH_THUMB_OPPOSITION, // wrist
+  eS5FH_INDEX_FINGER_DISTAL,
+  eS5FH_INDEX_FINGER_PROXIMAL,
+  eS5FH_MIDDLE_FINGER_DISTAL,
+  eS5FH_MIDDLE_FINGER_PROXIMAL,
+  eS5FH_RING_FINGER,
+  eS5FH_PINKY,
+  eS5FH_FINGER_SPREAD,
+  eS5FH_DIMENSION
+} typedef S5FHCHANNEL;
+
+
 /*! This class controls the the SCHUNK five finger hand.
  */
 class DRIVER_S5FH_IMPORT_EXPORT S5FHController
@@ -47,7 +63,7 @@ public:
    * \param channel Motorchanel to set the target for
    * \param position Target position given in encoder Ticks
    */
-  void setControllerTarget(const size_t& channel, const u_int32_t& position);
+  void setControllerTarget(const S5FHCHANNEL& channel, const u_int32_t& position);
 
 
   // Access functions
@@ -55,45 +71,45 @@ public:
   //! \brief Enable one or all motor channels
   //! \param channel Motor to activate 0 for all
   //!
-  void enableChannel(const size_t& channel);
+  void enableChannel(const S5FHCHANNEL& channel);
 
   //!
   //! \brief Disable one or all motor channels
   //! \param channel Motor to deactivate 0 for all
   //!
-  void disableChannel(const size_t& channel);
+  void disableChannel(const S5FHCHANNEL& channel);
 
   //!
   //! \brief request feedback (position and current) to a specific channel
   //! \param channel Motorchannel the feedback should be provided for
   //!
-  void getControllerFeedback(const size_t& channel);
+  void getControllerFeedback(const S5FHCHANNEL& channel);
 
   /*!
    * \brief request the settings of the position controller for a specific channel
    * \param channel Motor to request the settings for
    */
-  void getPositionSettings(const size_t& channel);
+  void getPositionSettings(const S5FHCHANNEL& channel);
 
   /*!
    * \brief activate a new set of position controller settings for a specific channel
    * \param channel Motor the new position controller settings will be applied to
    * \param position_settings new settings of the position controller
    */
-  void setPositionSettings(const size_t& channel,const S5FHPositionSettings& position_settings);
+  void setPositionSettings(const S5FHCHANNEL& channel,const S5FHPositionSettings& position_settings);
 
   /*!
    * \brief request the settings of the current controller for a specific channel
    * \param channel Motor to request the settings for
    */
-  void getCurrentSettings(const size_t& channel);
+  void getCurrentSettings(const S5FHCHANNEL& channel);
 
   /*!
    * \brief activate a new set of current controller settings for a specific channel
    * \param channel Motor the new current controller settings will be applied to
    * \param current_settings new settings of the current controller
    */
-  void setCurrentSettings(const size_t& channel,const S5FHCurrentSettings& current_settings);
+  void setCurrentSettings(const S5FHCHANNEL& channel,const S5FHCurrentSettings& current_settings);
 
   /*!
    * \brief read out the mutipliers for the encoders

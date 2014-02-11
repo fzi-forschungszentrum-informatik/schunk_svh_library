@@ -11,10 +11,9 @@
  *
  */
 //----------------------------------------------------------------------
-#include "driver_s5fh/S5FHFingerManager.h"
+#include <driver_s5fh/S5FHFingerManager.h>
 
-#include "driver_s5fh/Logging.h"
-
+#include <driver_s5fh/Logging.h>
 
 namespace driver_s5fh {
 

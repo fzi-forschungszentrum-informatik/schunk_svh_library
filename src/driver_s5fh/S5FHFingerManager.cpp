@@ -19,7 +19,8 @@ namespace driver_s5fh {
 
 S5FHFingerManager::S5FHFingerManager()
 {
-  m_controller = new S5FHController();
+  //TODO: Get this string from somewhere
+  m_controller = new S5FHController("/dev/tty1");
 
   // load home position default parameters
   setHomePositionDefaultParameters();
@@ -45,10 +46,9 @@ bool S5FHFingerManager::resetFinger(const S5FHDOF &index)
 //! set target position of a single finger
 bool S5FHFingerManager::setTargetPosition(const S5FHDOF &index, double position, double current)
 {
-  S5FHControlCommand position_command;
-  position_command.position = position;
+  //TODO: Convert position into ticks
 
-  m_controller->setControllerTarget(index, position_command);
+  m_controller->setControllerTarget(index, 23); // TODO: Replace this with something usefull
   return true;
 }
 

@@ -81,6 +81,41 @@ private:
   //!
   S5FHController *m_controller;
 
+  //! data sctructure for home positions
+  struct
+  {
+    int   direction;         // +1 or -1 : home in positive or negative direction
+    float minimumOffset;     // offset from home position to minimum (soft limit)
+    float maximumOffset;     // offset from home position to maximum (soft limit)
+    float idlePosition;      // position to go to after intialization
+  } typedef HomeSettings;
+
+  //!
+  //! \brief vector for home position default settings
+  //!
+  std::vector<HomeSettings> m_home_settings;
+
+  //!
+  //! \brief set default parameters for home position
+  //!
+  void setHomePositionDefaultParameters();
+
+  //!
+  //! \brief set default parameters for current settings
+  //!
+  void setCurrentSettingsDefaultParameters();
+
+  //!
+  //! \brief set default parameters for position settings
+  //!
+  void setPositionSettingsDefaultParameters();
+
+  //!
+  //! \brief readParametersFromConfigFile
+  //! \return
+  //!
+  bool readParametersFromConfigFile();
+
 };
 
 }

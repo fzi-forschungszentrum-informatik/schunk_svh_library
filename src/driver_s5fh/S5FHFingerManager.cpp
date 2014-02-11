@@ -38,37 +38,37 @@ S5FHFingerManager::~S5FHFingerManager()
 }
 
 //! reset function for a single finger
-bool S5FHFingerManager::resetFinger(const S5FHDOF &index)
+bool S5FHFingerManager::resetChannel(const S5FHDOF &channel)
 {
   return true;
 }
 
 //! set target position of a single finger
-bool S5FHFingerManager::setTargetPosition(const S5FHDOF &index, double position, double current)
+bool S5FHFingerManager::setTargetPosition(const S5FHDOF &channel, double position, double current)
 {
   //TODO: Convert position into ticks
 
-  m_controller->setControllerTarget(index, 23); // TODO: Replace this with something usefull
+  m_controller->setControllerTarget(channel, 23); // TODO: Replace this with something usefull
   return true;
 }
 
 //! overwrite current parameters
-bool S5FHFingerManager::setCurrentControllerParams(const S5FHDOF &index)
+bool S5FHFingerManager::setCurrentControllerParams(const S5FHDOF &channel)
 {
   S5FHCurrentSettings current_settings;
   // TODO: set parameters
 
-  m_controller->setCurrentSettings(index, current_settings);
+  m_controller->setCurrentSettings(channel, current_settings);
   return true;
 }
 
 //! overwrite position parameters
-bool S5FHFingerManager::setPositionControllerParams(const S5FHDOF &index)
+bool S5FHFingerManager::setPositionControllerParams(const S5FHDOF &channel)
 {
   S5FHPositionSettings position_settings;
   // TODO: set parameters
 
-  m_controller->setPositionSettings(index, position_settings);
+  m_controller->setPositionSettings(channel, position_settings);
   return true;
 }
 
@@ -147,6 +147,11 @@ void S5FHFingerManager::setPositionSettingsDefaultParameters()
   {
     m_controller->setPositionSettings(i, default_position_settings[i]);
   }
+}
+
+bool S5FHFingerManager::readParametersFromConfigFile()
+{
+  return true;
 }
 
 }

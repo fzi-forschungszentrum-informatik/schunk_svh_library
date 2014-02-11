@@ -31,26 +31,12 @@ public:
 
   virtual ~S5FHFingerManager();
 
-  enum {
-    eS5FH_ALL = -1,
-    eS5FH_THUMB_FLEXION = 0,
-    eS5FH_THUMB_OPPOSITION, // wrist
-    eS5FH_INDEX_FINGER_DISTAL,
-    eS5FH_INDEX_FINGER_PROXIMAL,
-    eS5FH_MIDDLE_FINGER_DISTAL,
-    eS5FH_MIDDLE_FINGER_PROXIMAL,
-    eS5FH_RING_FINGER,
-    eS5FH_PINKY,
-    eS5FH_FINGER_SPREAD,
-    eS5FH_DIMENSION
-  } typedef S5FHDOF;
-
   //!
   //! \brief reset function for a single finger
   //! \param index
   //! \return
   //!
-  bool resetFinger(const S5FHDOF &index);
+  bool resetChannel(const S5FHDOF &channel);
 
   //!
   //! \brief set target position of a single finger
@@ -59,21 +45,21 @@ public:
   //! \param current
   //! \return
   //!
-  bool setTargetPosition(const S5FHDOF &index, double position, double current);
+  bool setTargetPosition(const S5FHDOF &channel, double position, double current);
 
   //!
   //! \brief overwrite current parameters
   //! \param index
   //! \return
   //!
-  bool setCurrentControllerParams(const S5FHDOF &index);
+  bool setCurrentControllerParams(const S5FHDOF &channel);
 
   //!
   //! \brief overwrite position parameters
   //! \param index
   //! \return
   //!
-  bool setPositionControllerParams(const S5FHDOF &index);
+  bool setPositionControllerParams(const S5FHDOF &channel);
 
 private:
 

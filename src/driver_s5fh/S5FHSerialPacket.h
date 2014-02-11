@@ -31,6 +31,19 @@ const size_t cDEFAULT_PACKET_SIZE = 48;
 const uint8_t PACKET_HEADER1 = 0x4C;
 const uint8_t PACKET_HEADER2 = 0xAA;
 
+//! adress constants for commands
+const uint8_t S5FH_GET_CONTROLLER_FEEDBACK = 0x00;
+const uint8_t S5FH_SET_CONTROL_COMMAND = 0x01;
+const uint8_t S5FH_GET_POSITION_SETTINGS = 0x04;
+const uint8_t S5FH_SET_POSITION_SETTINGS = 0x05;
+const uint8_t S5FH_GET_CURRENT_SETTINGS = 0x06;
+const uint8_t S5FH_SET_CURRENT_SETTINGS = 0x07;
+const uint8_t S5FH_GET_CONTROLLER_STATE = 0x08;
+const uint8_t S5FH_SET_CONTROLLER_STATE = 0x09;
+const uint8_t S5FH_GET_ENCODER_VALUES = 0x0A;
+const uint8_t S5FH_SET_ENCODER_VALUES = 0x0B;
+const uint8_t S5FH_GET_FIRMWARE_INFO = 0x0C;
+
 /*!
  * \brief The SerialPacket holds the (non generated) header and data of one message to the S5FH-Hardware
  */

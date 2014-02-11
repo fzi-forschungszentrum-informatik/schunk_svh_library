@@ -32,7 +32,8 @@ public:
   virtual ~S5FHFingerManager();
 
   enum {
-    eS5FH_THUMB_FLEXION,
+    eS5FH_ALL = -1,
+    eS5FH_THUMB_FLEXION = 0,
     eS5FH_THUMB_OPPOSITION, // wrist
     eS5FH_INDEX_FINGER_DISTAL,
     eS5FH_INDEX_FINGER_PROXIMAL,

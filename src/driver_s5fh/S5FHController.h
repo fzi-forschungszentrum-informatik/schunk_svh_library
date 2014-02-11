@@ -28,7 +28,7 @@
 
 namespace driver_s5fh {
 
-
+//! Channel indicates which motor to use in command calls. WARNING: DO NOT CHANGE THE ORDER OF THESE
 enum{
   eS5FH_ALL = -1,
   eS5FH_THUMB_FLEXION = 0,
@@ -113,9 +113,9 @@ public:
   void setCurrentSettings(const S5FHCHANNEL& channel,const S5FHCurrentSettings& current_settings);
 
   /*!
-   * \brief read out the mutipliers for the encoders
+   * \brief read out the mutipliers for the encoders from the hardware
    */
-  void getEncoderValues();
+  void requestEncoderValues();
 
   /*!
    * \brief sends a new set of encodervalues to the hardware
@@ -127,9 +127,13 @@ public:
   /*!
    * \brief request a transmission of formware information
    */
-  void getFirmwareInfo();
+  void requestFirmwareInfo();
 
-
+  /*!
+   * \brief callback function for interpretation of packages
+   * \param packet SerialPacket containing the raw data, integrity should have been checked by SerialInterface
+   * \param packet_count count of received packets
+   */
   void receivedPacketCallback(const S5FHSerialPacket& packet, unsigned int packet_count);
 
   /*!
@@ -160,6 +164,8 @@ public:
     * \return true if the request was succesfull false otherwise
     */
    bool getCurrentSettings(const S5FHCHANNEL &channel,S5FHPositionSettings& position_settings);
+
+
 
 
 private:

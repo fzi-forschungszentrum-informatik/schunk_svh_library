@@ -17,9 +17,22 @@
 #include <icl_comm/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
 
+using icl_comm::ArrayBuilder;
+
+/* TODO:
+ * - Fill all functions with live :)
+ * - setFunctions -> is it enough to just send the settings, will we get the current settings immediatly or do we store the information while sending??
+ * - Cleanup things in destructor
+ * - Correctly initialize everything in the Controller -> take special care to have the sizes of all arrays set correctly, otherwise a lot of checks will fail
+ * - Logging Output!!! Everywhere!
+ *
+ *TODO(optional):
+ * - Data about the positions and currents is currently pulled by the fingermanager -> this could be enhanced by using mutexes to inform higher layers about changes
+ * - Sanity checks of set values to ensure safe access that will impose absolute hardware limits (i.e. CurrentSettings)
+ */
+
 namespace driver_s5fh {
 
-using icl_comm::ArrayBuilder;
 
 S5FHController::S5FHController(const std::string& serial_dev_name):
   m_serial_interface(new S5FHSerialInterface(serial_dev_name,boost::bind(&S5FHController::receivedPacketCallback,this,_1,_2)))
@@ -72,7 +85,7 @@ void S5FHController::requestCurrentSettings(const S5FHCHANNEL& channel)
 {
   if (channel != eS5FH_ALL)
   {
-    S5FHSerialPacket serial_packet((S5FH_GET_CURRENT_SETTINGS|static_cast<u_int8_t>(channel << 4)),40);
+    S5FHSerialPacket serial_packet(40,(S5FH_GET_CURRENT_SETTINGS|static_cast<u_int8_t>(channel << 4)));
     m_serial_interface ->sendPacket(serial_packet);
   }
   else
@@ -85,19 +98,33 @@ void S5FHController::requestCurrentSettings(const S5FHCHANNEL& channel)
 
 void S5FHController::setCurrentSettings(const S5FHCHANNEL& channel,const S5FHCurrentSettings& current_settings)
 {
-     // m_current_settings[channel] = current_settings;
+  if (channel != eS5FH_ALL)
+  {
+    S5FHSerialPacket serial_packet(0,S5FH_SET_CURRENT_SETTINGS|static_cast<u_int8_t>(channel << 4));
+    ArrayBuilder ab;
+    ab << current_settings;
+    serial_packet.data = ab.array;
+    m_serial_interface ->sendPacket(serial_packet);
+
+    LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Current controller settings where send to change channel: "<< channel << endl);
+
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Current controller settings where given for unknown channel: "<< channel << "- ignoring request"<< endl);
+  }
 }
 
 
-void S5FHController::getEncoderValues()
+void S5FHController::requestEncoderValues()
 {
-  S5FHSerialPacket serial_packet(S5FH_GET_ENCODER_VALUES,40);
+  S5FHSerialPacket serial_packet(40,S5FH_GET_ENCODER_VALUES);
   m_serial_interface ->sendPacket(serial_packet);
 }
 
 void S5FHController::setEncoderValues(const S5FHEncoderSettings &encoder_settings)
 {
-  S5FHSerialPacket serial_packet(S5FH_SET_ENCODER_VALUES);
+  S5FHSerialPacket serial_packet(0,S5FH_SET_ENCODER_VALUES);
   ArrayBuilder ab;
   ab << encoder_settings;
   serial_packet.data = ab.array;
@@ -105,9 +132,9 @@ void S5FHController::setEncoderValues(const S5FHEncoderSettings &encoder_setting
 }
 
 
-void S5FHController::getFirmwareInfo()
+void S5FHController::requestFirmwareInfo()
 {
-  S5FHSerialPacket serial_packet(S5FH_GET_FIRMWARE_INFO,40);
+  S5FHSerialPacket serial_packet(40,S5FH_GET_FIRMWARE_INFO);
   m_serial_interface->sendPacket(serial_packet);
 }
 
@@ -128,7 +155,7 @@ bool S5FHController::getControllerFeedback(const S5FHCHANNEL &channel,S5FHContro
   }
   else
   {
-    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Feedback was requested for unknown channel: "<< channel << endl);
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Feedback was requested for unknown channel: "<< channel<< "- ignoring request" << endl);
     return false;
   }
 }
@@ -142,7 +169,7 @@ bool S5FHController::getPositionSettings(const S5FHCHANNEL &channel, S5FHPositio
   }
   else
   {
-    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Position settings were requested for unknown channel: "<< channel << endl);
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Position settings were requested for unknown channel: "<< channel<< "- ignoring request" << endl);
     return false;
   }
 }
@@ -156,7 +183,7 @@ bool S5FHController::getCurrentSettings(const S5FHCHANNEL &channel, S5FHPosition
   }
   else
   {
-    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Current settings were requested for unknown channel: "<< channel << endl);
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Current settings were requested for unknown channel: "<< channel<< "- ignoring request" << endl);
     return false;
   }
 

@@ -24,7 +24,7 @@ using icl_comm::ArrayBuilder;
  *
  *
  * TODO:
- * - Fill all functions with live :)
+ * - receive Function
  * - setFunctions -> is it enough to just send the settings, will we get the current settings immediatly or do we store the information while sending??
  * - Cleanup things in destructor
  * - Correctly initialize everything in the Controller -> take special care to have the sizes of all arrays set correctly, otherwise a lot of checks will fail
@@ -65,14 +65,11 @@ void S5FHController::setControllerTarget(const S5FHCHANNEL& channel, const u_int
     m_serial_interface ->sendPacket(serial_packet);
 
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Control command was given for channel: "<< channel << "Driving motor to position: "<< position << endl);
-
   }
   else
   {
     LOGGING_WARNING_C(DriverS5FH, S5FHController, "Control command was given for unknown channel: "<< channel << "- ignoring request"<< endl);
   }
-
-
 }
 
 void S5FHController::enableChannel(const S5FHCHANNEL &channel)
@@ -148,6 +145,45 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
 
 void S5FHController::disableChannel(const S5FHCHANNEL& channel)
 {
+
+  S5FHSerialPacket serial_packet(0,S5FH_SET_CONTROLLER_STATE);
+  S5FHControllerState controller_state;
+  ArrayBuilder ab(40);
+  //TODO: The following code is very.. strange -> Ask MeCoVis if that is really... really really what one is supposed to send to disable things
+  if (channel != eS5FH_ALL)
+  {
+    m_enable_mask = 0;
+    controller_state.pwm_fault = 0x001F;
+    controller_state.pwm_otw   = 0x001F;
+
+    ab << controller_state;
+    serial_packet.data = ab.array;
+    m_serial_interface ->sendPacket(serial_packet);
+  }
+  else if (channel >=0 && channel < eS5FH_DIMENSION)
+  {
+    controller_state.pwm_fault = 0x001F;
+    controller_state.pwm_otw   = 0x001F;
+    //Disable the finger in the bitmask
+    m_enable_mask &= ~(1<<channel);
+
+    if (m_enable_mask != 0) // pos and current control stay on then
+    {
+      controller_state.pwm_reset  = (0x0200 | (m_enable_mask & 0x01FF));
+      controller_state.pwm_active = (0x0200 | (m_enable_mask & 0x01FF));
+      controller_state.pos_ctrl   = 0x0001;
+      controller_state.cur_ctrl   = 0x0001;
+    }
+
+    ab << controller_state;
+    serial_packet.data = ab.array;
+    m_serial_interface ->sendPacket(serial_packet);
+
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Disable was requestet for unknown channel: "<< channel << "- ignoring request" << endl);
+  }
 
 }
 

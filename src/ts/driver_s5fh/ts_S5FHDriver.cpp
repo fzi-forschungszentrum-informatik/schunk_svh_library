@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
 BOOST_AUTO_TEST_CASE(ConvertControllerState)
 {
   ArrayBuilder payload;
-  S5FHControllerState controllerstate = {0x001F,0x001F,0x0200,0x0200,0x0001,0x0001};
+  S5FHControllerState controllerstate(0x001F,0x001F,0x0200,0x0200,0x0001,0x0001);
   S5FHControllerState controllerstate_out;
     // Convert to byte Stream
   payload << controllerstate;

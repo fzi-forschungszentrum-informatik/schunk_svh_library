@@ -36,6 +36,15 @@ struct S5FHControllerState
   //! Enable/Disbale of current controller (0x0001 to Activate)
   uint16_t cur_ctrl;
 
+  S5FHControllerState(uint16_t _pwm_fault =0,uint16_t _pwm_otw = 0 , uint16_t _pwm_reset = 0 ,uint16_t _pwm_active = 0 ,uint16_t _pos_ctrl =0, uint16_t _cur_ctrl =0):
+  pwm_fault(_pwm_fault),
+  pwm_otw(_pwm_otw),
+  pwm_reset(_pwm_reset),
+  pwm_active(_pwm_active),
+  pos_ctrl(_pos_ctrl),
+  cur_ctrl(_cur_ctrl)
+  {  }
+
   bool operator == (const S5FHControllerState& other) const
   {
     return

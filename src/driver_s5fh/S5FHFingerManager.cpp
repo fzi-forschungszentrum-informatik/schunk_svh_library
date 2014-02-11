@@ -40,6 +40,66 @@ S5FHFingerManager::~S5FHFingerManager()
 //! reset function for a single finger
 bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 {
+  /*
+  HomeSettings home = m_home_settings[channel];
+
+  S5FHPositionSettings pos_set = m_controller->getPositionSettings(channel);
+
+  // home
+  m_controller->disableChannel(eS5FH_ALL);
+  u_int32_t position = 0;
+
+  if (home.direction > 0)
+  {
+    position = static_cast<u_int32_t>(pos_set.wmx);
+  }
+  else
+  {
+    position = static_cast<u_int32_t>(pos_set.wmn);
+  }
+  m_controller->setControllerTarget(channel, position);
+
+  m_controller->enableChannel(channel);
+
+  for (size_t hit_count = 0; hit_count < 10; )
+  {
+    m_controller->setControllerTarget(channel, position);
+
+    if ((0.75 * pos_set.wmn >= m_controller->getControllerFeedback(channel).current) || (controlFeedback.current >= 0.75 * pos_set.wmx))
+    {
+      hit_count++;
+    }
+    else if (hit_count > 0)
+    {
+      hit_count--;
+    }
+  }
+  m_controller->disableChannel(eS5FH_ALL);
+
+  // set reference values
+  m_position_min = controlFeedback.position + home.minimumOffset;
+  m_position_max = controlFeedback.position + home.maximumOffset;
+
+  position = static_cast<u_int32_t>(controlFeedback.position + home.idlePosition);
+
+  // go to idle position
+  m_controller->enableChannel(channel);
+  while (true)
+  {
+    m_controller->setControllerTarget(channel, position);
+
+    if (Math.Abs(controlCommand.position - controlFeedback.position) < 1000)
+    {
+      break;
+    }
+  }
+  m_controller->disableChannel(eS5FH_ALL);
+
+  this.controlCommand.position = controlFeedback.position;
+
+  IsHomed = true;
+  homeThread = null;
+  */
   return true;
 }
 
@@ -145,6 +205,78 @@ void S5FHFingerManager::setPositionSettingsDefaultParameters()
 
 bool S5FHFingerManager::readParametersFromConfigFile()
 {
+//  bool read_successful = false;
+
+//  // load position settings from config file
+//  std::vector<S5FHPositionSettings> position_config_list;
+//  read_successful =
+//    icc::get(CONFIG_VALUES(
+//               CONFIG_LIST(
+//                 S5FHPositionSettings, "/S5FH/PositionSettings",
+//                 MEMBER_MAPPING(
+//                   S5FHPositionSettings,
+//                   MEMBER_VALUE_1("WMin", S5FHPositionSettings, wmn)
+//                   MEMBER_VALUE_1("WMax", S5FHPositionSettings, wmx)
+//                   MEMBER_VALUE_1("DWMax", S5FHPositionSettings, dwmx)
+//                   MEMBER_VALUE_1("KY", S5FHPositionSettings, ky)
+//                   MEMBER_VALUE_1("DT", S5FHPositionSettings, dt)
+//                   MEMBER_VALUE_1("IMin", S5FHPositionSettings, imn)
+//                   MEMBER_VALUE_1("IMax", S5FHPositionSettings, imx)
+//                   MEMBER_VALUE_1("KP", S5FHPositionSettings, kp)
+//                   MEMBER_VALUE_1("KI", S5FHPositionSettings, ki)
+//                   MEMBER_VALUE_1("KD", S5FHPositionSettings, kd)),
+//                 std::back_inserter(position_config_list))),
+//             DriverS5FH::instance());
+
+//  // set controller position settings
+//  if (read_successful)
+//  {
+//    for (size_t i = 0; i < position_config_list.size(); i++)
+//    {
+//      m_controller->setPositionSettings(i, position_config_list[i]);
+
+//      LOGGING_ERROR_C(DriverS5FH, S5FHController, "new position settings recieved: " << endl <<
+//                      "WMin = " << position_config_list[i].wmn << endl);
+//    }
+//  }
+//  else
+//  {
+//    LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not load position settings from config file" << endl);
+//  }
+
+//  // load current settings from config file
+//  std::vector<S5FHCurrentSettings> current_config_list;
+//  read_successful =
+//    icc::get(CONFIG_VALUES(
+//               CONFIG_LIST(
+//                 S5FHCurrentSettings, "/S5FH/CurrentSettings",
+//                 MEMBER_MAPPING(
+//                   S5FHCurrentSettings,
+//                   MEMBER_VALUE_1("WMin", S5FHCurrentSettings, wmn)
+//                   MEMBER_VALUE_1("WMax", S5FHCurrentSettings, wmx)
+//                   MEMBER_VALUE_1("KY", S5FHCurrentSettings, ky)
+//                   MEMBER_VALUE_1("DT", S5FHCurrentSettings, dt)
+//                   MEMBER_VALUE_1("IMin", S5FHCurrentSettings, imn)
+//                   MEMBER_VALUE_1("IMax", S5FHCurrentSettings, imx)
+//                   MEMBER_VALUE_1("KP", S5FHCurrentSettings, kp)
+//                   MEMBER_VALUE_1("KI", S5FHCurrentSettings, ki)
+//                   MEMBER_VALUE_1("UMin", S5FHCurrentSettings, umn)
+//                   MEMBER_VALUE_1("UMax", S5FHCurrentSettings, umx)),
+//                 std::back_inserter(current_config_list))),
+//             icl_core::logging::Nirwana::instance());
+
+//  // set current position settings
+//  if (read_successful)
+//  {
+//    for (size_t i = 0; i < current_config_list.size(); i++)
+//    {
+//      m_controller->setCurrentSettings(i, current_config_list[i]);
+//    }
+//  }
+//  else
+//  {
+//    LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not load current settings from config file" << endl);
+//  }
   return true;
 }
 

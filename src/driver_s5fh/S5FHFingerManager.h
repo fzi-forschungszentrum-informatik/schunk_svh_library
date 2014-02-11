@@ -82,6 +82,10 @@ private:
   //!
   std::vector<HomeSettings> m_home_settings;
 
+  std::vector<u_int32_t> m_position_min;
+
+  std::vector<u_int32_t> m_position_max;
+
   //!
   //! \brief set default parameters for home position
   //!

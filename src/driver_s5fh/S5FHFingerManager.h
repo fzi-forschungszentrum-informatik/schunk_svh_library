@@ -29,7 +29,7 @@ public:
    */
   S5FHFingerManager();
 
-  ~S5FHFingerManager();
+  virtual ~S5FHFingerManager();
 
   enum {
     eS5FH_THUMB_FLEXION,
@@ -40,26 +40,45 @@ public:
     eS5FH_MIDDLE_FINGER_PROXIMAL,
     eS5FH_RING_FINGER,
     eS5FH_PINKY,
-    eS5FH_FINGER_SPREAD
+    eS5FH_FINGER_SPREAD,
+    eS5FH_DIMENSION
   } typedef S5FHDOF;
 
-
-  //! reset function for a single finger
+  //!
+  //! \brief reset function for a single finger
+  //! \param index
+  //! \return
+  //!
   bool resetFinger(const S5FHDOF &index);
 
-  //! set target position of a single finger
+  //!
+  //! \brief set target position of a single finger
+  //! \param index
+  //! \param position
+  //! \param current
+  //! \return
+  //!
   bool setTargetPosition(const S5FHDOF &index, double position, double current);
 
-  //! overwrite current parameters
+  //!
+  //! \brief overwrite current parameters
+  //! \param index
+  //! \return
+  //!
   bool setCurrentControllerParams(const S5FHDOF &index);
 
-  //! overwrite position parameters
+  //!
+  //! \brief overwrite position parameters
+  //! \param index
+  //! \return
+  //!
   bool setPositionControllerParams(const S5FHDOF &index);
-
 
 private:
 
-  //! pointer to s5fh controller
+  //!
+  //! \brief pointer to s5fh controller
+  //!
   S5FHController *m_controller;
 
 };

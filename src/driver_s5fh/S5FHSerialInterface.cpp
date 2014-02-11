@@ -45,7 +45,7 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name, ReceivedPa
     }
   }
 
-  // initialize member varaibles
+  // initialize packet counter
   m_packets_transmitted = 0;
 }
 
@@ -60,7 +60,7 @@ S5FHSerialInterface::~S5FHSerialInterface()
   delete m_serial_device;
 }
 
-bool S5FHSerialInterface::sendPacket(const S5FHSerialPacket& packet)
+bool S5FHSerialInterface::sendPacket(S5FHSerialPacket& packet)
 {
   uint8_t check_sum1 = 0;
   uint8_t check_sum2 = 0;
@@ -71,8 +71,12 @@ bool S5FHSerialInterface::sendPacket(const S5FHSerialPacket& packet)
     check_sum2 ^= packet.data[i];
   }
 
+  // set packet counter
+  packet.index = m_packets_transmitted;
+
   if (m_serial_device->IsOpen())
   {
+    // serialize packet
     size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
     icl_comm::ArrayBuilder send_array(size);
     send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;

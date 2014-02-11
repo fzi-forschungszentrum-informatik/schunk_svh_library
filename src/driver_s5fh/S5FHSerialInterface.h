@@ -36,7 +36,7 @@ public:
   ~S5FHSerialInterface();
 
   //! function for sending packets via serial device to the S5FH
-  bool sendPacket(const S5FHSerialPacket& packet);
+  bool sendPacket(S5FHSerialPacket &packet);
 
   //! transmitted packets count getter
   unsigned int transmittedPacketCount() { return m_packets_transmitted; }
@@ -47,7 +47,7 @@ private:
   Serial *m_serial_device;
 
   //! packet counters
-  unsigned int m_packets_transmitted;
+  u_int8_t m_packets_transmitted;
 
   //! cecksum calculation
   void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const S5FHSerialPacket& packet);

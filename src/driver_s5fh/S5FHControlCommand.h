@@ -27,6 +27,14 @@ struct S5FHControlCommand
   //! Returned position value of the motor [Ticks]
   int32_t position;
 
+  //!
+  //! \brief Constructs a new control command to comandeer the position of the fingers
+  //! \param _position target position given in encoder ticks
+  //!
+  S5FHControlCommand(const int32_t& _position):
+    position(_position)
+  {}
+
 };
 
 

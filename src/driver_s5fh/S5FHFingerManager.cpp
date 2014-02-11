@@ -53,21 +53,15 @@ bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double pos
 }
 
 //! overwrite current parameters
-bool S5FHFingerManager::setCurrentControllerParams(const S5FHCHANNEL &channel)
+bool S5FHFingerManager::setCurrentControllerParams(const S5FHCHANNEL &channel, const S5FHCurrentSettings &current_settings)
 {
-  S5FHCurrentSettings current_settings;
-  // TODO: set parameters
-
   m_controller->setCurrentSettings(channel, current_settings);
   return true;
 }
 
 //! overwrite position parameters
-bool S5FHFingerManager::setPositionControllerParams(const S5FHCHANNEL &channel)
+bool S5FHFingerManager::setPositionControllerParams(const S5FHCHANNEL &channel, const S5FHPositionSettings &position_settings)
 {
-  S5FHPositionSettings position_settings;
-  // TODO: set parameters
-
   m_controller->setPositionSettings(channel, position_settings);
   return true;
 }

@@ -52,14 +52,14 @@ public:
   //! \param index
   //! \return
   //!
-  bool setCurrentControllerParams(const S5FHCHANNEL &channel);
+  bool setCurrentControllerParams(const S5FHCHANNEL &channel, const S5FHCurrentSettings &current_settings);
 
   //!
   //! \brief overwrite position parameters
   //! \param index
   //! \return
   //!
-  bool setPositionControllerParams(const S5FHCHANNEL &channel);
+  bool setPositionControllerParams(const S5FHCHANNEL &channel, const S5FHPositionSettings &position_settings);
 
 private:
 

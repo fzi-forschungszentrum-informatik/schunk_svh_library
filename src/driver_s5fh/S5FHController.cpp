@@ -438,7 +438,7 @@ bool S5FHController::getCurrentSettings(const S5FHCHANNEL &channel, S5FHCurrentS
 {
   if(channel >= 0 && static_cast<u_int8_t>(channel) < m_current_settings.size())
   {
-    current_settings = m_position_settings[channel];
+    current_settings = m_current_settings[channel];
     return true;
   }
   else

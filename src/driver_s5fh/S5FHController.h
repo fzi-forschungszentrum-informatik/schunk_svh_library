@@ -175,7 +175,7 @@ public:
     * \param position_settings current settings to be returned
     * \return true if the request was succesfull false otherwise
     */
-   bool getCurrentSettings(const S5FHCHANNEL &channel,S5FHPositionSettings& position_settings);
+   bool getCurrentSettings(const S5FHCHANNEL &channel,S5FHCurrentSettings& current_settings);
 
    /*!
     * \brief get the latest stored Firmware information from the controller (NOT THE HARDWARE)

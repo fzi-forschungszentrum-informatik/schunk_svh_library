@@ -115,6 +115,9 @@ bool S5FHSerialInterface::sendPacket(S5FHSerialPacket& packet)
       {
         bytes_send += m_serial_device->Write(send_array.array.data() + bytes_send, size - bytes_send);
       }
+
+      icl_core::os::usleep(500);
+
     }
     else
     {

@@ -38,13 +38,16 @@ void S5FHReceiveThread::run()
 {
   while (execute())
   {
-    if (m_serial_device->IsOpen())
+    if (m_serial_device != NULL)
     {
-      receiveData();
-    }
-    else
-    {
-      LOGGING_WARNING_C(DriverS5FH, S5FHReceiveThread, "Cannot read data from serial device. It is not opened!" << endl);
+      if (m_serial_device->IsOpen())
+      {
+        receiveData();
+      }
+      else
+      {
+        LOGGING_WARNING_C(DriverS5FH, S5FHReceiveThread, "Cannot read data from serial device. It is not opened!" << endl);
+      }
     }
 
     // Wait for the thread period so that the timing is in sync.

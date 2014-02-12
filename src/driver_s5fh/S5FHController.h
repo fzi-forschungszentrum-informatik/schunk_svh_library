@@ -51,13 +51,25 @@ class DRIVER_S5FH_IMPORT_EXPORT S5FHController
 public:
   /*! Constructs a controller class for the SCHUNK five finger hand.
    */
-  S5FHController(const std::string& serial_dev_name);
+  S5FHController();
 
   /*! SCHUNK five finger hand destructor
    *  Disable the serial device and shut down hand as far
    *  as possible
    */
   ~S5FHController();
+
+  //!
+  //! \brief open serial device connection
+  //! \param dev_name
+  //! \return
+  //!
+  bool connect(const std::string &dev_name);
+
+  //!
+  //! \brief disconnect serial device
+  //!
+  void disconnect();
 
   /*!
    * \brief setting new position controller target for finger index

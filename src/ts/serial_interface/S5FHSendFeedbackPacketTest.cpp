@@ -31,7 +31,8 @@ int main(int argc, const char* argv[])
 
   std::string serial_device_name = "/dev/ttyUSB1";
 
-  S5FHSerialInterface serial_com(serial_device_name, NULL);
+  S5FHSerialInterface serial_com(NULL);
+  serial_com.connect(serial_device_name);
 
   // build feedback serial packet for sending
   ArrayBuilder packet;
@@ -48,5 +49,6 @@ int main(int argc, const char* argv[])
   // send packet via serial port
   serial_com.sendPacket(test_serial_packet);
 
+  serial_com.close();
 }
 

@@ -52,9 +52,12 @@ int main(int argc, const char* argv[])
 
   std::string serial_device_name = "/dev/ttyUSB2";
 
-  S5FHSerialInterface serial_com(serial_device_name, boost::bind(&receivedPacketCallback,_1,_2));
+  S5FHSerialInterface serial_com(boost::bind(&receivedPacketCallback,_1,_2));
+  serial_com.connect(serial_device_name);
 
   while (true)
   { }
+
+  serial_com.close();
 }
 

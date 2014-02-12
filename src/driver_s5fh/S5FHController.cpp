@@ -39,11 +39,11 @@ using icl_comm::ArrayBuilder;
 namespace driver_s5fh {
 
 
-S5FHController::S5FHController(const std::string& serial_dev_name):
+S5FHController::S5FHController():
   m_current_settings(eS5FH_DIMENSION,S5FHCurrentSettings()),  // Vectors have to be filled with objects for correct deserialization
   m_position_settings(eS5FH_DIMENSION,S5FHPositionSettings()),
   m_controller_feedback(eS5FH_DIMENSION,S5FHControllerFeedback()),
-  m_serial_interface(new S5FHSerialInterface(serial_dev_name,boost::bind(&S5FHController::receivedPacketCallback,this,_1,_2))),
+  m_serial_interface(new S5FHSerialInterface(boost::bind(&S5FHController::receivedPacketCallback,this,_1,_2))),
   m_enable_mask(0)
 {
 
@@ -56,10 +56,19 @@ S5FHController::~S5FHController()
   disableChannel(eS5FH_ALL);
 
   // Kill Serial
-  m_serial_interface->~S5FHSerialInterface();
+  m_serial_interface->close();
   delete m_serial_interface;
 }
 
+bool S5FHController::connect(const std::string &dev_name)
+{
+  return m_serial_interface->connect(dev_name);
+}
+
+void S5FHController::disconnect()
+{
+  m_serial_interface->close();
+}
 
 void S5FHController::setControllerTarget(const S5FHCHANNEL& channel, const u_int32_t& position)
 {

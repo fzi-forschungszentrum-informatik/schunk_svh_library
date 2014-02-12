@@ -215,7 +215,7 @@ void S5FHController::disableChannel(const S5FHCHANNEL& channel)
 
 void S5FHController::requestControllerFeedback(const S5FHCHANNEL& channel)
 {
-  if (channel != eS5FH_ALL)
+  if ((channel != eS5FH_ALL) && (channel >=0 && channel < eS5FH_DIMENSION))
   {
     S5FHSerialPacket serial_packet(40,S5FH_GET_CONTROL_FEEDBACK|static_cast<u_int8_t>(channel << 4));
     m_serial_interface ->sendPacket(serial_packet);
@@ -240,13 +240,16 @@ void S5FHController::requestPositionSettings(const S5FHCHANNEL& channel)
 
 void S5FHController::setPositionSettings(const S5FHCHANNEL& channel,const S5FHPositionSettings& position_settings)
 {
-  if (channel != eS5FH_ALL)
+  if ((channel != eS5FH_ALL) && (channel >=0 && channel < eS5FH_DIMENSION))
   {
     S5FHSerialPacket serial_packet(0,S5FH_SET_POSITION_SETTINGS|static_cast<u_int8_t>(channel << 4));
     ArrayBuilder ab;
     ab << position_settings;
     serial_packet.data = ab.array;
     m_serial_interface ->sendPacket(serial_packet);
+
+    // Save already in case we dont get imeediate response
+    m_position_settings[channel] = position_settings;
 
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Position controller settings where send to change channel: "<< channel << endl);
 
@@ -275,13 +278,16 @@ void S5FHController::requestCurrentSettings(const S5FHCHANNEL& channel)
 
 void S5FHController::setCurrentSettings(const S5FHCHANNEL& channel,const S5FHCurrentSettings& current_settings)
 {
-  if (channel != eS5FH_ALL)
+  if ((channel != eS5FH_ALL) && (channel >=0 && channel < eS5FH_DIMENSION))
   {
     S5FHSerialPacket serial_packet(0,S5FH_SET_CURRENT_SETTINGS|static_cast<u_int8_t>(channel << 4));
     ArrayBuilder ab;
     ab << current_settings;
     serial_packet.data = ab.array;
     m_serial_interface ->sendPacket(serial_packet);
+
+    // Save already in case we dont get imediate response
+    m_current_settings[channel] = current_settings;
 
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Current controller settings where send to change channel: "<< channel << endl);
 
@@ -306,6 +312,10 @@ void S5FHController::setEncoderValues(const S5FHEncoderSettings &encoder_setting
   ab << encoder_settings;
   serial_packet.data = ab.array;
   m_serial_interface ->sendPacket(serial_packet);
+
+  // Save already in case we dont get imediate response
+  m_encoder_settings = encoder_settings;
+
 }
 
 
@@ -318,9 +328,6 @@ void S5FHController::requestFirmwareInfo()
 
 void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsigned int packet_count)
 {
-  // Todo: 1.Switch case to check what we got back
-  // Todo: 2.Safe data in corresponding channel settings
-
   // Extract Channel
   u_int8_t channel = (packet.address >> 4 ) & 0x0F;
   // Prepare Data for conversion

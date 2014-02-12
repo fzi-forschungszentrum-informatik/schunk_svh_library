@@ -4,7 +4,6 @@ ICMAKER_SET("ts_S5FHDriver" IDE_FOLDER ${DRIVER_S5FH_IDE_FOLDER})
 ICMAKER_ADD_SOURCES(
   ts_main.cpp
   ts_S5FHDriver.cpp
-  ts_S5FHFingerManager.cpp
   )
 
 IF(Boost_FOUND)

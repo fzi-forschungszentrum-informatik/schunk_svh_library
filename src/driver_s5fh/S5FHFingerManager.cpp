@@ -135,6 +135,18 @@ bool S5FHFingerManager::setPositionControllerParams(const S5FHCHANNEL &channel, 
   return true;
 }
 
+//! return enable flag
+bool S5FHFingerManager::isEnabled(const S5FHCHANNEL &channel)
+{
+  return m_controller->isEnabled(channel);
+}
+
+//! return homed flag
+bool S5FHFingerManager::isHomed(const S5FHCHANNEL &channel)
+{
+  return m_is_homed[channel];
+}
+
 //!
 //! \brief set default parameters for home position
 //!

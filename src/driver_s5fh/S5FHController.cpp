@@ -417,6 +417,12 @@ bool S5FHController::getCurrentSettings(const S5FHCHANNEL &channel, S5FHPosition
 
 }
 
+
+S5FHFirmwareInfo S5FHController::getFirmwareInfo()
+{
+  return m_firmware_info;
+}
+
 bool S5FHController::isEnabled(const S5FHCHANNEL &channel)
 {
   return ((1 << channel & m_enable_mask) > 0);

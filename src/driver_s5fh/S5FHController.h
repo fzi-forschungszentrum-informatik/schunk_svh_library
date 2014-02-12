@@ -166,6 +166,13 @@ public:
    bool getCurrentSettings(const S5FHCHANNEL &channel,S5FHPositionSettings& position_settings);
 
    /*!
+    * \brief get the latest stored Firmware information from the controller (NOT THE HARDWARE)
+    * \return the Firmware information
+    */
+   S5FHFirmwareInfo getFirmwareInfo();
+
+
+   /*!
     * \brief Check if a channel was enabled
     * \param channel to check
     * \return True if an enable has been send to the hardware

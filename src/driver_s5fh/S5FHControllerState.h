@@ -72,6 +72,13 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
 //! overload stream operator to easily serialize data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControllerState& data)
 {
+  // Dirty? Hack.. if the Arraybuilder is longer then the things we expect we just overwrite that..
+  // This will be a problem if for example you would want to write ab >> data_struct >>data_struct
+  // We will think of something better later.. for now we just expect to be a packet the size we want it to be
+  if (ab.pos > 12)
+  {
+    ab.pos = 12;
+  }
   ab >> data.cur_ctrl
      >> data.pos_ctrl
      >> data.pwm_active

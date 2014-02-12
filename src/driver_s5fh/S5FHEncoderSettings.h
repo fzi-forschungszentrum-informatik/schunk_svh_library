@@ -51,6 +51,13 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
 //! overload stream operator to easily serialize data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHEncoderSettings& data)
 {
+  // Dirty? Hack.. if the Arraybuilder is longer then the things we expect we just overwrite that..
+  // This will be a problem if for example you would want to write ab >> data_struct >>data_struct
+  // We will think of something better later.. for now we just expect to be a packet the size we want it to be
+  if (ab.pos > 36)
+  {
+    ab.pos = 36;
+  }
 
   ab >> data.scalings;
   return ab;

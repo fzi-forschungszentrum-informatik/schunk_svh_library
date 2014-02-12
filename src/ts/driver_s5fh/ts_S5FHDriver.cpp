@@ -196,13 +196,13 @@ BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
 
   // Reset Array Builder
   // BEWARE OF ARRAY LENGTH!
-  payload.reset(6);
+  payload.reset(64);
 
   // Create Structures
   S5FHController controller;
   ArrayBuilder packet;
   S5FHCHANNEL channel = eS5FH_INDEX_FINGER_DISTAL;
-  S5FHSerialPacket test_serial_packet(6,S5FH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
+  S5FHSerialPacket test_serial_packet(64,S5FH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
   S5FHControllerFeedback test_controller_feedback(23,42);
   // Conversion
   payload << test_controller_feedback;

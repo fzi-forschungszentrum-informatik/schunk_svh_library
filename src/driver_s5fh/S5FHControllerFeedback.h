@@ -52,7 +52,7 @@ struct S5FHControllerFeedback
 
 //! overload stream operator to easily serialize data
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHControllerFeedback& data)
-{
+{ 
   ab << data.position
      << data.current;
   return ab;
@@ -62,6 +62,13 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHCont
 //! overload stream operator to easily deserialize data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControllerFeedback& data)
 {
+  // Dirty? Hack.. if the Arraybuilder is longer then the things we expect we just overwrite that..
+  // This will be a problem if for example you would want to write ab >> data_struct >>data_struct
+  // We will think of something better later.. for now we just expect to be a packet the size we want it to be
+  if (ab.pos > 6)
+  {
+    ab.pos = 6;
+  }
   ab >> data.current
      >> data.position;
   return ab;

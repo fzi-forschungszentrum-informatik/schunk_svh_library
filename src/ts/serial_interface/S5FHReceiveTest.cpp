@@ -22,6 +22,8 @@ using icl_comm::serial::SerialFlags;
 // testing serial interface of s5fh driver
 int main(int argc, const char* argv[])
 {
+  icl_core::logging::initialize();
+
   std::string serial_device_name = "/dev/ttyUSB2";
 
   Serial *serial_device = new Serial(serial_device_name.c_str(), SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8));

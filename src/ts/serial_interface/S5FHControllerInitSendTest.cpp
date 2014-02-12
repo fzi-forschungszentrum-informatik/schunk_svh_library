@@ -24,7 +24,8 @@ int main(int argc, const char* argv[])
 
   std::string serial_device_name = "/dev/ttyUSB1";
 
-  S5FHController controller(serial_device_name);
+  S5FHController controller;
+  controller.connect(serial_device_name);
 
   // initilize default position settings
   std::vector<S5FHPositionSettings> default_position_settings(eS5FH_DIMENSION);
@@ -79,6 +80,6 @@ int main(int argc, const char* argv[])
 
   }
 
-  controller.~S5FHController();
+  controller.disconnect();
 
 }

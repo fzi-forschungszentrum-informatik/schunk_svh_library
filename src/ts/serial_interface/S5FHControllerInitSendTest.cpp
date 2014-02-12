@@ -60,6 +60,7 @@ int main(int argc, const char* argv[])
   default_current_settings[8] = cur_set_proximal_joint; // finger spread
 
   // request firmware info
+  std::cout << "sending request firmware info" << std::endl;
   controller.requestFirmwareInfo();
 
   // initialize all channels
@@ -68,17 +69,22 @@ int main(int argc, const char* argv[])
     S5FHCHANNEL channel = S5FHCHANNEL(i);
 
     // request controller feedback
+    std::cout << "sending request controller feedback" << std::endl;
     controller.requestControllerFeedback(channel);
 
     // set position settings
+    std::cout << "set position settings" << std::endl;
     controller.setPositionSettings(channel, default_position_settings[channel]);
-    std::cout << "Position settings of channel " << channel << " " << default_position_settings[channel] << std::endl;
+    //std::cout << "Position settings of channel " << channel << " " << default_position_settings[channel] << std::endl;
 
     // set current settings
+    std::cout << "set current settings" << std::endl;
     controller.setCurrentSettings(channel, default_current_settings[channel]);
-    std::cout << "Current settings of channel " << channel << " " << default_current_settings[channel] << std::endl;
+    //std::cout << "Current settings of channel " << channel << " " << default_current_settings[channel] << std::endl;
 
   }
+
+  icl_core::os::sleep(20);
 
   controller.disconnect();
 

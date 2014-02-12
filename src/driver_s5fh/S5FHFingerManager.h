@@ -61,6 +61,20 @@ public:
   //!
   bool setPositionControllerParams(const S5FHCHANNEL &channel, const S5FHPositionSettings &position_settings);
 
+  //!
+  //! \brief returns true, if current channel has been enabled
+  //! \param channel
+  //! \return
+  //!
+  bool isEnabled(const S5FHCHANNEL &channel);
+
+  //!
+  //! \brief returns true, if current channel has been resetted
+  //! \param channel
+  //! \return
+  //!
+  bool isHomed(const S5FHCHANNEL &channel);
+
 private:
 
   //!

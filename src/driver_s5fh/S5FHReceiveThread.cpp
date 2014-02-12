@@ -136,9 +136,12 @@ bool S5FHReceiveThread::receiveData()
     case eRS_DATA:
     {
       // read received data
-      m_data = std::vector<uint8_t>(m_length, 0);
-      if (m_serial_device->Read(reinterpret_cast<void *>(&m_data), m_length))
+      uint8_t buffer[m_length];
+      if (m_serial_device->Read(reinterpret_cast<void *>(buffer), m_length))
       {
+        m_data.clear();
+        m_data.insert(m_data.end(), &buffer[0], &buffer[m_length]);
+
         m_ab.appendWithoutConversion(m_data);
         m_received_state = eRS_CHECKSUM;
       }
@@ -188,6 +191,7 @@ bool S5FHReceiveThread::receiveData()
       break;
     }
   }
+
   return true;
 }
 

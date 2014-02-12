@@ -35,6 +35,13 @@ struct S5FHControlCommand
     position(_position)
   {}
 
+  //! Compares two S5FHControlCommand objects.
+  bool operator == (const S5FHControlCommand& other) const
+  {
+    return
+      (position == other.position);
+  }
+
 };
 
 
@@ -42,7 +49,23 @@ struct S5FHControlCommand
 //! slightly uneccessary at this point but put in anayway to make sure it is used :)
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHControlCommand& data)
 {
-  return ab << data;
+  ab << data.position;
+  return ab;
+}
+
+
+//! overload stream operator to easily deserialize data
+inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControlCommand& data)
+{
+  ab >> data.position;
+  return ab;
+}
+
+//! Output Stream operator
+inline std::ostream& operator << (std::ostream& o, const S5FHControlCommand& cc)
+{
+  o << "Pos: " << cc.position << std::endl;
+  return o;
 }
 
 

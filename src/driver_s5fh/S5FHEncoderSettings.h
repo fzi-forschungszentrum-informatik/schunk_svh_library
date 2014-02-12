@@ -25,6 +25,18 @@ struct S5FHEncoderSettings {
   //! encoderSettings consist of multipliers for each encoder
   std::vector<uint32_t> scalings;
 
+  //! Default CTOR will assign 9x1 to the scalings
+  S5FHEncoderSettings(uint32_t _scaling=1):
+  scalings(9,_scaling)
+  {}
+
+  //! Compares two S5FHPositionsetting objects.
+  bool operator == (const S5FHEncoderSettings& other) const
+  {
+    return
+      (scalings == other.scalings);
+  }
+
 };
 
 
@@ -39,8 +51,23 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
 //! overload stream operator to easily serialize data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHEncoderSettings& data)
 {
+
   ab >> data.scalings;
   return ab;
+}
+
+
+//! Output Stream operator
+inline std::ostream& operator << (std::ostream& o, const S5FHEncoderSettings& es)
+{
+  o << "Scalings: ";
+  for (size_t i = 0; i < es.scalings.size(); i++)
+  {
+    o << (int)i << ":" <<es.scalings[i] << " ";
+  }
+
+  o << std::endl;
+  return o;
 }
 
 

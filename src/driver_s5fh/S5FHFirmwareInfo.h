@@ -19,6 +19,8 @@
 
 namespace driver_s5fh {
 
+//TODO: Use strings? i dont know. what is acutally in these data
+
 /*!
  * \brief The S5FHFirmwareInfo  holds the data of a firmware response from the hardware
  */
@@ -32,6 +34,16 @@ struct S5FHFirmwareInfo
   uint16_t version_minor;
   //! 48 chars of text (free)
   uint8_t text[48];
+
+  //! Compares two S5FHFirmware objects.
+  bool operator == (const S5FHFirmwareInfo& other) const
+  {
+    return
+      (version_major == other.version_major
+       && version_minor == other.version_minor
+       );
+  }
+
 };
 
 //! overload stream operator to easily serialize data

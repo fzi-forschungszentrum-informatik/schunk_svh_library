@@ -27,14 +27,39 @@ struct S5FHControllerFeedback
   int32_t position;
   //! Returned current value of the motor [mA?]
   int16_t current;
+
+  //! Compares two S5FHControllerFeedback objects.
+  bool operator == (const S5FHControllerFeedback& other) const
+  {
+    return
+      (position == other.position
+       && current == other.current)
+        ;
+  }
 };
 
 //! overload stream operator to easily serialize data
+inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHControllerFeedback& data)
+{
+  ab << data.position
+     << data.current;
+  return ab;
+}
+
+
+//! overload stream operator to easily deserialize data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControllerFeedback& data)
 {
   ab >> data.current
      >> data.position;
   return ab;
+}
+
+//! Output Stream operator
+inline std::ostream& operator << (std::ostream& o, const S5FHControllerFeedback& cf)
+{
+  o << "Pos: " << cf.position << " Cur: " << cf.current << std::endl;
+  return o;
 }
 
 

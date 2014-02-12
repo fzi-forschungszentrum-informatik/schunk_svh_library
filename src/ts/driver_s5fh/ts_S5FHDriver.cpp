@@ -18,68 +18,169 @@
 #include <driver_s5fh/S5FHCurrentSettings.h>
 #include <driver_s5fh/S5FHSerialPacket.h>
 #include <driver_s5fh/S5FHControllerState.h>
+#include <driver_s5fh/S5FHControlCommand.h>
+#include <driver_s5fh/S5FHControllerFeedback.h>
+#include <driver_s5fh/S5FHEncoderSettings.h>
 
 using icl_comm::ArrayBuilder;
 using namespace driver_s5fh;
 
 BOOST_AUTO_TEST_SUITE(ts_S5FHDriver)
 
-BOOST_AUTO_TEST_CASE(ConvertSettingsTest)
+ArrayBuilder payload(40);
+
+BOOST_AUTO_TEST_CASE(ConvertPosSettings)
 {
-  S5FHPositionSettings test_pos_settings =  {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1};
+  std::cout << "Conversion test of Position Settings ....";
 
-  // See if the conversion of position settings worked
-  ArrayBuilder ab(40);
-  ab << test_pos_settings;
-  std::cout << "S5FH Driver array builder test:" << std::endl;
-  std::cout << "  Position Settings raw data: " << ab << std::endl;
-  std::cout << "=================================================="<<std::endl<<std::endl;
+  // Reset Array Builder
+  payload.reset(40);
 
+  // Create Structures
+  S5FHPositionSettings test_pos_settings_in =  {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1};
+  S5FHPositionSettings test_pos_settings_out;
+
+  // Conversion
+  payload << test_pos_settings_in;
+  payload >> test_pos_settings_out;
+
+  BOOST_CHECK_EQUAL(test_pos_settings_in,test_pos_settings_out);
+
+  std::cout << "Done" << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
+BOOST_AUTO_TEST_CASE(ConvertCurSettings)
 {
-  //std::cout << "Testing Conversion of Serial Packet" << std::endl;
+  std::cout << "Conversion test of Current Settings ....";
+
+  // Reset Array Builder
+  payload.reset(40);
+
+  // Create Structures
+  S5FHCurrentSettings test_cur_settings_in =  {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1};
+  S5FHCurrentSettings test_cur_settings_out;
+
+  // Conversion
+  payload << test_cur_settings_in;
+  payload >> test_cur_settings_out;
+
+  BOOST_CHECK_EQUAL(test_cur_settings_in,test_cur_settings_out);
+
+  std::cout << "Done" << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(ConvertControlCommand)
+{
+  std::cout << "Conversion test of Controll Command ....";
+
+  // Reset Array Builder
+  payload.reset(40);
+
+  // Create Structures
+  S5FHControlCommand test_control_command_in(23);
+  S5FHControlCommand test_control_command_out(0);
+
+  // Conversion
+  payload << test_control_command_in;
+  payload >> test_control_command_out;
+
+  BOOST_CHECK_EQUAL(test_control_command_in,test_control_command_out);
+
+  std::cout << "Done" << std::endl;
+}
 
 
-  ArrayBuilder payload(40);
-  ArrayBuilder packet;
-  S5FHSerialPacket test_serial_packet;
-  S5FHPositionSettings test_pos_settings =  {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1};
+BOOST_AUTO_TEST_CASE(ConvertControlFeedback)
+{
+  std::cout << "Conversion test of ControllerFeedback ....";
 
-  // Get the Position settings as payload
-  payload << test_pos_settings;
-  // Generate the header information
-  test_serial_packet.address = 5; // Set Position settings
-  test_serial_packet.index = 0;   //
-  // Set the payload (converted array of position settings)
-  test_serial_packet.data = payload.array;
+  // Reset Array Builder
+  payload.reset(40);
 
-  // serialize the Packet
-  packet << test_serial_packet;
+  // Create Structures
+  S5FHControllerFeedback test_controller_feedback_in = {23,42};
+  S5FHControllerFeedback test_controller_feedback_out;
 
-  //std::cout << "Serial packet after transformation into byte array: " << test_serial_packet;
+  // Conversion
+  payload << test_controller_feedback_in;
+  payload >> test_controller_feedback_out;
 
-  // Create the structure to read in the packet
-  S5FHSerialPacket test_serial_packet_in(40);
-  // De-Serialize
-  packet >> test_serial_packet_in;
+  BOOST_CHECK_EQUAL(test_controller_feedback_in,test_controller_feedback_out);
 
-  BOOST_CHECK_EQUAL(test_serial_packet,test_serial_packet_in);
+  std::cout << "Done" << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(ConvertControllerState)
 {
-  ArrayBuilder payload;
-  S5FHControllerState controllerstate(0x001F,0x001F,0x0200,0x0200,0x0001,0x0001);
-  S5FHControllerState controllerstate_out;
-    // Convert to byte Stream
-  payload << controllerstate;
-    // convert back
-  payload >> controllerstate_out;
+  std::cout << "Converstion test of ControllerState ....";
 
-  BOOST_CHECK_EQUAL(controllerstate,controllerstate_out);
+  // Reset Array Builder
+  payload.reset(40);
+
+  // Create Structures
+  S5FHControllerState test_controller_state_in(0x001F,0x001F,0x0200,0x02000,0x0001,0x0001);
+  S5FHControllerState test_controller_state_out;
+
+  // Conversion
+  payload << test_controller_state_in;
+  payload >> test_controller_state_out;
+
+  BOOST_CHECK_EQUAL(test_controller_state_in,test_controller_state_out);
+
+  std::cout << "Done" << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE(ConvertEncoderSettings)
+{
+  std::cout << "Converstion test of EncoderSettings ....";
+
+  // Reset Array Builder
+  payload.reset(40);
+
+  // Create Structures
+  S5FHEncoderSettings test_encoder_settings_in(23);
+  S5FHEncoderSettings test_encoder_settings_out;
+
+  // Conversion
+  payload << test_encoder_settings_in;
+  payload >> test_encoder_settings_out;
+
+  BOOST_CHECK_EQUAL(test_encoder_settings_in,test_encoder_settings_out);
+
+  std::cout << "Done" << std::endl;
+}
+
+
+BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
+{
+
+  std::cout << "Converstion test of Serial Packet ....";
+
+  // Reset Array Builder
+  payload.reset(40);
+  ArrayBuilder packet;
+  S5FHSerialPacket test_serial_packet_in(40,5);
+  S5FHSerialPacket test_serial_packet_out(40);
+
+  // Create Structures
+  S5FHPositionSettings test_pos_settings_in =  {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1};
+  S5FHPositionSettings test_pos_settings_out;
+
+  // Conversion
+  payload << test_pos_settings_in;
+  // Insertion
+  test_serial_packet_in.data = payload.array;
+  // Converstion (this would be done by serialinterface)
+  packet << test_serial_packet_in;
+  packet >> test_serial_packet_out;
+  payload.reset(40);
+  payload.appendWithoutConversion(test_serial_packet_out.data);
+  payload >> test_pos_settings_out;
+
+  BOOST_CHECK_EQUAL(test_serial_packet_in,test_serial_packet_out);
+  BOOST_CHECK_EQUAL(test_pos_settings_in,test_pos_settings_out);
+
+  std::cout << "Done" << std::endl;
+}
 
 BOOST_AUTO_TEST_SUITE_END()

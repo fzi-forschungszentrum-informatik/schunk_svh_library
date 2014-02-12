@@ -45,6 +45,7 @@ struct S5FHControllerState
   cur_ctrl(_cur_ctrl)
   {  }
 
+    //! Compares two S5FHControllerState objects.
   bool operator == (const S5FHControllerState& other) const
   {
     return

@@ -44,6 +44,24 @@ struct S5FHCurrentSettings
   float umn;
   //! Output limiter max
   float umx;
+
+  //! Compares two S5FHCurrentSettings objects.
+  bool operator == (const S5FHCurrentSettings& other) const
+  {
+    return
+      (wmn == other.wmn
+       && wmx == other.wmx
+       && ky == other.ky
+       && dt == other.dt
+       && imn == other.imn
+       && imx == other.imx
+       && kp == other.kp
+       && ki == other.ki
+       && umn == other.umn
+       && umx == other.umx
+       );
+  }
+
 };
 
 //! overload stream operator to easily serialize data
@@ -77,6 +95,25 @@ inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHCurr
      >> data.wmn;
   return ab;
 }
+
+//! Output Stream operator
+inline std::ostream& operator << (std::ostream& o, const S5FHCurrentSettings& cs)
+{
+  o << "wmn "<< cs.wmn << " "
+    << "wmx "<< cs.wmx << " "
+    << "ky " << cs.ky  << " "
+    << "dt " << cs.dt  << " "
+    << "imn "<< cs.imn << " "
+    << "imx "<< cs.imx << " "
+    << "kp " << cs.kp  << " "
+    << "ki " << cs.ki  << " "
+    << "umn "<< cs.umn << " "
+    << "umx "<< cs.umx << " "
+    << std::endl;
+  return o;
+}
+
+
 
 }
 

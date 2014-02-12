@@ -45,6 +45,22 @@ public:
   float ki;
   //! Differential gain
   float kd;
+
+  //! Compares two S5FHPositionsetting objects.
+  bool operator == (const S5FHPositionSettings& other) const
+  {
+    return
+      (wmn == other.wmn
+       && wmx == other.wmx
+       && dwmx == other.dwmx
+       && ky == other.ky
+       && dt == other.dt
+       && imn == other.imn
+       && imx == other.imx
+       && kp == other.kp
+       && ki == other.ki
+       && kd == other.kd);
+  }
 };
 
 //! overload stream operator to easily serialize data
@@ -63,7 +79,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
   return ab;
 }
 
-//! overload stream operator to easily serialize data
+//! overload stream operator to easily deserialize data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHPositionSettings& data)
 {
   ab >> data.kd
@@ -77,6 +93,24 @@ inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHPosi
      >> data.wmx
      >> data.wmn;
   return ab;
+}
+
+//! Output Stream operator
+
+inline std::ostream& operator << (std::ostream& o, const S5FHPositionSettings& ps)
+{
+  o << "wmn " << ps.wmn << " "
+    << "wmx " << ps.wmx << " "
+    << "dwmx "<< ps.dwmx << " "
+    << "ky "  << ps.ky  << " "
+    << "dt "  << ps.dt  << " "
+    << "imn " << ps.imn << " "
+    << "imx " << ps.imx << " "
+    << "kp "  << ps.kp  << " "
+    << "ki "  << ps.ki  << " "
+    << "kd "  << ps.kd << " "
+    << std::endl;
+  return o;
 }
 
 

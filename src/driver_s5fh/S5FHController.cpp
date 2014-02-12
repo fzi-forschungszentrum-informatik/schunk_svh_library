@@ -52,21 +52,27 @@ S5FHController::S5FHController():
 
 S5FHController::~S5FHController()
 {
-  // Disable all channels
-  disableChannel(eS5FH_ALL);
+  if (m_serial_interface != NULL)
+  {
+    disconnect();
+    delete m_serial_interface;
+  }
 
-  // Kill Serial
-  m_serial_interface->close();
-  delete m_serial_interface;
 }
 
 bool S5FHController::connect(const std::string &dev_name)
 {
-  return m_serial_interface->connect(dev_name);
+  if (m_serial_interface != NULL)
+    return m_serial_interface->connect(dev_name);
+  else
+    return false;
 }
 
 void S5FHController::disconnect()
 {
+  // Disable all channels
+  disableChannel(eS5FH_ALL);
+
   m_serial_interface->close();
 }
 

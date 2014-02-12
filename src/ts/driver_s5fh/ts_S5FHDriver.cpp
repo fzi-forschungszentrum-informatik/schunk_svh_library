@@ -186,42 +186,42 @@ BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
   std::cout << "Done" << std::endl;
 }
 
-//BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
-//{
+BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
+{
 
-//  std::cout << "Controller receiving feedback Packet ....";
+  std::cout << "Controller receiving feedback Packet ....";
 
-//  // Initialize logging
-//  icl_core::logging::initialize();
+  // Initialize logging
+  icl_core::logging::initialize();
 
-//  // Reset Array Builder
-//  // BEWARE OF ARRAY LENGTH!
-//  payload.reset(6);
+  // Reset Array Builder
+  // BEWARE OF ARRAY LENGTH!
+  payload.reset(6);
 
-//  // Create Structures
-//  S5FHController controller("TTYNOTPRESENT");
-//  ArrayBuilder packet;
-//  S5FHCHANNEL channel = eS5FH_INDEX_FINGER_DISTAL;
-//  S5FHSerialPacket test_serial_packet(6,S5FH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
-//  S5FHControllerFeedback test_controller_feedback(23,42);
-//  // Conversion
-//  payload << test_controller_feedback;
+  // Create Structures
+  S5FHController controller;
+  ArrayBuilder packet;
+  S5FHCHANNEL channel = eS5FH_INDEX_FINGER_DISTAL;
+  S5FHSerialPacket test_serial_packet(6,S5FH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
+  S5FHControllerFeedback test_controller_feedback(23,42);
+  // Conversion
+  payload << test_controller_feedback;
 
 
-//  // Insertion
-//  test_serial_packet.data = payload.array;
+  // Insertion
+  test_serial_packet.data = payload.array;
 
-//  // Emulate received packet
-//  controller.receivedPacketCallback(test_serial_packet,1);
+  // Emulate received packet
+  controller.receivedPacketCallback(test_serial_packet,1);
 
-//  // Get packet from controller
-//  S5FHControllerFeedback feedback_out;
-//  controller.getControllerFeedback(channel,feedback_out);
+  // Get packet from controller
+  S5FHControllerFeedback feedback_out;
+  controller.getControllerFeedback(channel,feedback_out);
 
-//  BOOST_CHECK_EQUAL(test_controller_feedback,feedback_out);
+  BOOST_CHECK_EQUAL(test_controller_feedback,feedback_out);
 
-//  std::cout << "Done" << std::endl;
-//}
+  std::cout << "Done" << std::endl;
+}
 
 
 // Firmware is not working yet

@@ -68,7 +68,6 @@ struct S5FHSerialPacket
   {
   }
 
-
   //! Compares two S5FHSerialPackets objects.
   bool operator == (const S5FHSerialPacket& other) const
   {

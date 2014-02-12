@@ -17,7 +17,7 @@
 
 namespace driver_s5fh {
 
-S5FHFingerManager::S5FHFingerManager(const std::string& serial_device_name)
+S5FHFingerManager::S5FHFingerManager()
 {
   // initialize new S5FHController object with serial devices string
   m_controller = new S5FHController();
@@ -27,23 +27,59 @@ S5FHFingerManager::S5FHFingerManager(const std::string& serial_device_name)
   m_position_max.resize(eS5FH_DIMENSION, 0);
   m_is_homed.resize(eS5FH_DIMENSION, false);
 
-  m_controller->connect(serial_device_name);
-
   // load home position default parameters
   setHomePositionDefaultParameters();
-
-  // load default current settings
-  setCurrentSettingsDefaultParameters();
-
-  // load default position settings
-  setPositionSettingsDefaultParameters();
 
 }
 
 S5FHFingerManager::~S5FHFingerManager()
 {
-  // TODO: disable all channels, close serial device ... or better in destructor of controller?
-  delete m_controller;
+  disconnect();
+}
+
+bool S5FHFingerManager::connect(const std::string &dev_name)
+{
+  bool connected = false;
+
+  if (m_controller != NULL)
+  {
+    if (m_controller->connect(dev_name))
+    {
+      // load default position settings
+      std::vector<S5FHPositionSettings> default_position_settings
+          = getPositionSettingsDefaultParameters();
+
+      // load default current settings
+      std::vector<S5FHCurrentSettings> default_current_settings
+          = getCurrentSettingsDefaultParameters();
+
+      // initialize all channels
+      for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+      {
+        // request controller feedback
+        m_controller->requestControllerFeedback(static_cast<S5FHCHANNEL>(i));
+
+        // set position settings
+        m_controller->setPositionSettings(static_cast<S5FHCHANNEL>(i), default_position_settings[i]);
+
+        // set current settings
+        m_controller->setCurrentSettings(static_cast<S5FHCHANNEL>(i), default_current_settings[i]);
+      }
+
+      connected = true;
+    }
+  }
+
+  return connected;
+}
+
+void S5FHFingerManager::disconnect()
+{
+  if (m_controller != NULL)
+  {
+    m_controller->disconnect();
+    delete m_controller;
+  }
 }
 
 //! reset function for a single finger
@@ -105,9 +141,6 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
     }
   }
   m_controller->disableChannel(eS5FH_ALL);
-
-  //this.controlCommand.position = control_feedback.position;
-  //m_controller->setControllerTarget(channel, control_feedback.position);
 
   m_is_homed[channel] = true;
 
@@ -175,9 +208,9 @@ void S5FHFingerManager::setHomePositionDefaultParameters()
 }
 
 //!
-//! \brief set default parameters for current settings
+//! \brief returns default parameters for current settings
 //!
-void S5FHFingerManager::setCurrentSettingsDefaultParameters()
+std::vector<S5FHCurrentSettings> S5FHFingerManager::getCurrentSettingsDefaultParameters()
 {
   std::vector<S5FHCurrentSettings> default_current_settings(eS5FH_DIMENSION);
   S5FHCurrentSettings cur_set_thumb          = {-191.0f, 191.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
@@ -194,16 +227,13 @@ void S5FHFingerManager::setCurrentSettingsDefaultParameters()
   default_current_settings[7] = cur_set_distal_joint;   // pinky
   default_current_settings[8] = cur_set_proximal_joint; // finger spread
 
-  for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
-  {
-    m_controller->setCurrentSettings(static_cast<S5FHCHANNEL>(i), default_current_settings[i]);
-  }
+  return default_current_settings;
 }
 
 //!
-//! \brief set default parameters for position settings
+//! \brief returns default parameters for position settings
 //!
-void S5FHFingerManager::setPositionSettingsDefaultParameters()
+std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultParameters()
 {
   std::vector<S5FHPositionSettings> default_position_settings(eS5FH_DIMENSION);
   S5FHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  3.4e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
@@ -220,10 +250,7 @@ void S5FHFingerManager::setPositionSettingsDefaultParameters()
   default_position_settings[7] = pos_set_finger;  // pinky
   default_position_settings[8] = pos_set_spread;  // finger spread
 
-  for (size_t i = 0; i < eS5FH_DIMENSION; i++)
-  {
-    m_controller->setPositionSettings(static_cast<S5FHCHANNEL>(i), default_position_settings[i]);
-  }
+  return default_position_settings;
 }
 
 bool S5FHFingerManager::readParametersFromConfigFile()

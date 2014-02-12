@@ -27,9 +27,21 @@ public:
 
   /*! Constructs a finger manager for the SCHUNK five finger hand.
    */
-  S5FHFingerManager(const std::string &serial_device_name);
+  S5FHFingerManager();
 
   virtual ~S5FHFingerManager();
+
+  //!
+  //! \brief open connection to SCHUNK five finger hand
+  //! \param dev_name
+  //! \return
+  //!
+  bool connect(const std::string &dev_name);
+
+  //!
+  //! \brief disconnect SCHUNK five finger hand
+  //!
+  void disconnect();
 
   //!
   //! \brief reset function for a single finger
@@ -117,14 +129,14 @@ private:
   void setHomePositionDefaultParameters();
 
   //!
-  //! \brief set default parameters for current settings
+  //! \brief get default parameters for current settings
   //!
-  void setCurrentSettingsDefaultParameters();
+  std::vector<S5FHCurrentSettings> getCurrentSettingsDefaultParameters();
 
   //!
-  //! \brief set default parameters for position settings
+  //! \brief get default parameters for position settings
   //!
-  void setPositionSettingsDefaultParameters();
+  std::vector<S5FHPositionSettings> getPositionSettingsDefaultParameters();
 
   //!
   //! \brief readParametersFromConfigFile

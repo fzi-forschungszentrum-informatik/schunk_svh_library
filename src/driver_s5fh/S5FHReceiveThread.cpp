@@ -28,7 +28,7 @@ S5FHReceiveThread::S5FHReceiveThread(const TimeSpan& period, Serial *device,
     m_received_state(eRS_HEADER1),
     m_length(0),
     m_data(0, 0),
-    m_ab(new ArrayBuilder(44)),
+    m_ab(0),
     m_packets_received(0),
     m_received_callback(received_callback)
 {
@@ -93,14 +93,16 @@ bool S5FHReceiveThread::receiveData()
     }
     case eRS_INDEX:
     {
-      // create array builder
-        m_ab = new ArrayBuilder(44);
+      // Reset Array Builder
+      // Warning: It Is imperative that the Arraybuilder is created with an overall size smaler or equeal to the received packets!!
+      // This is neccessary to ensure correct de-serialization
+      m_ab.reset(0);
 
       // read index data byte
       uint8_t index = 0;
       if (m_serial_device->Read(&index, sizeof(uint8_t)))
       {
-        m_ab->appendWithoutConversion(index);
+        m_ab.appendWithoutConversion(index);
         m_received_state = eRS_ADDRESS;
       }
       break;
@@ -111,7 +113,7 @@ bool S5FHReceiveThread::receiveData()
       uint8_t address = 0;
       if (m_serial_device->Read(&address, sizeof(uint8_t)))
       {
-        m_ab->appendWithoutConversion(address);
+        m_ab.appendWithoutConversion(address);
         m_received_state = eRS_LENGTH;
       }
       break;
@@ -122,8 +124,8 @@ bool S5FHReceiveThread::receiveData()
       uint16_t length = 0;
       if (m_serial_device->Read(&length, sizeof(uint16_t)))
       {
-        m_ab->appendWithoutConversion(length);
-        m_length = m_ab->peek<u_int16_t>();
+        m_ab.appendWithoutConversion(length);
+        m_length = m_ab.peek<u_int16_t>();
         m_received_state = eRS_DATA;
       }
       break;
@@ -134,7 +136,7 @@ bool S5FHReceiveThread::receiveData()
       m_data = std::vector<uint8_t>(m_length, 0);
       if (m_serial_device->Read(reinterpret_cast<void *>(&m_data), m_length))
       {
-        m_ab->appendWithoutConversion(m_data);
+        m_ab.appendWithoutConversion(m_data);
         m_received_state = eRS_CHECKSUM;
       }
       break;
@@ -167,8 +169,9 @@ bool S5FHReceiveThread::receiveData()
     case eRS_COMPLETE:
     {
       // start with an empty package
+      // Warning: It is imperative for correct readouts to create the received_packet with the correct length!
       S5FHSerialPacket received_packet(m_length);
-      *m_ab >> received_packet;
+      m_ab >> received_packet;
 
       m_packets_received++;
 

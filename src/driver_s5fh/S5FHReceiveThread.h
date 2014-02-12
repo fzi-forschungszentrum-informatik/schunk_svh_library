@@ -77,7 +77,7 @@ private:
   std::vector<u_int8_t> m_data;
 
   //! pointer to array builder object for packet receive
-  icl_comm::ArrayBuilder* m_ab;
+  icl_comm::ArrayBuilder m_ab;
 
   //! packets counter
   unsigned int m_packets_received;

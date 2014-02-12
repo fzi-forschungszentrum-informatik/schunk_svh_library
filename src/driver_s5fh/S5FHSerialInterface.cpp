@@ -109,7 +109,11 @@ bool S5FHSerialInterface::sendPacket(S5FHSerialPacket& packet)
       icl_comm::ArrayBuilder send_array(size);
       send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
 
-      m_serial_device->Write(send_array.array.data(), size);
+      size_t bytes_send = 0;
+      while (bytes_send < size)
+      {
+        bytes_send += m_serial_device->Write(send_array.array.data() + bytes_send, size - bytes_send);
+      }
     }
     else
     {

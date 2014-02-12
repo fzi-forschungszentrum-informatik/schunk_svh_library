@@ -165,8 +165,12 @@ public:
     */
    bool getCurrentSettings(const S5FHCHANNEL &channel,S5FHPositionSettings& position_settings);
 
-
-
+   /*!
+    * \brief Check if a channel was enabled
+    * \param channel to check
+    * \return True if an enable has been send to the hardware
+    */
+   bool isEnabled(const S5FHCHANNEL &channel);
 
 private:
 
@@ -187,6 +191,9 @@ private:
   //! Currently active encoder settings
   S5FHEncoderSettings m_encoder_settings;
 
+  //! Latest firmware info
+  S5FHFirmwareInfo m_firmware_info;
+
   // Hardware control
 
   //! Serial interface for transmission and reveibing of data packets
@@ -194,6 +201,7 @@ private:
 
   //! Bitmask to tell which fingers are enabled
   u_int16_t m_enable_mask;
+
 
 
 

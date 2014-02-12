@@ -112,6 +112,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
   for (size_t hit_count = 0; hit_count < 10; )
   {
     m_controller->setControllerTarget(channel, position);
+    m_controller->requestControllerFeedback(channel);
     m_controller->getControllerFeedback(channel, control_feedback);
 
     if ((0.75 * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= 0.75 * cur_set.wmx))
@@ -136,6 +137,8 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
   while (true)
   {
     m_controller->setControllerTarget(channel, position);
+    m_controller->requestControllerFeedback(channel);
+    m_controller->getControllerFeedback(channel, control_feedback);
 
     if (abs(position - control_feedback.position) < 1000)
     {

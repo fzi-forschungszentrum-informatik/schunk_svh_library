@@ -21,6 +21,7 @@
 #include <driver_s5fh/S5FHControlCommand.h>
 #include <driver_s5fh/S5FHControllerFeedback.h>
 #include <driver_s5fh/S5FHEncoderSettings.h>
+#include <driver_s5fh/S5FHController.h>
 
 using icl_comm::ArrayBuilder;
 using namespace driver_s5fh;
@@ -98,7 +99,7 @@ BOOST_AUTO_TEST_CASE(ConvertControlFeedback)
   payload.reset(40);
 
   // Create Structures
-  S5FHControllerFeedback test_controller_feedback_in = {23,42};
+  S5FHControllerFeedback test_controller_feedback_in(23,42);
   S5FHControllerFeedback test_controller_feedback_out;
 
   // Conversion
@@ -124,6 +125,8 @@ BOOST_AUTO_TEST_CASE(ConvertControllerState)
   // Conversion
   payload << test_controller_state_in;
   payload >> test_controller_state_out;
+
+
 
   BOOST_CHECK_EQUAL(test_controller_state_in,test_controller_state_out);
 
@@ -158,11 +161,11 @@ BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
 
   // Reset Array Builder
   payload.reset(40);
+
+  // Create Structures
   ArrayBuilder packet;
   S5FHSerialPacket test_serial_packet_in(40,5);
   S5FHSerialPacket test_serial_packet_out(40);
-
-  // Create Structures
   S5FHPositionSettings test_pos_settings_in =  {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1};
   S5FHPositionSettings test_pos_settings_out;
 
@@ -182,5 +185,45 @@ BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
 
   std::cout << "Done" << std::endl;
 }
+
+BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
+{
+
+  std::cout << "Controller receiving feedback Packet ....";
+
+  // Initialize logging
+  icl_core::logging::initialize();
+
+  // Reset Array Builder
+  // BEWARE OF ARRAY LENGTH!
+  payload.reset(6);
+
+  // Create Structures
+  S5FHController controller("/dev/TTYNOTPRESENT");
+  ArrayBuilder packet;
+  S5FHCHANNEL channel = eS5FH_INDEX_FINGER_DISTAL;
+  S5FHSerialPacket test_serial_packet(6,S5FH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
+  S5FHControllerFeedback test_controller_feedback(23,42);
+  // Conversion
+  payload << test_controller_feedback;
+
+  // Insertion
+  test_serial_packet.data = payload.array;
+
+  // Emulate received packet
+  controller.receivedPacketCallback(test_serial_packet,1);
+
+  // Get packet from controller
+  S5FHControllerFeedback feedback_out;
+  controller.getControllerFeedback(channel,feedback_out);
+
+  BOOST_CHECK_EQUAL(test_controller_feedback,feedback_out);
+
+  std::cout << "Done" << std::endl;
+}
+
+
+
+
 
 BOOST_AUTO_TEST_SUITE_END()

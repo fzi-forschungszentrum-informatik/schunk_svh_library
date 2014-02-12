@@ -61,6 +61,8 @@ private:
   //! thread for receiving serial packets
   S5FHReceiveThread *m_receive_thread;
 
+  ReceivedPacketCallback m_received_packet_callback;
+
 };
 
 }

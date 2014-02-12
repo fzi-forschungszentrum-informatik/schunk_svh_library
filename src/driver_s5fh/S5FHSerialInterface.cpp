@@ -27,7 +27,10 @@ S5FHSerialInterface::S5FHSerialInterface(ReceivedPacketCallback const & received
   m_serial_device = NULL;
 
   // create receive thread
-  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), m_serial_device, received_packet_callback);
+  m_receive_thread = NULL;
+
+  // save callback function
+  m_received_packet_callback = received_packet_callback;
 
   // initialize packet counter
   m_packets_transmitted = 0;
@@ -43,9 +46,9 @@ bool S5FHSerialInterface::connect(const std::string &dev_name)
   // create serial device
   m_serial_device = new Serial(dev_name.c_str(), SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8));
 
-  // open serial device
   if (m_serial_device != NULL)
   {
+    // open serial device
     if (!m_serial_device->Open())
     {
       LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not open serial device: " << dev_name.c_str() << endl);
@@ -53,16 +56,29 @@ bool S5FHSerialInterface::connect(const std::string &dev_name)
       return false;
     }
   }
+  else
+  {
+    close();
+    return false;
+  }
 
-  // start receive thread
+  // create receive thread
+  m_receive_thread = new S5FHReceiveThread(TimeSpan::createFromMSec(10), m_serial_device, m_received_packet_callback);
+
   if (m_receive_thread != NULL)
   {
+    // start receive thread
     if (!m_receive_thread->start())
     {
       LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not start the receive thread for the serial device!" << endl);
       close();
       return false;
     }
+  }
+  else
+  {
+    close();
+    return false;
   }
 
   return true;

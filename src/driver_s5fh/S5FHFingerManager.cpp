@@ -35,6 +35,8 @@ S5FHFingerManager::S5FHFingerManager(const std::string& serial_device_name)
 
 S5FHFingerManager::~S5FHFingerManager()
 {
+  // TODO: disable all channels, close serial device ... or better in destructor of controller?
+  delete m_controller;
 }
 
 //! reset function for a single finger

@@ -94,7 +94,7 @@ bool S5FHSerialInterface::sendPacket(S5FHSerialPacket& packet)
     uint8_t check_sum1 = 0;
     uint8_t check_sum2 = 0;
 
-    for (size_t i; i < packet.data.size(); i++)
+    for (size_t i = 0; i < packet.data.size(); i++)
     {
       check_sum1 += packet.data[i];
       check_sum2 ^= packet.data[i];

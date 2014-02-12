@@ -26,8 +26,8 @@ using icl_comm::ArrayBuilder;
  *
  * TODO:
  * - setFunctions -> is it enough to just send the settings, will we get the current settings immediatly or do we store the information while sending??
- * - Correctly initialize everything in the Controller -> take special care to have the sizes of all arrays set correctly, otherwise a lot of checks will fail
  * - Test Serialization, deserialization of ALL THE PACKETS
+ * - Test the data structures
  *
  *TODO(optional):
  * - Data about the positions and currents is currently pulled by the fingermanager -> this could be enhanced by using mutexes to inform higher layers about changes
@@ -41,9 +41,14 @@ namespace driver_s5fh {
 
 
 S5FHController::S5FHController(const std::string& serial_dev_name):
+  m_current_settings(eS5FH_DIMENSION,S5FHCurrentSettings()),  // Vectors have to be filled with objects for correct deserialization
+  m_position_settings(eS5FH_DIMENSION,S5FHPositionSettings()),
+  m_controller_feedback(eS5FH_DIMENSION,S5FHControllerFeedback()),
   m_serial_interface(new S5FHSerialInterface(serial_dev_name,boost::bind(&S5FHController::receivedPacketCallback,this,_1,_2))),
   m_enable_mask(0)
 {
+
+
 }
 
 S5FHController::~S5FHController()
@@ -156,7 +161,7 @@ void S5FHController::disableChannel(const S5FHCHANNEL& channel)
   S5FHControllerState controller_state;
   ArrayBuilder ab(40);
   //TODO: The following code is very.. strange -> Ask MeCoVis if that is really... really really what one is supposed to send to disable things
-  if (channel != eS5FH_ALL)
+  if (channel == eS5FH_ALL)
   {
     m_enable_mask = 0;
     controller_state.pwm_fault = 0x001F;
@@ -360,7 +365,7 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
     case S5FH_GET_FIRMWARE_INFO:
         ab >> m_firmware_info;
         LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a firmware packet" << endl);
-        LOGGING_INFO_C(DriverS5FH, S5FHController, m_firmware_info.s5fh  << " " << m_firmware_info.version_major << "." << m_firmware_info.version_minor << " : " << m_firmware_info.text << endl);
+        //LOGGING_INFO_C(DriverS5FH, S5FHController, m_firmware_info.s5fh  << " " << m_firmware_info.version_major << "." << m_firmware_info.version_minor << " : " << m_firmware_info.text << endl);
       break;
     default:
       break;

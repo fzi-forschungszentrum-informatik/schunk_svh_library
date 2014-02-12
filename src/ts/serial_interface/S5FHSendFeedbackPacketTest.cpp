@@ -38,7 +38,7 @@ int main(int argc, const char* argv[])
   ArrayBuilder packet;
   S5FHCHANNEL channel = eS5FH_FINGER_SPREAD;
   S5FHSerialPacket test_serial_packet(40,S5FH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
-  S5FHControllerFeedback test_controller_feedback(23,42);
+  S5FHControllerFeedback test_controller_feedback(-8000, 140);
 
   // serialize test controller feedback to paket
   packet << test_controller_feedback;

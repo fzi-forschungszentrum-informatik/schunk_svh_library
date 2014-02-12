@@ -334,7 +334,7 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
   ArrayBuilder ab;
   ab.appendWithoutConversion(packet.data);
 
-
+  // TODO: DEBUG OUTPUT WAS ADDED AS INFO! MAKE TRACE OR DEBUG ONCE THE DRIVER WORKS MORE OR LESS CORRECT
 
   // Packet meaning is encoded in the lower nibble of the adress byte
   switch (packet.address & 0x0F)
@@ -343,6 +343,7 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
     case S5FH_SET_CONTROL_COMMAND:
       if (channel >=0 && channel < eS5FH_DIMENSION)
       {
+        std::cout << "Recieved: Controllerfeedback RAW Data: " << ab;
         ab >> m_controller_feedback[channel];
         LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current << endl);
       }
@@ -355,38 +356,47 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
     case S5FH_SET_POSITION_SETTINGS:
       if (channel >=0 && channel < eS5FH_DIMENSION)
       {
+        std::cout << "Recieved: Postitionsettings RAW Data: " << ab;
         ab >> m_position_settings[channel];
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for channel "<< channel << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for channel "<< channel  << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "wmn " << m_position_settings[channel].wmn << " "<< "wmx " << m_position_settings[channel].wmx << " "<< "dwmx "<< m_position_settings[channel].dwmx << " "<< "ky "  << m_position_settings[channel].ky  << " "<< "dt "  << m_position_settings[channel].dt  << " "<< "imn " << m_position_settings[channel].imn << " "<< "imx " << m_position_settings[channel].imx << " " << "kp "  << m_position_settings[channel].kp  << " " << "ki "  << m_position_settings[channel].ki  << " " << "kd "  << m_position_settings[channel].kd  << endl);
+
       }
       else
       {
-        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
       }
       break;
     case S5FH_GET_CURRENT_SETTINGS:
     case S5FH_SET_CURRENT_SETTINGS:
       if (channel >=0 && channel < eS5FH_DIMENSION)
       {
+        std::cout << "Recieved: Current Settings RAW Data: " << ab;
         ab >> m_current_settings[channel];
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for channel "<< channel << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for channel "<< channel << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "wmn "<< m_current_settings[channel].wmn << " " << "wmx "<< m_current_settings[channel].wmx << " " << "ky " << m_current_settings[channel].ky  << " " << "dt " << m_current_settings[channel].dt  << " " << "imn "<< m_current_settings[channel].imn << " " << "imx "<< m_current_settings[channel].imx << " "                   << "kp " << m_current_settings[channel].kp  << " " << "ki " << m_current_settings[channel].ki  << " " << "umn "<< m_current_settings[channel].umn << " " << "umx "<< m_current_settings[channel].umx << " "<< endl);
       }
       else
       {
-        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
       }
       break;
     case S5FH_GET_CONTROLLER_STATE:
     case S5FH_SET_CONTROLLER_STATE:
+        std::cout << "Recieved: Controller State RAW Data: " << ab;
         ab >> m_controller_state;
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set controler state packet " << endl);
+        std::cout << "Received controllerState interpreded data: "<< m_controller_state << std::endl;
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set controler state packet " << endl);
       break;
     case S5FH_GET_ENCODER_VALUES:
     case S5FH_SET_ENCODER_VALUES:
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set encoder settings packet " << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set encoder settings packet " << endl);
         ab >> m_encoder_settings;
       break;
     case S5FH_GET_FIRMWARE_INFO:
+        std::cout << "Recieved: Firmware Settings RAW Data: " << ab;
         ab >> m_firmware_info;
+        std::cout << "Received Firmware intepreted data: "<< m_firmware_info << std::endl;
         LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a firmware packet" << endl);
         //LOGGING_INFO_C(DriverS5FH, S5FHController, m_firmware_info.s5fh  << " " << m_firmware_info.version_major << "." << m_firmware_info.version_minor << " : " << m_firmware_info.text << endl);
       break;

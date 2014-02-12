@@ -26,7 +26,6 @@ using icl_comm::ArrayBuilder;
  *
  * TODO:
  * - setFunctions -> is it enough to just send the settings, will we get the current settings immediatly or do we store the information while sending??
- * - Test Serialization, deserialization of ALL THE PACKETS
  * - Test the data structures
  *
  *TODO(optional):
@@ -102,7 +101,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
-    // TODO: What is a good sleep function? Insert it here to sleep 2 ms
+    icl_core::os::usleep(2000);
 
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Adding pwm_reset and pwm_active..." << endl);
     // enable +12v supply driver ??????
@@ -113,7 +112,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
-    // TODO: What is a good sleep function? Insert it here to sleep 2 ms
+    icl_core::os::usleep(2000);
 
      LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Adding pos_ctrl and cur_ctrl..." << endl);
     // enable controller ???????
@@ -124,7 +123,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
-     // TODO: What is a good sleep function? Insert it here to sleep 2 ms
+     icl_core::os::usleep(2000);
 
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "...Done" << endl);
   }
@@ -313,6 +312,8 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
   ArrayBuilder ab;
   ab.appendWithoutConversion(packet.data);
 
+
+
   // Packet meaning is encoded in the lower nibble of the adress byte
   switch (packet.address & 0x0F)
   {
@@ -321,11 +322,11 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
       if (channel >=0 && channel < eS5FH_DIMENSION)
       {
         ab >> m_controller_feedback[channel];
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for channel"<< channel << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current << endl);
       }
       else
       {
-        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for ILLEGAL channel"<< channel << "- packet ignored!" << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
       }
       break;
     case S5FH_GET_POSITION_SETTINGS:
@@ -333,11 +334,11 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
       if (channel >=0 && channel < eS5FH_DIMENSION)
       {
         ab >> m_position_settings[channel];
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for channel"<< channel << endl);
+        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for channel "<< channel << endl);
       }
       else
       {
-        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for ILLEGAL channel"<< channel << "- packet ignored!" << endl);
+        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
       }
       break;
     case S5FH_GET_CURRENT_SETTINGS:
@@ -345,21 +346,21 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
       if (channel >=0 && channel < eS5FH_DIMENSION)
       {
         ab >> m_current_settings[channel];
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for channel"<< channel << endl);
+        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for channel "<< channel << endl);
       }
       else
       {
-        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for ILLEGAL channel"<< channel << "- packet ignored!" << endl);
+        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
       }
       break;
     case S5FH_GET_CONTROLLER_STATE:
     case S5FH_SET_CONTROLLER_STATE:
         ab >> m_controller_state;
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set controler state packet" << endl);
+        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set controler state packet " << endl);
       break;
     case S5FH_GET_ENCODER_VALUES:
     case S5FH_SET_ENCODER_VALUES:
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set encoder settings packet" << endl);
+        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a get/set encoder settings packet " << endl);
         ab >> m_encoder_settings;
       break;
     case S5FH_GET_FIRMWARE_INFO:

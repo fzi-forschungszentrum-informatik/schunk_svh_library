@@ -88,7 +88,9 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
   HomeSettings home = m_home_settings[channel];
 
   S5FHPositionSettings pos_set;
+  S5FHCurrentSettings cur_set;
   m_controller->getPositionSettings(channel, pos_set);
+  m_controller->getCurrentSettings(channel, cur_set);
 
   // find home position
   m_controller->disableChannel(eS5FH_ALL);
@@ -112,7 +114,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
     m_controller->setControllerTarget(channel, position);
     m_controller->getControllerFeedback(channel, control_feedback);
 
-    if ((0.75 * pos_set.wmn >= control_feedback.current) || (control_feedback.current >= 0.75 * pos_set.wmx))
+    if ((0.75 * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= 0.75 * cur_set.wmx))
     {
       hit_count++;
     }

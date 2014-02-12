@@ -17,10 +17,10 @@
 
 namespace driver_s5fh {
 
-S5FHFingerManager::S5FHFingerManager()
+S5FHFingerManager::S5FHFingerManager(const std::string& serial_device_name)
 {
-  //TODO: Get this string from somewhere
-  m_controller = new S5FHController("/dev/tty1");
+  // initialize new S5FHController object with serial devices string
+  m_controller = new S5FHController(serial_device_name);
 
   // load home position default parameters
   setHomePositionDefaultParameters();

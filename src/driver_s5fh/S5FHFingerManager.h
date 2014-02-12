@@ -27,7 +27,7 @@ public:
 
   /*! Constructs a finger manager for the SCHUNK five finger hand.
    */
-  S5FHFingerManager();
+  S5FHFingerManager(const std::string &serial_device_name);
 
   virtual ~S5FHFingerManager();
 

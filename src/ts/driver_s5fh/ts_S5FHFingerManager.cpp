@@ -23,7 +23,9 @@ BOOST_AUTO_TEST_CASE(ConfigParameters)
 {
   icl_core::logging::initialize();
 
-  S5FHFingerManager finger_mananger;
+  std::string serial_device_name = "/dev/ttyXXX";
+
+  S5FHFingerManager finger_mananger(serial_device_name);
 
 }
 

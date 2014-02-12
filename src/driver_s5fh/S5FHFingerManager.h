@@ -93,11 +93,6 @@ private:
   std::vector<u_int32_t> m_position_max;
 
   //!
-  //! \brief vector storing enabled flags for each finger
-  //!
-  std::vector<bool> m_is_enabled;
-
-  //!
   //! \brief vector storing reset flags for each finger
   //!
   std::vector<bool> m_is_homed;

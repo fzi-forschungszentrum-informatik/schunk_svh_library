@@ -22,6 +22,11 @@ S5FHFingerManager::S5FHFingerManager(const std::string& serial_device_name)
   // initialize new S5FHController object with serial devices string
   m_controller = new S5FHController(serial_device_name);
 
+  // initialize member varaibles
+  m_position_min.resize(eS5FH_DIMENSION, 0);
+  m_position_max.resize(eS5FH_DIMENSION, 0);
+  m_is_homed.resize(eS5FH_DIMENSION, false);
+
   // load home position default parameters
   setHomePositionDefaultParameters();
 

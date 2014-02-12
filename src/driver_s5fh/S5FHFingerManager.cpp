@@ -47,12 +47,12 @@ S5FHFingerManager::~S5FHFingerManager()
 //! reset function for a single finger
 bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 {
-  /*
   HomeSettings home = m_home_settings[channel];
 
-  S5FHPositionSettings pos_set = m_controller->getPositionSettings(channel);
+  S5FHPositionSettings pos_set;
+  m_controller->getPositionSettings(channel, pos_set);
 
-  // home
+  // find home position
   m_controller->disableChannel(eS5FH_ALL);
   u_int32_t position = 0;
 
@@ -65,14 +65,16 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
     position = static_cast<u_int32_t>(pos_set.wmn);
   }
   m_controller->setControllerTarget(channel, position);
-
   m_controller->enableChannel(channel);
+
+  S5FHControllerFeedback control_feedback;
 
   for (size_t hit_count = 0; hit_count < 10; )
   {
     m_controller->setControllerTarget(channel, position);
+    m_controller->getControllerFeedback(channel, control_feedback);
 
-    if ((0.75 * pos_set.wmn >= m_controller->getControllerFeedback(channel).current) || (controlFeedback.current >= 0.75 * pos_set.wmx))
+    if ((0.75 * pos_set.wmn >= control_feedback.current) || (control_feedback.current >= 0.75 * pos_set.wmx))
     {
       hit_count++;
     }
@@ -84,10 +86,10 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
   m_controller->disableChannel(eS5FH_ALL);
 
   // set reference values
-  m_position_min = controlFeedback.position + home.minimumOffset;
-  m_position_max = controlFeedback.position + home.maximumOffset;
+  m_position_min[channel] = control_feedback.position + home.minimumOffset;
+  m_position_max[channel] = control_feedback.position + home.maximumOffset;
 
-  position = static_cast<u_int32_t>(controlFeedback.position + home.idlePosition);
+  position = static_cast<u_int32_t>(control_feedback.position + home.idlePosition);
 
   // go to idle position
   m_controller->enableChannel(channel);
@@ -95,18 +97,18 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
   {
     m_controller->setControllerTarget(channel, position);
 
-    if (Math.Abs(controlCommand.position - controlFeedback.position) < 1000)
+    if (abs(position - control_feedback.position) < 1000)
     {
       break;
     }
   }
   m_controller->disableChannel(eS5FH_ALL);
 
-  this.controlCommand.position = controlFeedback.position;
+  //this.controlCommand.position = control_feedback.position;
+  //m_controller->setControllerTarget(channel, control_feedback.position);
 
-  IsHomed = true;
-  homeThread = null;
-  */
+  m_is_homed[channel] = true;
+
   return true;
 }
 

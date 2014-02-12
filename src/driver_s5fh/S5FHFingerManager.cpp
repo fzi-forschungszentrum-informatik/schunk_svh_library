@@ -85,6 +85,8 @@ void S5FHFingerManager::disconnect()
 //! reset function for a single finger
 bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 {
+  LOGGING_ERROR_C(DriverS5FH, resetChannel, "Start homing " << channel << endl);
+
   HomeSettings home = m_home_settings[channel];
 
   S5FHPositionSettings pos_set;
@@ -124,6 +126,9 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       hit_count--;
     }
   }
+
+  LOGGING_ERROR_C(DriverS5FH, resetChannel, "Hit counter reached" << channel << endl);
+
   m_controller->disableChannel(eS5FH_ALL);
 
   // set reference values
@@ -148,6 +153,8 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
   m_controller->disableChannel(eS5FH_ALL);
 
   m_is_homed[channel] = true;
+
+  LOGGING_ERROR_C(DriverS5FH, resetChannel, "End homing " << channel << endl);
 
   return true;
 }

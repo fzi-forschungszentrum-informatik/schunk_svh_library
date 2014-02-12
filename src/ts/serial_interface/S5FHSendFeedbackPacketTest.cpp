@@ -29,18 +29,32 @@ int main(int argc, const char* argv[])
 {
   icl_core::logging::initialize();
 
-  std::string serial_device_name = "/dev/ttyUSB1";
+  std::string serial_device_name = "/dev/ttyUSB2";
 
   S5FHSerialInterface serial_com(NULL);
   serial_com.connect(serial_device_name);
 
   // build feedback serial packet for sending
   ArrayBuilder packet;
-  S5FHCHANNEL channel = eS5FH_FINGER_SPREAD;
+  S5FHCHANNEL channel = eS5FH_PINKY;
   S5FHSerialPacket test_serial_packet(40,S5FH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
-  S5FHControllerFeedback test_controller_feedback(-8000, 140);
+  S5FHControllerFeedback test_controller_feedback(0, 140);
 
   // serialize test controller feedback to paket
+  packet << test_controller_feedback;
+  test_serial_packet.index = 0;   //
+  // Set the payload (converted array of position settings)
+  test_serial_packet.data = packet.array;
+
+  // send packet via serial port
+  serial_com.sendPacket(test_serial_packet);
+
+  icl_core::os::sleep(5);
+
+  test_controller_feedback.position = -8000;
+
+  // serialize test controller feedback to paket
+  packet.reset(0);
   packet << test_controller_feedback;
   test_serial_packet.index = 0;   //
   // Set the payload (converted array of position settings)

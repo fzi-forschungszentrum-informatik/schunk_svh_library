@@ -29,7 +29,7 @@ int main(int argc, const char* argv[])
   {
     S5FHCHANNEL test_channel = eS5FH_PINKY;
 
-    icl_core::os::sleep(2);
+    std::cout << "connected" << std::endl;
 
     finger_manager.resetChannel(test_channel);
 
@@ -38,7 +38,9 @@ int main(int argc, const char* argv[])
     std::cout << "Pinky is enabled: " << finger_manager.isEnabled(test_channel) << std::endl;
     std::cout << "Pinky is homed: " << finger_manager.isHomed(test_channel) << std::endl;
 
-    icl_core::os::sleep(2);
+    icl_core::os::sleep(10);
+
+    std::cout << "after sleep" << std::endl;
 
     finger_manager.disconnect();
   }

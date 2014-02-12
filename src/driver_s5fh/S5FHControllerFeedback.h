@@ -28,6 +28,18 @@ struct S5FHControllerFeedback
   //! Returned current value of the motor [mA?]
   int16_t current;
 
+  //!
+  //! \brief Standard constructor
+  //! \param _position Intitial position value, defaults to 0
+  //! \param _current Initital current value, defaults to 0
+  //!
+  S5FHControllerFeedback(int32_t _position = 0,int16_t _current = 0):
+    position(_position),
+    current(_current)
+  {
+
+  }
+
   //! Compares two S5FHControllerFeedback objects.
   bool operator == (const S5FHControllerFeedback& other) const
   {

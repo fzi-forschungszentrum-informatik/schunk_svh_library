@@ -29,9 +29,9 @@ struct S5FHControlCommand
 
   //!
   //! \brief Constructs a new control command to comandeer the position of the fingers
-  //! \param _position target position given in encoder ticks
+  //! \param _position target position given in encoder ticks defaults to 0 if none is given
   //!
-  S5FHControlCommand(const int32_t& _position):
+  S5FHControlCommand(const int32_t& _position = 0):
     position(_position)
   {}
 

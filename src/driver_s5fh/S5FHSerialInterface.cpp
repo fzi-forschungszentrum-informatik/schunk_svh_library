@@ -49,6 +49,7 @@ bool S5FHSerialInterface::connect(const std::string &dev_name)
     if (!m_serial_device->Open())
     {
       LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not open serial device: " << dev_name.c_str() << endl);
+      close();
       return false;
     }
   }
@@ -59,6 +60,7 @@ bool S5FHSerialInterface::connect(const std::string &dev_name)
     if (!m_receive_thread->start())
     {
       LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not start the receive thread for the serial device!" << endl);
+      close();
       return false;
     }
   }
@@ -71,7 +73,8 @@ void S5FHSerialInterface::close()
   // cancel and delete receive packet thread
   if (m_receive_thread != NULL)
   {
-    m_receive_thread->cancel();
+    m_receive_thread->stop();
+    m_receive_thread->join();
     delete m_receive_thread;
   }
 

@@ -9,5 +9,6 @@ ICMAKER_REGISTER_PACKAGE(driver_s5fh)
 
 ADD_SUBDIRECTORY (src/driver_s5fh)
 ADD_SUBDIRECTORY (src/ts/driver_s5fh)
+ADD_SUBDIRECTORY (src/ts/serial_interface)
 
 ICMAKER_CONFIGURE_PACKAGE()

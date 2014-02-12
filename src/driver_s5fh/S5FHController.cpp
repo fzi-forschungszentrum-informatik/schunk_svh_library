@@ -21,6 +21,7 @@ using icl_comm::ArrayBuilder;
 
 /* FIXME:
  * - Check if the Channels are used correctly -> same mapping as MeCoVis otherwise there might be serious failures
+ * => HandControlCenter2: Channels are defined in MainWindow.xaml (same order as defined in S5FHCHANNEL, but no ALL_CHANNELS available)
  *
  *
  * TODO:

@@ -78,13 +78,29 @@ private:
   } typedef HomeSettings;
 
   //!
-  //! \brief vector for home position default settings
+  //! \brief home position default settings vector for each finger
   //!
   std::vector<HomeSettings> m_home_settings;
 
+  //!
+  //! \brief min position vector for each finger
+  //!
   std::vector<u_int32_t> m_position_min;
 
+  //!
+  //! \brief max position vector for each finger
+  //!
   std::vector<u_int32_t> m_position_max;
+
+  //!
+  //! \brief vector storing enabled flags for each finger
+  //!
+  std::vector<bool> m_is_enabled;
+
+  //!
+  //! \brief vector storing reset flags for each finger
+  //!
+  std::vector<bool> m_is_homed;
 
   //!
   //! \brief set default parameters for home position

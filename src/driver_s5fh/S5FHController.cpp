@@ -434,11 +434,11 @@ bool S5FHController::getPositionSettings(const S5FHCHANNEL &channel, S5FHPositio
   }
 }
 
-bool S5FHController::getCurrentSettings(const S5FHCHANNEL &channel, S5FHPositionSettings &position_settings)
+bool S5FHController::getCurrentSettings(const S5FHCHANNEL &channel, S5FHCurrentSettings &current_settings)
 {
   if(channel >= 0 && static_cast<u_int8_t>(channel) < m_current_settings.size())
   {
-    position_settings = m_position_settings[channel];
+    current_settings = m_position_settings[channel];
     return true;
   }
   else

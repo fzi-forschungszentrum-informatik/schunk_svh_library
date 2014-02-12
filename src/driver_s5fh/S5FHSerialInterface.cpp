@@ -51,6 +51,11 @@ S5FHSerialInterface::S5FHSerialInterface(const std::string &dev_name, ReceivedPa
 
 S5FHSerialInterface::~S5FHSerialInterface()
 {
+  close();
+}
+
+void S5FHSerialInterface::close()
+{
   // cancel and delete receive packet thread
   m_receive_thread->cancel();
   delete m_receive_thread;

@@ -35,6 +35,9 @@ public:
 
   ~S5FHSerialInterface();
 
+  //! canceling receive thread and closing connection to serial port
+  void close();
+
   //! function for sending packets via serial device to the S5FH
   bool sendPacket(S5FHSerialPacket &packet);
 

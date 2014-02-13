@@ -44,6 +44,12 @@ public:
   void disconnect();
 
   //!
+  //! \brief returns connected state of finger manager
+  //! \return bool
+  //!
+  bool isConnected() { return m_connected; }
+
+  //!
   //! \brief reset function for a single finger
   //! \param index
   //! \return
@@ -93,6 +99,11 @@ private:
   //! \brief pointer to s5fh controller
   //!
   S5FHController *m_controller;
+
+  //!
+  //! \brief holds the connected state
+  //!
+  bool m_connected;
 
   //! data sctructure for home positions
   struct

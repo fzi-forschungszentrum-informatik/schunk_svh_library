@@ -64,6 +64,8 @@ bool S5FHReceiveThread::receiveData()
       uint8_t data_byte = 0;
       if (m_serial_device->Read(&data_byte, sizeof(uint8_t)))
       {
+        LOGGING_TRACE_C(DriverS5FH, S5FHReceiveThread, "Get eRS_HEADER1 data. data byte = " << static_cast<int>(data_byte) << endl);
+
         if (data_byte == PACKET_HEADER1)
         {
           m_received_state = eRS_HEADER2;
@@ -170,6 +172,10 @@ bool S5FHReceiveThread::receiveData()
         {
           m_received_state = eRS_HEADER1;
         }
+      }
+      else
+      {
+        LOGGING_TRACE_C(DriverS5FH, S5FHReceiveThread, "Could not read two bytes from serial port" << endl);
       }
       break;
     }

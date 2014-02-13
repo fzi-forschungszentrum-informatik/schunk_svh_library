@@ -156,7 +156,7 @@ bool S5FHReceiveThread::receiveData()
           && m_serial_device->Read(&checksum2, sizeof(uint8_t)))
       {
         // probe for correct checksum
-        for (size_t i = 0; i < m_data.size(); i++)
+        for (size_t i = 0; i < m_data.size(); ++i)
         {
           checksum1 -= m_data[i];
           checksum2 ^= m_data[i];

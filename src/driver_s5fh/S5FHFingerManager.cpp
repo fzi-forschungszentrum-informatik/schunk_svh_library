@@ -85,6 +85,7 @@ void S5FHFingerManager::disconnect()
   {
     m_controller->disconnect();
     delete m_controller;
+    m_controller = NULL;
   }
 }
 

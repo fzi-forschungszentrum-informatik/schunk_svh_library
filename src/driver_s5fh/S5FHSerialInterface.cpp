@@ -89,14 +89,18 @@ void S5FHSerialInterface::close()
     // FIXME: PLEASE FIX ME (ask JAN) !!!
     m_receive_thread->stop();
     m_receive_thread->join();
+
     delete m_receive_thread;
+    m_receive_thread = NULL;
   }
 
   // close and delete serial device handler
   if (m_serial_device != NULL)
   {
     m_serial_device->Close();
+
     delete m_serial_device;
+    m_serial_device = NULL;
   }
 }
 

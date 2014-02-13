@@ -56,6 +56,7 @@ S5FHController::~S5FHController()
   {
     disconnect();
     delete m_serial_interface;
+    m_serial_interface = NULL;
   }
 
 }

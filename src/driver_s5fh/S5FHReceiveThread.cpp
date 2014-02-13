@@ -100,8 +100,6 @@ bool S5FHReceiveThread::receiveData()
     case eRS_INDEX:
     {
       // Reset Array Builder
-      // Warning: It Is imperative that the Arraybuilder is created with an overall size smaler or equeal to the received packets!!
-      // This is neccessary to ensure correct de-serialization
       m_ab.reset(0);
 
       // read index data byte
@@ -131,7 +129,7 @@ bool S5FHReceiveThread::receiveData()
       if (m_serial_device->Read(&length, sizeof(uint16_t)))
       {
         m_ab.appendWithoutConversion(length);
-        m_length = m_ab.peek<u_int16_t>();
+        m_length = m_ab.readBack<u_int16_t>();
         m_received_state = eRS_DATA;
       }
       break;

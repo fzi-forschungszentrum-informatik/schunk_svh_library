@@ -82,24 +82,16 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
 //! overload stream operator to easily deserialize data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHPositionSettings& data)
 {
-  // Dirty? Hack.. if the Arraybuilder is longer then the things we expect we just overwrite that..
-  // This will be a problem if for example you would want to write ab >> data_struct >>data_struct
-  // We will think of something better later.. for now we just expect to be a packet the size we want it to be
-  if (ab.pos > 40)
-  {
-    ab.pos = 40;
-  }
-
-  ab >> data.kd
-     >> data.ki
-     >> data.kp
-     >> data.imx
-     >> data.imn
-     >> data.dt
-     >> data.ky
-     >> data.dwmx
+  ab >> data.wmn
      >> data.wmx
-     >> data.wmn;
+     >> data.dwmx
+     >> data.ky
+     >> data.dt
+     >> data.imn
+     >> data.imx
+     >> data.kp
+     >> data.ki
+     >> data.kd;
   return ab;
 }
 

@@ -66,22 +66,14 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHFirm
 //! overload stream operator to easily serialize data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHFirmwareInfo& data)
 {
-  // Dirty? Hack.. if the Arraybuilder is longer then the things we expect we just overwrite that..
-  // This will be a problem if for example you would want to write ab >> data_struct >>data_struct
-  // We will think of something better later.. for now we just expect to be a packet the size we want it to be
-  if (ab.pos > 56)
-  {
-    ab.pos = 56;
-  }
-
   // Stream operator can not handle arrays (due to missing size information) to make things easy we just copy the data around. Feel free to do something else
   std::vector<uint8_t> text(48);
   std::vector<uint8_t> s5fh(5);
 
-  ab >> text
-     >> data.version_minor
+  ab >> s5fh
      >> data.version_major
-     >> s5fh;
+     >> data.version_minor
+     >> text;
 
 
   data.text = std::string(text.begin(),text.end());

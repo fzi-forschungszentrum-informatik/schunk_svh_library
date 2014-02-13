@@ -28,7 +28,7 @@ icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHSerialPacke
 {
   // Disregard the size when deserializing as we get that anyway
   u_int16_t size ;
-  ab >> data.data >> size >> data.address  >> data.index;
+   ab >> data.index >> data.address >> size >> data.data;
   return ab;
 }
 

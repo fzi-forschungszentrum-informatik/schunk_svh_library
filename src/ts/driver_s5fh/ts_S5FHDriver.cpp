@@ -183,6 +183,7 @@ BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
   BOOST_CHECK_EQUAL(test_serial_packet_in,test_serial_packet_out);
   BOOST_CHECK_EQUAL(test_pos_settings_in,test_pos_settings_out);
 
+ // std::cout << "Original pos Settings: " << test_pos_settings_in << " Interpreted pos settings: "<< test_pos_settings_out <<std::endl;
   std::cout << "Done" << std::endl;
 }
 

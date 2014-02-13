@@ -351,7 +351,7 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
       {
         //std::cout << "Recieved: Controllerfeedback RAW Data: " << ab;
         ab >> m_controller_feedback[channel];
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current << endl);
+        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current << endl);
       }
       else
       {

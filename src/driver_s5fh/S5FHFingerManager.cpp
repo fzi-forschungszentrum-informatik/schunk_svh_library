@@ -36,6 +36,12 @@ S5FHFingerManager::S5FHFingerManager() :
 S5FHFingerManager::~S5FHFingerManager()
 {
   disconnect();
+
+  if (m_controller != NULL)
+  {
+    delete m_controller;
+    m_controller = NULL;
+  }
 }
 
 bool S5FHFingerManager::connect(const std::string &dev_name)
@@ -86,8 +92,6 @@ void S5FHFingerManager::disconnect()
   if (m_controller != NULL)
   {
     m_controller->disconnect();
-    delete m_controller;
-    m_controller = NULL;
   }
 }
 

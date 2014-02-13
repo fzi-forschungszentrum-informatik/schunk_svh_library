@@ -50,6 +50,12 @@ public:
   void close();
 
   //!
+  //! \brief returns connected state of serial device
+  //! \return bool
+  //!
+  bool isConnected() { return m_connected; }
+
+  //!
   //! \brief function for sending packets via serial device to the S5FH
   //! \param packet
   //! \return
@@ -63,6 +69,9 @@ public:
   unsigned int transmittedPacketCount() { return m_packets_transmitted; }
 
 private:
+
+  //! serial device connected state
+  bool m_connected;
 
   //! pointer to serial interface object
   Serial *m_serial_device;

@@ -22,6 +22,7 @@ using icl_comm::serial::SerialFlags;
 namespace driver_s5fh {
 
 S5FHSerialInterface::S5FHSerialInterface(ReceivedPacketCallback const & received_packet_callback) :
+  m_connected(false),
   m_serial_device(NULL),
   m_receive_thread(NULL),
   m_received_packet_callback(received_packet_callback),
@@ -36,6 +37,9 @@ S5FHSerialInterface::~S5FHSerialInterface()
 
 bool S5FHSerialInterface::connect(const std::string &dev_name)
 {
+  // close device if already opened
+  close();
+
   // create serial device
   m_serial_device = new Serial(dev_name.c_str(), SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8));
 
@@ -45,13 +49,11 @@ bool S5FHSerialInterface::connect(const std::string &dev_name)
     if (!m_serial_device->Open())
     {
       LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not open serial device: " << dev_name.c_str() << endl);
-      close();
       return false;
     }
   }
   else
   {
-    close();
     return false;
   }
 
@@ -64,21 +66,23 @@ bool S5FHSerialInterface::connect(const std::string &dev_name)
     if (!m_receive_thread->start())
     {
       LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not start the receive thread for the serial device!" << endl);
-      close();
       return false;
     }
   }
   else
   {
-    close();
     return false;
   }
+
+  m_connected = true;
 
   return true;
 }
 
 void S5FHSerialInterface::close()
 {
+  m_connected = false;
+
   // cancel and delete receive packet thread
   if (m_receive_thread != NULL)
   {

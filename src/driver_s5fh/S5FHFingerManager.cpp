@@ -70,6 +70,8 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
         m_controller->setCurrentSettings(static_cast<S5FHCHANNEL>(i), default_current_settings[i]);
       }
 
+      LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Successfully established connection to SCHUNK five finger hand." << endl);
+
       m_connected = true;
     }
   }

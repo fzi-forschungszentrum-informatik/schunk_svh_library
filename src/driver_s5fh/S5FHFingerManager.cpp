@@ -103,96 +103,140 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 {
   if (m_connected)
   {
-    LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Start homing channel " << channel << endl);
-
-    // reset homed flag
-    m_is_homed[channel] = false;
-
-    // read default home settings for channel
-    HomeSettings home = m_home_settings[channel];
-
-    S5FHPositionSettings pos_set;
-    S5FHCurrentSettings cur_set;
-    m_controller->getPositionSettings(channel, pos_set);
-    m_controller->getCurrentSettings(channel, cur_set);
-
-    // find home position
-    m_controller->disableChannel(eS5FH_ALL);
-    u_int32_t position = 0;
-
-    if (home.direction > 0)
+    // reset all channels
+    if (channel == eS5FH_ALL)
     {
-      position = static_cast<u_int32_t>(pos_set.wmx);
+      bool reset_all_success = true;
+      for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+      {
+        // try three times to reset each finger
+        size_t max_reset_counter = 3;
+        bool reset_success = false;
+        while (!reset_success && max_reset_counter > 0)
+        {
+          reset_success = resetChannel(static_cast<S5FHCHANNEL>(i));
+          max_reset_counter--;
+
+          // wait before starting next reset
+          icl_core::os::sleep(1);
+        }
+
+        LOGGING_INFO_C(DriverS5FH, resetChannel, "Channel " << i << " reset success = " << reset_success << endl);
+
+        // set all reset flag
+        reset_all_success = reset_all_success && reset_success;
+      }
+      return reset_all_success;
+    }
+    else if (channel > eS5FH_ALL && eS5FH_ALL < eS5FH_DIMENSION)
+    {
+      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Start homing channel " << channel << endl);
+
+      // reset homed flag
+      m_is_homed[channel] = false;
+
+      // read default home settings for channel
+      HomeSettings home = m_home_settings[channel];
+
+      S5FHPositionSettings pos_set;
+      S5FHCurrentSettings cur_set;
+      m_controller->getPositionSettings(channel, pos_set);
+      m_controller->getCurrentSettings(channel, cur_set);
+
+      // find home position
+      m_controller->disableChannel(eS5FH_ALL);
+      u_int32_t position = 0;
+
+      if (home.direction > 0)
+      {
+        position = static_cast<u_int32_t>(pos_set.wmx);
+      }
+      else
+      {
+        position = static_cast<u_int32_t>(pos_set.wmn);
+      }
+      m_controller->setControllerTarget(channel, position);
+      m_controller->enableChannel(channel);
+
+      S5FHControllerFeedback control_feedback_previous;
+      S5FHControllerFeedback control_feedback;
+
+      // initialize timeout
+      icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
+
+      for (size_t hit_count = 0; hit_count < 10; )
+      {
+        m_controller->setControllerTarget(channel, position);
+        //m_controller->requestControllerFeedback(channel);
+        m_controller->getControllerFeedback(channel, control_feedback);
+
+        if ((0.75 * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= 0.75 * cur_set.wmx))
+        {
+          hit_count++;
+        }
+        else if (hit_count > 0)
+        {
+          hit_count--;
+        }
+
+        // check for time out: Abort, if position does not change after homing timeout.
+        if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
+        {
+          m_controller->disableChannel(eS5FH_ALL);
+          LOGGING_ERROR_C(DriverS5FH, resetChannel, "Timeout: Aborted finding home position for channel " << channel << endl);
+          return false;
+        }
+
+        // reset time of position changes
+        if (control_feedback.position != control_feedback_previous.position)
+        {
+          start_time = icl_core::TimeStamp::now();
+        }
+
+        // save previous control feedback
+        control_feedback_previous = control_feedback;
+      }
+
+      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Hit counter of " << channel << " reached." << endl);
+
+      m_controller->disableChannel(eS5FH_ALL);
+
+      // set reference values
+      m_position_min[channel] = control_feedback.position + home.minimumOffset;
+      m_position_max[channel] = control_feedback.position + home.maximumOffset;
+
+      position = static_cast<u_int32_t>(control_feedback.position + home.idlePosition);
+
+      // go to idle position
+      m_controller->enableChannel(channel);
+      while (true)
+      {
+        m_controller->setControllerTarget(channel, position);
+        //m_controller->requestControllerFeedback(channel);
+        m_controller->getControllerFeedback(channel, control_feedback);
+
+        if (abs(position - control_feedback.position) < 1000)
+        {
+          break;
+        }
+      }
+      m_controller->disableChannel(eS5FH_ALL);
+
+      m_is_homed[channel] = true;
+
+      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "End homing of channel " << channel << endl);
+
+      return true;
     }
     else
     {
-      position = static_cast<u_int32_t>(pos_set.wmn);
+      LOGGING_ERROR_C(DriverS5FH, resetChannel, "Could not reset channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
+      return false;
     }
-    m_controller->setControllerTarget(channel, position);
-    m_controller->enableChannel(channel);
-
-    S5FHControllerFeedback control_feedback;
-
-    // initialize timeout
-    icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
-
-    for (size_t hit_count = 0; hit_count < 10; )
-    {
-      m_controller->setControllerTarget(channel, position);
-      //m_controller->requestControllerFeedback(channel);
-      m_controller->getControllerFeedback(channel, control_feedback);
-
-      if ((0.75 * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= 0.75 * cur_set.wmx))
-      {
-        hit_count++;
-      }
-      else if (hit_count > 0)
-      {
-        hit_count--;
-      }
-
-      if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
-      {
-        m_controller->disableChannel(eS5FH_ALL);
-        LOGGING_ERROR_C(DriverS5FH, resetChannel, "Timeout: Aborted finding home position for channel " << channel << endl);
-        return false;
-      }
-    }
-
-    LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Hit counter of " << channel << " reached." << endl);
-
-    m_controller->disableChannel(eS5FH_ALL);
-
-    // set reference values
-    m_position_min[channel] = control_feedback.position + home.minimumOffset;
-    m_position_max[channel] = control_feedback.position + home.maximumOffset;
-
-    position = static_cast<u_int32_t>(control_feedback.position + home.idlePosition);
-
-    // go to idle position
-    m_controller->enableChannel(channel);
-    while (true)
-    {
-      m_controller->setControllerTarget(channel, position);
-      //m_controller->requestControllerFeedback(channel);
-      m_controller->getControllerFeedback(channel, control_feedback);
-
-      if (abs(position - control_feedback.position) < 1000)
-      {
-        break;
-      }
-    }
-    m_controller->disableChannel(eS5FH_ALL);
-
-    m_is_homed[channel] = true;
-
-    LOGGING_DEBUG_C(DriverS5FH, resetChannel, "End homing of channel " << channel << endl);
-
-    return true;
   }
   else
   {
-    LOGGING_ERROR_C(DriverS5FH, resetChannel, "Could not reset channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
+    LOGGING_ERROR_C(DriverS5FH, resetChannel, "Channel " << channel << " is out side of bounds!" << endl);
     return false;
   }
 }

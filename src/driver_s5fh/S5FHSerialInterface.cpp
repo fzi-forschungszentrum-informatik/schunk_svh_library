@@ -21,19 +21,12 @@ using icl_comm::serial::SerialFlags;
 
 namespace driver_s5fh {
 
-S5FHSerialInterface::S5FHSerialInterface(ReceivedPacketCallback const & received_packet_callback)
+S5FHSerialInterface::S5FHSerialInterface(ReceivedPacketCallback const & received_packet_callback) :
+  m_serial_device(NULL),
+  m_receive_thread(NULL),
+  m_received_packet_callback(received_packet_callback),
+  m_packets_transmitted(0)
 {
-  // create serial device
-  m_serial_device = NULL;
-
-  // create receive thread
-  m_receive_thread = NULL;
-
-  // save callback function
-  m_received_packet_callback = received_packet_callback;
-
-  // initialize packet counter
-  m_packets_transmitted = 0;
 }
 
 S5FHSerialInterface::~S5FHSerialInterface()

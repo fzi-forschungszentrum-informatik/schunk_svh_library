@@ -29,22 +29,37 @@ namespace driver_s5fh {
 class DRIVER_S5FH_IMPORT_EXPORT S5FHSerialInterface
 {
 public:
-  /*! Constructs a serial interface class for basic communication with the SCHUNK five finger hand.
-   */
+  //!
+  //! \brief Constructs a serial interface class for basic communication with the SCHUNK five finger hand.
+  //! \param received_packet_callback
+  //!
   S5FHSerialInterface(const ReceivedPacketCallback &received_packet_callback);
 
   ~S5FHSerialInterface();
 
-  //! connecting to serial device and starting receive thread
+  //!
+  //! \brief connecting to serial device and starting receive thread
+  //! \param dev_name
+  //! \return bool
+  //!
   bool connect(const std::string &dev_name);
 
-  //! canceling receive thread and closing connection to serial port
+  //!
+  //! \brief canceling receive thread and closing connection to serial port
+  //!
   void close();
 
-  //! function for sending packets via serial device to the S5FH
+  //!
+  //! \brief function for sending packets via serial device to the S5FH
+  //! \param packet
+  //! \return
+  //!
   bool sendPacket(S5FHSerialPacket &packet);
 
-  //! transmitted packets count getter
+  //!
+  //! \brief transmitted packets count getter
+  //! \return
+  //!
   unsigned int transmittedPacketCount() { return m_packets_transmitted; }
 
 private:
@@ -52,17 +67,17 @@ private:
   //! pointer to serial interface object
   Serial *m_serial_device;
 
-  //! packet counters
-  u_int8_t m_packets_transmitted;
-
   //! cecksum calculation
   void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const S5FHSerialPacket& packet);
 
   //! thread for receiving serial packets
   S5FHReceiveThread *m_receive_thread;
 
+  //! Callback function for received packets
   ReceivedPacketCallback m_received_packet_callback;
 
+  //! packet counters
+  u_int8_t m_packets_transmitted;
 };
 
 }

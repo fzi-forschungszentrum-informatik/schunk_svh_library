@@ -170,46 +170,51 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
 
 void S5FHController::disableChannel(const S5FHCHANNEL& channel)
 {
-
-  S5FHSerialPacket serial_packet(0,S5FH_SET_CONTROLLER_STATE);
-  S5FHControllerState controller_state;
-  ArrayBuilder ab(40);
-  //TODO: The following code is very.. strange -> Ask MeCoVis if that is really... really really what one is supposed to send to disable things
-  if (channel == eS5FH_ALL)
+  if (m_serial_interface != NULL && m_serial_interface->isConnected())
   {
-    m_enable_mask = 0;
-    controller_state.pwm_fault = 0x001F;
-    controller_state.pwm_otw   = 0x001F;
-
-    ab << controller_state;
-    serial_packet.data = ab.array;
-    m_serial_interface ->sendPacket(serial_packet);
-  }
-  else if (channel >=0 && channel < eS5FH_DIMENSION)
-  {
-    controller_state.pwm_fault = 0x001F;
-    controller_state.pwm_otw   = 0x001F;
-    //Disable the finger in the bitmask
-    m_enable_mask &= ~(1<<channel);
-
-    if (m_enable_mask != 0) // pos and current control stay on then
+    S5FHSerialPacket serial_packet(0,S5FH_SET_CONTROLLER_STATE);
+    S5FHControllerState controller_state;
+    ArrayBuilder ab(40);
+    //TODO: The following code is very.. strange -> Ask MeCoVis if that is really... really really what one is supposed to send to disable things
+    if (channel == eS5FH_ALL)
     {
-      controller_state.pwm_reset  = (0x0200 | (m_enable_mask & 0x01FF));
-      controller_state.pwm_active = (0x0200 | (m_enable_mask & 0x01FF));
-      controller_state.pos_ctrl   = 0x0001;
-      controller_state.cur_ctrl   = 0x0001;
+      m_enable_mask = 0;
+      controller_state.pwm_fault = 0x001F;
+      controller_state.pwm_otw   = 0x001F;
+
+      ab << controller_state;
+      serial_packet.data = ab.array;
+      m_serial_interface->sendPacket(serial_packet);
     }
+    else if (channel >=0 && channel < eS5FH_DIMENSION)
+    {
+      controller_state.pwm_fault = 0x001F;
+      controller_state.pwm_otw   = 0x001F;
+      //Disable the finger in the bitmask
+      m_enable_mask &= ~(1<<channel);
 
-    ab << controller_state;
-    serial_packet.data = ab.array;
-    m_serial_interface ->sendPacket(serial_packet);
+      if (m_enable_mask != 0) // pos and current control stay on then
+      {
+        controller_state.pwm_reset  = (0x0200 | (m_enable_mask & 0x01FF));
+        controller_state.pwm_active = (0x0200 | (m_enable_mask & 0x01FF));
+        controller_state.pos_ctrl   = 0x0001;
+        controller_state.cur_ctrl   = 0x0001;
+      }
 
+      ab << controller_state;
+      serial_packet.data = ab.array;
+      m_serial_interface->sendPacket(serial_packet);
+
+    }
+    else
+    {
+      LOGGING_WARNING_C(DriverS5FH, S5FHController, "Disable was requestet for unknown channel: "<< channel << "- ignoring request" << endl);
+    }
   }
   else
   {
-    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Disable was requestet for unknown channel: "<< channel << "- ignoring request" << endl);
+    LOGGING_ERROR_C(DriverS5FH, S5FHController, "Serial interface is not connected!" << endl);
   }
-
 }
 
 

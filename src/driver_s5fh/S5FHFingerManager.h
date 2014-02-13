@@ -105,6 +105,11 @@ private:
   //!
   bool m_connected;
 
+  //!
+  //! \brief vector storing reset flags for each finger
+  //!
+  int8_t m_homing_timeout;
+
   //! data sctructure for home positions
   struct
   {

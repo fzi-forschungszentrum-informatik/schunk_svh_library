@@ -15,10 +15,13 @@
 
 #include <driver_s5fh/Logging.h>
 
+#include <icl_core/TimeStamp.h>
+
 namespace driver_s5fh {
 
 S5FHFingerManager::S5FHFingerManager() :
-  m_connected(false)
+  m_connected(false),
+  m_homing_timeout(10)
 {
   // initialize new S5FHController object with serial devices string
   m_controller = new S5FHController();
@@ -102,6 +105,10 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
   {
     LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Start homing channel " << channel << endl);
 
+    // reset homed flag
+    m_is_homed[channel] = false;
+
+    // read default home settings for channel
     HomeSettings home = m_home_settings[channel];
 
     S5FHPositionSettings pos_set;
@@ -126,6 +133,9 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 
     S5FHControllerFeedback control_feedback;
 
+    // initialize timeout
+    icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
+
     for (size_t hit_count = 0; hit_count < 10; )
     {
       m_controller->setControllerTarget(channel, position);
@@ -139,6 +149,13 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       else if (hit_count > 0)
       {
         hit_count--;
+      }
+
+      if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
+      {
+        m_controller->disableChannel(eS5FH_ALL);
+        LOGGING_ERROR_C(DriverS5FH, resetChannel, "Timeout: Aborted finding home position for channel " << channel << endl);
+        return false;
       }
     }
 

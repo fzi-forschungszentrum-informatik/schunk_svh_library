@@ -177,10 +177,26 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 //! set target position of a single finger
 bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double position, double current)
 {
-  //TODO: Convert position into ticks
+  if (isConnected())
+  {
+    if (isHomed(channel))
+    {
+      //TODO: Convert position into ticks
 
-  m_controller->setControllerTarget(channel, 23); // TODO: Replace this with something usefull
-  return true;
+      m_controller->setControllerTarget(channel, 23); // TODO: Replace this with something usefull
+      return true;
+    }
+    else
+    {
+      LOGGING_WARNING_C(DriverS5FH, setTargetPosition, "Could not set target position for channel " << channel << ": Reset first!" << endl);
+      return false;
+    }
+  }
+  else
+  {
+    LOGGING_ERROR_C(DriverS5FH, setTargetPosition, "Could not set target position for channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
+    return false;
+  }
 }
 
 //! overwrite current parameters

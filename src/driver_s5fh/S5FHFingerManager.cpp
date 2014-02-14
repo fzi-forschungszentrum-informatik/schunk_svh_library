@@ -298,13 +298,14 @@ bool S5FHFingerManager::isHomed(const S5FHCHANNEL &channel)
 void S5FHFingerManager::setHomePositionDefaultParameters()
 {
   m_home_settings.resize(eS5FH_DIMENSION);
+                    // direction, minimum offset, maximum offset, idle position
   HomeSettings home_set_thumb_flexion   = {+1, -175.0e3f,  -5.0e3f, -15.0e3f};  // RE17, thumb flexion
   HomeSettings home_set_thumb_oppsition = {+1, -105.0e3f,  -5.0e3f, -15.0e3f};  // RE17, thumb opposition
   HomeSettings home_set_finger_distal   = {+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE10, index finger distal joint
-  HomeSettings home_set_finger_proximal = {-1,    2.0e3f,  47.0e3f,   8.0e3f};  // RE13, index finger proximal joint
+  HomeSettings home_set_finger_proximal = {-1,    2.0e3f,  42.0e3f,   8.0e3f};  // {-1,    2.0e3f,  47.0e3f,   8.0e3f}; RE13, index finger proximal joint
   HomeSettings home_set_ring_finger     = home_set_finger_distal; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE10, ring finger
   HomeSettings home_set_pinky           = home_set_finger_distal; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE10, pinky
-  HomeSettings home_set_finger_spread   = home_set_finger_distal; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE13, finger spread
+  HomeSettings home_set_finger_spread   = {+1,  -27.0e3f,  -2.0e3f,  -8.0e3f};; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE13, finger spread
 
   m_home_settings[0] = home_set_thumb_flexion;    // thumb flexion
   m_home_settings[1] = home_set_thumb_oppsition;  // thumb opposition

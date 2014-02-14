@@ -127,12 +127,12 @@ private:
   //!
   //! \brief min position vector for each finger
   //!
-  std::vector<u_int32_t> m_position_min;
+  std::vector<int32_t> m_position_min;
 
   //!
   //! \brief max position vector for each finger
   //!
-  std::vector<u_int32_t> m_position_max;
+  std::vector<int32_t> m_position_max;
 
   //!
   //! \brief vector storing reset flags for each finger

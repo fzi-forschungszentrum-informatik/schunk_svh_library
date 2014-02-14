@@ -145,15 +145,15 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 
       // find home position
       m_controller->disableChannel(eS5FH_ALL);
-      u_int32_t position = 0;
+      int32_t position = 0;
 
       if (home.direction > 0)
       {
-        position = static_cast<u_int32_t>(pos_set.wmx);
+        position = static_cast<int32_t>(pos_set.wmx);
       }
       else
       {
-        position = static_cast<u_int32_t>(pos_set.wmn);
+        position = static_cast<int32_t>(pos_set.wmn);
       }
       m_controller->setControllerTarget(channel, position);
       m_controller->enableChannel(channel);
@@ -202,10 +202,10 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       m_controller->disableChannel(eS5FH_ALL);
 
       // set reference values
-      m_position_min[channel] = control_feedback.position + home.minimumOffset;
-      m_position_max[channel] = control_feedback.position + home.maximumOffset;
+      m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.minimumOffset);
+      m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.maximumOffset);
 
-      position = static_cast<u_int32_t>(control_feedback.position + home.idlePosition);
+      position = static_cast<int32_t>(control_feedback.position + home.idlePosition);
 
       // go to idle position
       m_controller->enableChannel(channel);

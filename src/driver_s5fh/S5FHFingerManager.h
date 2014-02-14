@@ -151,6 +151,11 @@ private:
   std::vector<int32_t> m_position_max;
 
   //!
+  //! \brief home position after complete reset of each channel
+  //!
+  std::vector<int32_t> m_position_home;
+
+  //!
   //! \brief vector storing reset flags for each finger
   //!
   std::vector<bool> m_is_homed;

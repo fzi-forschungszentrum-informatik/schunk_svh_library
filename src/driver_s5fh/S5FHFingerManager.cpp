@@ -29,6 +29,7 @@ S5FHFingerManager::S5FHFingerManager() :
   // initialize member varaibles
   m_position_min.resize(eS5FH_DIMENSION, 0);
   m_position_max.resize(eS5FH_DIMENSION, 0);
+  m_position_home.resize(eS5FH_DIMENSION, 0);
   m_is_homed.resize(eS5FH_DIMENSION, false);
 
   // load home position default parameters
@@ -204,6 +205,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       // set reference values
       m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.minimumOffset);
       m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.maximumOffset);
+      m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.idlePosition);
 
       position = static_cast<int32_t>(control_feedback.position + home.idlePosition);
 

@@ -241,6 +241,40 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
   }
 }
 
+//! returns actual position value for given channel
+bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position)
+{
+  // TODO: Convert position from ticks to angles
+  S5FHControllerFeedback controller_feedback;
+  if (isHomed(channel) && m_controller->getControllerFeedback(channel, controller_feedback))
+  {
+    position = static_cast<double>(controller_feedback.position - m_position_home[channel]);
+    return true;
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverS5FH, S5FHFingerManager, "Could not get postion for channel " << channel << endl);
+    return false;
+  }
+}
+
+//! returns actual current value for given channel
+bool S5FHFingerManager::getCurrent(const S5FHCHANNEL &channel, double &current)
+{
+  S5FHControllerFeedback controller_feedback;
+  if (isHomed(channel) && m_controller->getControllerFeedback(channel, controller_feedback))
+  {
+    current = controller_feedback.current;
+    return true;
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverS5FH, setTargetPosition, "Could not get current for channel " << channel << endl);
+    return false;
+  }
+}
+
+
 //! set target position of a single finger
 bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double position, double current)
 {

@@ -57,6 +57,22 @@ public:
   bool resetChannel(const S5FHCHANNEL &channel);
 
   //!
+  //! \brief returns position value of channel
+  //! \param channel
+  //! \param position
+  //! \return bool
+  //!
+  bool getPosition(const S5FHCHANNEL &channel, double &position);
+
+  //!
+  //! \brief returns current value of channel
+  //! \param channel
+  //! \param current
+  //! \return bool
+  //!
+  bool getCurrent(const S5FHCHANNEL &channel, double &current);
+
+  //!
   //! \brief set target position of a single finger
   //! \param index
   //! \param position

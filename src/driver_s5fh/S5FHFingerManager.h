@@ -61,7 +61,7 @@ public:
   //! \param channel
   //! \return
   //!
-  void enableChannel(const S5FHCHANNEL &channel);
+  bool enableChannel(const S5FHCHANNEL &channel);
 
   //!
   //! \brief disable controller of channel

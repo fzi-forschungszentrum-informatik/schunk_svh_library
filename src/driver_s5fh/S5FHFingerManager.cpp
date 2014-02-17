@@ -241,9 +241,15 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 }
 
 //! enables controller of channel
-void S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
+bool S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
 {
-  m_controller->enableChannel(channel);
+  if (isConnected() && isHomed(channel))
+  {
+    m_controller->enableChannel(channel);
+    return true;
+  }
+
+  return false;
 }
 
 //! disables controller of channel

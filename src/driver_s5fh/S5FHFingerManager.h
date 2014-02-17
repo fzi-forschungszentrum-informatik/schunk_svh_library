@@ -50,8 +50,8 @@ public:
   bool isConnected() { return m_connected; }
 
   //!
-  //! \brief reset function for a single finger
-  //! \param index
+  //! \brief reset function for channel
+  //! \param channel
   //! \return
   //!
   bool resetChannel(const S5FHCHANNEL &channel);
@@ -87,8 +87,8 @@ public:
   bool getCurrent(const S5FHCHANNEL &channel, double &current);
 
   //!
-  //! \brief set target position of a single finger
-  //! \param index
+  //! \brief set target position of a channel
+  //! \param channel
   //! \param position
   //! \param current
   //! \return
@@ -97,14 +97,14 @@ public:
 
   //!
   //! \brief overwrite current parameters
-  //! \param index
+  //! \param channel
   //! \return
   //!
   bool setCurrentControllerParams(const S5FHCHANNEL &channel, const S5FHCurrentSettings &current_settings);
 
   //!
   //! \brief overwrite position parameters
-  //! \param index
+  //! \param channel
   //! \return
   //!
   bool setPositionControllerParams(const S5FHCHANNEL &channel, const S5FHPositionSettings &position_settings);

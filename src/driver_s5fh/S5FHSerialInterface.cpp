@@ -86,7 +86,7 @@ void S5FHSerialInterface::close()
   // cancel and delete receive packet thread
   if (m_receive_thread != NULL)
   {
-    // FIXME: PLEASE FIX ME (ask JAN) !!!
+    // wait until thread has stopped
     m_receive_thread->stop();
     m_receive_thread->join();
 

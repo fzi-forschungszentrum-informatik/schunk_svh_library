@@ -123,21 +123,19 @@ public:
   //!
   bool isHomed(const S5FHCHANNEL &channel);
 
+// ----------------------------------------------------------------------
+// ---- private functions and varaibles
+// ----------------------------------------------------------------------
+
 private:
 
-  //!
   //! \brief pointer to s5fh controller
-  //!
   S5FHController *m_controller;
 
-  //!
   //! \brief holds the connected state
-  //!
   bool m_connected;
 
-  //!
   //! \brief vector storing reset flags for each finger
-  //!
   int8_t m_homing_timeout;
 
   //! data sctructure for home positions
@@ -149,44 +147,28 @@ private:
     float idlePosition;      // position to go to after intialization
   } typedef HomeSettings;
 
-  //!
   //! \brief home position default settings vector for each finger
-  //!
   std::vector<HomeSettings> m_home_settings;
 
-  //!
   //! \brief min position vector for each finger
-  //!
   std::vector<int32_t> m_position_min;
 
-  //!
   //! \brief max position vector for each finger
-  //!
   std::vector<int32_t> m_position_max;
 
-  //!
   //! \brief home position after complete reset of each channel
-  //!
   std::vector<int32_t> m_position_home;
 
-  //!
   //! \brief vector storing reset flags for each finger
-  //!
   std::vector<bool> m_is_homed;
 
-  //!
   //! \brief set default parameters for home position
-  //!
   void setHomePositionDefaultParameters();
 
-  //!
   //! \brief get default parameters for current settings
-  //!
   std::vector<S5FHCurrentSettings> getCurrentSettingsDefaultParameters();
 
-  //!
   //! \brief get default parameters for position settings
-  //!
   std::vector<S5FHPositionSettings> getPositionSettingsDefaultParameters();
 
   //!

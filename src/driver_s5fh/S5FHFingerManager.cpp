@@ -11,21 +11,18 @@
  *
  */
 //----------------------------------------------------------------------
-#include <driver_s5fh/S5FHFingerManager.h>
-
 #include <driver_s5fh/Logging.h>
+#include <driver_s5fh/S5FHFingerManager.h>
 
 #include <icl_core/TimeStamp.h>
 
 namespace driver_s5fh {
 
 S5FHFingerManager::S5FHFingerManager() :
+  m_controller(new S5FHController()),
   m_connected(false),
   m_homing_timeout(10)
 {
-  // initialize new S5FHController object with serial devices string
-  m_controller = new S5FHController();
-
   // initialize member varaibles
   m_position_min.resize(eS5FH_DIMENSION, 0);
   m_position_max.resize(eS5FH_DIMENSION, 0);

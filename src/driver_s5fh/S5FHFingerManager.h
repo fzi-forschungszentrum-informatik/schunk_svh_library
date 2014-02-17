@@ -57,6 +57,20 @@ public:
   bool resetChannel(const S5FHCHANNEL &channel);
 
   //!
+  //! \brief enable controller of channel
+  //! \param channel
+  //! \return
+  //!
+  void enableChannel(const S5FHCHANNEL &channel);
+
+  //!
+  //! \brief disable controller of channel
+  //! \param channel
+  //! \return
+  //!
+  void disableChannel(const S5FHCHANNEL &channel);
+
+  //!
   //! \brief returns position value of channel
   //! \param channel
   //! \param position

@@ -243,6 +243,18 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
   }
 }
 
+//! enables controller of channel
+void S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
+{
+  m_controller->enableChannel(channel);
+}
+
+//! disables controller of channel
+void S5FHFingerManager::disableChannel(const S5FHCHANNEL &channel)
+{
+  m_controller->disableChannel(channel);
+}
+
 //! returns actual position value for given channel
 bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position)
 {

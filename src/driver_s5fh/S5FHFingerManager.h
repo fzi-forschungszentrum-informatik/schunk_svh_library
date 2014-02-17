@@ -71,6 +71,13 @@ public:
   void disableChannel(const S5FHCHANNEL &channel);
 
   //!
+  //! \brief send request controller feedback paket
+  //! \param channel
+  //! \return
+  //!
+  bool requestControllerFeedback(const S5FHCHANNEL &channel);
+
+  //!
   //! \brief returns position value of channel
   //! \param channel
   //! \param position

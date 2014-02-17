@@ -258,6 +258,18 @@ void S5FHFingerManager::disableChannel(const S5FHCHANNEL &channel)
   m_controller->disableChannel(channel);
 }
 
+bool S5FHFingerManager::requestControllerFeedback(const S5FHCHANNEL &channel)
+{
+  if (isConnected() && isHomed(channel) && isEnabled(channel))
+  {
+    m_controller->requestControllerFeedback(channel);
+    return true;
+  }
+
+  LOGGING_WARNING_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << " is not homed or is not enabled!" << endl);
+  return false;
+}
+
 //! returns actual position value for given channel
 bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position)
 {

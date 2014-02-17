@@ -72,6 +72,8 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
       std::vector<S5FHCurrentSettings> default_current_settings
           = getCurrentSettingsDefaultParameters();
 
+      m_controller->disableChannel(eS5FH_ALL);
+
       // initialize all channels
       for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
       {

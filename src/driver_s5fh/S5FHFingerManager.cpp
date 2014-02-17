@@ -20,6 +20,7 @@ namespace driver_s5fh {
 
 S5FHFingerManager::S5FHFingerManager() :
   m_controller(new S5FHController()),
+  m_feedback_thread(NULL),
   m_connected(false),
   m_homing_timeout(10)
 {
@@ -56,6 +57,13 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
   {
     if (m_controller->connect(dev_name))
     {
+      // initialize and start feedback polling thread
+      m_feedback_thread = new S5FHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
+      if (m_feedback_thread != NULL)
+      {
+        m_feedback_thread->start();
+      }
+
       // load default position settings
       std::vector<S5FHPositionSettings> default_position_settings
           = getPositionSettingsDefaultParameters();
@@ -89,6 +97,16 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
 void S5FHFingerManager::disconnect()
 {
   m_connected = false;
+
+  if (m_feedback_thread != NULL)
+  {
+    // wait until thread has stopped
+    m_feedback_thread->stop();
+    m_feedback_thread->join();
+
+    delete m_feedback_thread;
+    m_feedback_thread = NULL;
+  }
 
   if (m_controller != NULL)
   {

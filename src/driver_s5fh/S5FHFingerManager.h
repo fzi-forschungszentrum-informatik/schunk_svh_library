@@ -14,8 +14,9 @@
 #ifndef DRIVER_S5FH_S5FH_FINGER_MANAGER_H_INCLUDED
 #define DRIVER_S5FH_S5FH_FINGER_MANAGER_H_INCLUDED
 
-#include "driver_s5fh/ImportExport.h"
-#include "driver_s5fh/S5FHController.h"
+#include <driver_s5fh/ImportExport.h>
+#include <driver_s5fh/S5FHController.h>
+#include <driver_s5fh/S5FHFeedbackPollingThread.h>
 
 namespace driver_s5fh {
 
@@ -138,6 +139,9 @@ private:
 
   //! \brief pointer to s5fh controller
   S5FHController *m_controller;
+
+  //! \brief pointer to s5fh controller
+  S5FHFeedbackPollingThread *m_feedback_thread;
 
   //! \brief holds the connected state
   bool m_connected;

@@ -20,13 +20,8 @@
 using icl_comm::ArrayBuilder;
 
 /* FIXME:
- * - Check if the Channels are used correctly -> same mapping as MeCoVis otherwise there might be serious failures
- * => HandControlCenter2: Channels are defined in MainWindow.xaml (same order as defined in S5FHCHANNEL, but no ALL_CHANNELS available)
- *
- *
+ *  *
  * TODO:
- * - setFunctions -> is it enough to just send the settings, will we get the current settings immediatly or do we store the information while sending??
- * - Test the data structures
  *
  *TODO(optional):
  * - Data about the positions and currents is currently pulled by the fingermanager -> this could be enhanced by using mutexes to inform higher layers about changes
@@ -38,6 +33,21 @@ using icl_comm::ArrayBuilder;
 
 namespace driver_s5fh {
 
+
+//! Description for enum matching:
+const char * channel_description[]= {
+  "ALL"
+  "THUMB_FLEXION",
+  "THUMB_OPPOSITION", // wrist
+  "INDEX_FINGER_DISTAL",
+  "INDEX_FINGER_PROXIMAL",
+  "MIDDLE_FINGER_DISTAL",
+  "MIDDLE_FINGER_PROXIMAL",
+  "RING_FINGER",
+  "PINKY",
+  "FINGER_SPREAD",
+  NULL
+};
 
 S5FHController::S5FHController():
   m_current_settings(eS5FH_DIMENSION,S5FHCurrentSettings()),  // Vectors have to be filled with objects for correct deserialization

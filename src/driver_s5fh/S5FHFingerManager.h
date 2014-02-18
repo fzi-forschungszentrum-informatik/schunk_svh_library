@@ -161,6 +161,9 @@ private:
   //! \brief home position default settings vector for each channel
   std::vector<HomeSettings> m_home_settings;
 
+  //! \brief position conversion factor (ticks to RAD) for each channel
+  std::vector<double> m_ticks2rad;
+
   //! \brief min position vector for each channel
   std::vector<int32_t> m_position_min;
 

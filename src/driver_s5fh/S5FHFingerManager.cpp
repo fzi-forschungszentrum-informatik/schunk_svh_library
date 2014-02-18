@@ -24,6 +24,7 @@ S5FHFingerManager::S5FHFingerManager() :
   m_connected(false),
   m_homing_timeout(10),
   m_home_settings(0),
+  m_ticks2rad(0),
   m_position_min(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
   m_position_max(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
   m_position_home(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
@@ -412,6 +413,20 @@ void S5FHFingerManager::setHomePositionDefaultParameters()
   m_home_settings[6] = home_set_ring_finger;      // ring finger
   m_home_settings[7] = home_set_pinky;            // pinky
   m_home_settings[8] = home_set_finger_spread;    // finger spread
+
+  // calculate factors and offset for ticks to rad conversion
+  float range_rad_data[eS5FH_DIMENSION] = { 0.97, 0.99, 1.33, 0.8, 1.33, 0.8, 0.98, 0.98, 0.58 };
+  std::vector<float> range_rad(&range_rad_data[0], &range_rad_data[0] + eS5FH_DIMENSION);
+
+  m_ticks2rad.resize(eS5FH_DIMENSION, 0.0);
+  for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+  {
+    float range_ticks = m_home_settings[i].maximumOffset - m_home_settings[i].minimumOffset;
+    m_ticks2rad[i] = range_rad[i] / range_ticks * (-m_home_settings[i].direction);
+
+    // debug
+    //std::cout << "Channel " << i << ": ticks2rad factor = " << m_ticks2rad[i] << std::endl;
+  }
 }
 
 //!

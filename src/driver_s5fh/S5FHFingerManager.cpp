@@ -22,17 +22,15 @@ S5FHFingerManager::S5FHFingerManager() :
   m_controller(new S5FHController()),
   m_feedback_thread(NULL),
   m_connected(false),
-  m_homing_timeout(10)
+  m_homing_timeout(10),
+  m_home_settings(0),
+  m_position_min(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
+  m_position_max(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
+  m_position_home(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
+  m_is_homed(std::vector<bool>(eS5FH_DIMENSION, false))
 {
-  // initialize member varaibles
-  m_position_min.resize(eS5FH_DIMENSION, 0);
-  m_position_max.resize(eS5FH_DIMENSION, 0);
-  m_position_home.resize(eS5FH_DIMENSION, 0);
-  m_is_homed.resize(eS5FH_DIMENSION, false);
-
   // load home position default parameters
   setHomePositionDefaultParameters();
-
 }
 
 S5FHFingerManager::~S5FHFingerManager()
@@ -403,7 +401,7 @@ void S5FHFingerManager::setHomePositionDefaultParameters()
   HomeSettings home_set_finger_proximal = {-1,    2.0e3f,  42.0e3f,   8.0e3f};  // {-1,    2.0e3f,  47.0e3f,   8.0e3f}; RE13, index finger proximal joint
   HomeSettings home_set_ring_finger     = home_set_finger_distal; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE10, ring finger
   HomeSettings home_set_pinky           = home_set_finger_distal; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE10, pinky
-  HomeSettings home_set_finger_spread   = {+1,  -27.0e3f,  -2.0e3f,  -8.0e3f};; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE13, finger spread
+  HomeSettings home_set_finger_spread   = {+1,  -27.0e3f,  -2.0e3f,  -8.0e3f};  // {+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE13, finger spread
 
   m_home_settings[0] = home_set_thumb_flexion;    // thumb flexion
   m_home_settings[1] = home_set_thumb_oppsition;  // thumb opposition

@@ -158,19 +158,19 @@ private:
     float idlePosition;      // position to go to after intialization
   } typedef HomeSettings;
 
-  //! \brief home position default settings vector for each finger
+  //! \brief home position default settings vector for each channel
   std::vector<HomeSettings> m_home_settings;
 
-  //! \brief min position vector for each finger
+  //! \brief min position vector for each channel
   std::vector<int32_t> m_position_min;
 
-  //! \brief max position vector for each finger
+  //! \brief max position vector for each channel
   std::vector<int32_t> m_position_max;
 
   //! \brief home position after complete reset of each channel
   std::vector<int32_t> m_position_home;
 
-  //! \brief vector storing reset flags for each finger
+  //! \brief vector storing reset flags for each channel
   std::vector<bool> m_is_homed;
 
   //! \brief set default parameters for home position

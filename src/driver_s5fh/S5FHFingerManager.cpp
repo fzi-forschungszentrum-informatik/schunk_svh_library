@@ -346,11 +346,21 @@ bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double pos
   {
     if (isHomed(channel))
     {
-      // TODO: Convert position from angle to ticks
-      int32_t target_position = static_cast<int32_t>(m_position_home[channel] + position);
+      int32_t target_position = static_cast<int32_t>(position / m_ticks2rad[channel]);
+
+      if (m_home_settings[channel].direction > 0)
+      {
+        target_position += m_position_max[channel];
+      }
+      else
+      {
+        target_position += m_position_min[channel];
+      }
+
+      LOGGING_DEBUG_C(DriverS5FH, setTargetPosition, "Target position for channel " << channel << " = " << target_position << endl);
 
       // check for bounds
-      if (target_position > m_position_min[channel] && target_position < m_position_max[channel])
+      if (target_position >= m_position_min[channel] && target_position <= m_position_max[channel])
       {
         if (!m_controller->isEnabled(channel))
         {

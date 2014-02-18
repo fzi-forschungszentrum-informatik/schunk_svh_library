@@ -191,6 +191,9 @@ public:
     */
    bool isEnabled(const S5FHCHANNEL &channel);
 
+   //! Description values to get the corresponding enum value to a channel
+   static const char * m_channel_description[];
+
 private:
 
   // Data Structures for holding configurations and feedback of the Controller

@@ -35,8 +35,7 @@ namespace driver_s5fh {
 
 
 //! Description for enum matching:
-const char * channel_description[]= {
-  "ALL"
+const char * S5FHController::m_channel_description[]= {
   "THUMB_FLEXION",
   "THUMB_OPPOSITION", // wrist
   "INDEX_FINGER_DISTAL",

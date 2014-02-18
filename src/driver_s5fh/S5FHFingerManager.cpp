@@ -222,6 +222,8 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.minimumOffset);
       m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.maximumOffset);
       m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.idlePosition);
+      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Channel " << channel << " min pos = " << m_position_min[channel]
+                      << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel] << endl);
 
       position = static_cast<int32_t>(control_feedback.position + home.idlePosition);
 

@@ -36,15 +36,15 @@ namespace driver_s5fh {
 
 //! Description for enum matching:
 const char * S5FHController::m_channel_description[]= {
-  "THUMB_FLEXION",
-  "THUMB_OPPOSITION", // wrist
-  "INDEX_FINGER_DISTAL",
-  "INDEX_FINGER_PROXIMAL",
-  "MIDDLE_FINGER_DISTAL",
-  "MIDDLE_FINGER_PROXIMAL",
-  "RING_FINGER",
-  "PINKY",
-  "FINGER_SPREAD",
+  "Thumb_Flexion",
+  "Thumb_Opposition", // wrist
+  "Index_Finger_Distal",
+  "Index_Finger_Proximal",
+  "Middle_Finger_Distal",
+  "Middle_Finger_Proximal",
+  "Ring_Finger",
+  "Pinky",
+  "Finger_Spread",
   NULL
 };
 

@@ -292,11 +292,25 @@ bool S5FHFingerManager::requestControllerFeedback(const S5FHCHANNEL &channel)
 //! returns actual position value for given channel
 bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position)
 {
-  // TODO: Convert position from ticks to angles
   S5FHControllerFeedback controller_feedback;
   if (isHomed(channel) && m_controller->getControllerFeedback(channel, controller_feedback))
   {
-    position = static_cast<double>(controller_feedback.position - m_position_home[channel]);
+    int32_t cleared_position_ticks = controller_feedback.position;
+
+    if (m_home_settings[channel].direction > 0)
+    {
+      cleared_position_ticks -= m_position_max[channel];
+    }
+    else
+    {
+      cleared_position_ticks -= m_position_min[channel];
+    }
+
+    position = static_cast<double>(cleared_position_ticks * m_ticks2rad[channel]);
+
+
+    LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << ": position_ticks = " << controller_feedback.position
+                    << " | cleared_position_ticks = " << cleared_position_ticks << " | position rad = " << position << endl);
     return true;
   }
   else

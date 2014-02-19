@@ -53,7 +53,8 @@ S5FHController::S5FHController():
   m_position_settings(eS5FH_DIMENSION,S5FHPositionSettings()),
   m_controller_feedback(eS5FH_DIMENSION,S5FHControllerFeedback()),
   m_serial_interface(new S5FHSerialInterface(boost::bind(&S5FHController::receivedPacketCallback,this,_1,_2))),
-  m_enable_mask(0)
+  m_enable_mask(0),
+  m_received_package_count(0)
 {
 
 

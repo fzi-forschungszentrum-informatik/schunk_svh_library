@@ -118,7 +118,7 @@ bool S5FHSerialInterface::sendPacket(S5FHSerialPacket& packet)
     }
 
     // set packet counter
-    packet.index = m_packets_transmitted;
+    packet.index = static_cast<u_int8_t>(m_packets_transmitted % u_int8_t(-1));
 
     if (m_serial_device->IsOpen())
     {

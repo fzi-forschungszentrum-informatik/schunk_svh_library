@@ -86,7 +86,7 @@ private:
   ReceivedPacketCallback m_received_packet_callback;
 
   //! packet counters
-  u_int8_t m_packets_transmitted;
+  unsigned int m_packets_transmitted;
 };
 
 }

@@ -349,6 +349,8 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
   ArrayBuilder ab;
   ab.appendWithoutConversion(packet.data);
 
+  m_received_package_count = packet_count;
+
   // TODO: DEBUG OUTPUT WAS ADDED AS INFO! MAKE TRACE OR DEBUG ONCE THE DRIVER WORKS MORE OR LESS CORRECT
 
   // Packet meaning is encoded in the lower nibble of the adress byte
@@ -417,6 +419,7 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
         LOGGING_INFO_C(DriverS5FH, S5FHController, m_firmware_info.s5fh  << " " << m_firmware_info.version_major << "." << m_firmware_info.version_minor << " : " << m_firmware_info.text << endl);
       break;
     default:
+      LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a Packet with unknown address: "<< (packet.address & 0x0F) << " - ignoring packet" << endl);
       break;
   }
 
@@ -469,6 +472,24 @@ bool S5FHController::getCurrentSettings(const S5FHCHANNEL &channel, S5FHCurrentS
 S5FHFirmwareInfo S5FHController::getFirmwareInfo()
 {
   return m_firmware_info;
+}
+
+unsigned int S5FHController::getSentPackageCount()
+{
+  if (m_serial_interface != NULL)
+  {
+    return m_serial_interface->transmittedPacketCount();
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Request for transmit packet count could not be answered as the device is not connectd - ignoring request" << endl);
+    return 0;
+  }
+}
+
+unsigned int S5FHController::getReceivedPackageCount()
+{
+  return m_received_package_count;
 }
 
 bool S5FHController::isEnabled(const S5FHCHANNEL &channel)

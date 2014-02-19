@@ -183,6 +183,18 @@ public:
     */
    S5FHFirmwareInfo getFirmwareInfo();
 
+   /*!
+    * \brief requests the number of sent packages. Request ist transferred to the serial interface that knows about this count
+    * \return number of packages correctly sent
+    */
+   unsigned int getSentPackageCount();
+
+   /*!
+    * \brief request the number of correctly received packages. This number is refreshed every time the serialinterace calls the receivedPacket callback
+    * \return number of packages correctly received
+    */
+   unsigned int getReceivedPackageCount();
+
 
    /*!
     * \brief Check if a channel was enabled
@@ -223,6 +235,9 @@ private:
 
   //! Bitmask to tell which fingers are enabled
   u_int16_t m_enable_mask;
+
+  //! store how many packages where actually received. Updated Every time the receivepacket callback is called
+  unsigned int m_received_package_count;
 
 
 

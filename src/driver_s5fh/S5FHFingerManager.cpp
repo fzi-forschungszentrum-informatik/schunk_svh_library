@@ -488,9 +488,10 @@ void S5FHFingerManager::setHomePositionDefaultParameters()
 std::vector<S5FHCurrentSettings> S5FHFingerManager::getCurrentSettingsDefaultParameters()
 {
   std::vector<S5FHCurrentSettings> default_current_settings(eS5FH_DIMENSION);
-  S5FHCurrentSettings cur_set_thumb          = {-191.0f, 191.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
+  S5FHCurrentSettings cur_set_thumb          = {-350.0f, 350.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // old: {-191.0f, 191.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
   S5FHCurrentSettings cur_set_distal_joint   = {-176.0f, 176.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
   S5FHCurrentSettings cur_set_proximal_joint = {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
+  S5FHCurrentSettings cur_set_finger_spread  = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // old: {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
 
   default_current_settings[0] = cur_set_thumb;          // thumb flexion
   default_current_settings[1] = cur_set_thumb;          // thumb opposition
@@ -500,7 +501,7 @@ std::vector<S5FHCurrentSettings> S5FHFingerManager::getCurrentSettingsDefaultPar
   default_current_settings[5] = cur_set_proximal_joint; // middle finger proximal joint
   default_current_settings[6] = cur_set_distal_joint;   // ring finger
   default_current_settings[7] = cur_set_distal_joint;   // pinky
-  default_current_settings[8] = cur_set_proximal_joint; // finger spread
+  default_current_settings[8] = cur_set_finger_spread;  // finger spread
 
   return default_current_settings;
 }

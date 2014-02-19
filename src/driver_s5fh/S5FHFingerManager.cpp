@@ -56,12 +56,8 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
   {
     if (m_controller->connect(dev_name))
     {
-      // initialize and start feedback polling thread
+      // initialize feedback polling thread
       m_feedback_thread = new S5FHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
-      if (m_feedback_thread != NULL)
-      {
-        m_feedback_thread->start();
-      }
 
       // load default position settings
       std::vector<S5FHPositionSettings> default_position_settings
@@ -110,6 +106,15 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
         }
 
         icl_core::os::usleep(50000);
+      }
+
+      if (m_connected)
+      {
+        // start feedback polling thread
+        if (m_feedback_thread != NULL)
+        {
+          m_feedback_thread->start();
+        }
       }
     }
   }

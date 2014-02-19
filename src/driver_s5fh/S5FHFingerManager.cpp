@@ -99,7 +99,7 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
           LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Successfully established connection to SCHUNK five finger hand." << endl
                           << "Send packages = " << send_count << ", received packages = " << received_count << endl);
         }
-        LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
+        LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
 
         // check for timeout
         if ((icl_core::TimeStamp::now() - start_time).tsSec() > 5.0)

@@ -344,7 +344,7 @@ bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position
   }
   else
   {
-    LOGGING_WARNING_C(DriverS5FH, S5FHFingerManager, "Could not get postion for channel " << channel << endl);
+    //LOGGING_WARNING_C(DriverS5FH, S5FHFingerManager, "Could not get postion for channel " << channel << endl);
     return false;
   }
 }

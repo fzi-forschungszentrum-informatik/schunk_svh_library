@@ -160,12 +160,35 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Enabling motor: "<< channel << endl);
     m_enable_mask |= (1<<channel);
 
-    controller_state.pwm_fault  = 0x001F;
-    controller_state.pwm_otw    = 0x001F;
-    controller_state.pwm_reset  = (0x0200 | (m_enable_mask & 0x01FF));
-    controller_state.pwm_active = (0x0200 | (m_enable_mask & 0x01FF));
-    controller_state.pos_ctrl   = 0x0001;
-    controller_state.cur_ctrl   = 0x0001;
+    // SENDING ALL AT ONCE WILL LEAD TO "Jumping" behaviour of the controller on faster Systems ---> MeCoVis hardware problem .. ask about that
+//    controller_state.pwm_fault  = 0x001F;
+//    controller_state.pwm_otw    = 0x001F;
+//    controller_state.pwm_reset  = (0x0200 | (m_enable_mask & 0x01FF));
+//    controller_state.pwm_active = (0x0200 | (m_enable_mask & 0x01FF));
+//    controller_state.pos_ctrl   = 0x0001;
+//    controller_state.cur_ctrl   = 0x0001;
+    ab.reset(40);
+    controller_state.pwm_fault = 0x001F;
+    controller_state.pwm_otw   = 0x001F;
+    controller_state.pwm_reset = (0x0200 | (m_enable_mask & 0x01FF));
+    controller_state.pwm_active =(0x0200 | (m_enable_mask & 0x01FF));
+    ab << controller_state;
+    serial_packet.data = ab.array;
+    m_serial_interface ->sendPacket(serial_packet);
+    ab.reset(40);
+
+    // WARNING: DO NOT ! REMOVE THESE DELAYS OR THE HARDWARE WILL! FREAK OUT!
+    icl_core::os::usleep(100);
+
+    controller_state.pos_ctrl = 0x0001;
+    controller_state.cur_ctrl = 0x0001;
+    ab << controller_state;
+    serial_packet.data = ab.array;
+    m_serial_interface ->sendPacket(serial_packet);
+    ab.reset(40);
+
+    // WARNING: DO NOT ! REMOVE THESE DELAYS OR THE HARDWARE WILL! FREAK OUT!
+    icl_core::os::usleep(100);
 
     ab << controller_state;
     serial_packet.data = ab.array;

@@ -33,7 +33,7 @@ public:
   virtual ~S5FHFingerManager();
 
   //!
-  //! \brief open connection to SCHUNK five finger hand
+  //! \brief Open connection to SCHUNK five finger hand. Wait until expected return packages are received.
   //! \param dev_name
   //! \return
   //!

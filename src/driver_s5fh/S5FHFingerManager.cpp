@@ -86,9 +86,31 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
         m_controller->setCurrentSettings(static_cast<S5FHCHANNEL>(i), default_current_settings[i]);
       }
 
-      LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Successfully established connection to SCHUNK five finger hand." << endl);
+      // check for correct response from hardware controller
+      icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
+      bool timeout = false;
+      while (!timeout && !m_connected)
+      {
+        unsigned int send_count = m_controller->getSentPackageCount();
+        unsigned int received_count = m_controller->getReceivedPackageCount();
+        if (send_count == received_count)
+        {
+          m_connected = true;
+          LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Successfully established connection to SCHUNK five finger hand." << endl
+                          << "Send packages = " << send_count << ", received packages = " << received_count << endl);
+        }
+        LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
 
-      m_connected = true;
+        // check for timeout
+        if ((icl_core::TimeStamp::now() - start_time).tsSec() > 5.0)
+        {
+          timeout = true;
+          LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Connection timeout! Could not connect to SCHUNK five finger hand." << endl
+                          << "Send packages = " << send_count << ", received packages = " << received_count << endl);
+        }
+
+        icl_core::os::usleep(50000);
+      }
     }
   }
 

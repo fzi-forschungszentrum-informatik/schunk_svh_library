@@ -386,29 +386,30 @@ bool S5FHFingerManager::getCurrent(const S5FHCHANNEL &channel, double &current)
   }
 }
 
+{
+  if (isConnected())
+  {
+    {
 
-//! set target position of a single finger
+      {
+      }
+      else
+      {
+      }
+
+//! set target position of a single channel
 bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double position, double current)
 {
   if (isConnected())
   {
     if (isHomed(channel))
     {
-      int32_t target_position = static_cast<int32_t>(position / m_ticks2rad[channel]);
-
-      if (m_home_settings[channel].direction > 0)
-      {
-        target_position += m_position_max[channel];
-      }
-      else
-      {
-        target_position += m_position_min[channel];
-      }
+      int32_t target_position = convertRad2Ticks(channel, position);
 
       LOGGING_DEBUG_C(DriverS5FH, setTargetPosition, "Target position for channel " << channel << " = " << target_position << endl);
 
       // check for bounds
-      if (target_position >= m_position_min[channel] && target_position <= m_position_max[channel])
+      if (isInsideBounds(channel, target_position))
       {
         if (!m_controller->isEnabled(channel))
         {

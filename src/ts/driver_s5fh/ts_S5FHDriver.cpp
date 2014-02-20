@@ -181,15 +181,15 @@ BOOST_AUTO_TEST_CASE(ConvertControllerFeedbackAllChannels)
   payload.reset(40);
 
   // Create Structures
-  S5FHControllerFeedbackAllChannels test_controller_feedback_all_channels_in(S5FHControllerFeedback(0,0),
-                                                                             S5FHControllerFeedback(1,1),
-                                                                             S5FHControllerFeedback(2,2),
-                                                                             S5FHControllerFeedback(3,3),
-                                                                             S5FHControllerFeedback(4,4),
-                                                                             S5FHControllerFeedback(5,5),
-                                                                             S5FHControllerFeedback(6,6),
-                                                                             S5FHControllerFeedback(7,7),
-                                                                             S5FHControllerFeedback(8,8));
+  S5FHControllerFeedbackAllChannels test_controller_feedback_all_channels_in(S5FHControllerFeedback(0,9),
+                                                                             S5FHControllerFeedback(1,10),
+                                                                             S5FHControllerFeedback(2,11),
+                                                                             S5FHControllerFeedback(3,12),
+                                                                             S5FHControllerFeedback(4,13),
+                                                                             S5FHControllerFeedback(5,14),
+                                                                             S5FHControllerFeedback(6,15),
+                                                                             S5FHControllerFeedback(7,16),
+                                                                             S5FHControllerFeedback(8,17));
   S5FHControllerFeedbackAllChannels test_controller_feedback_all_channels_out;
 
 

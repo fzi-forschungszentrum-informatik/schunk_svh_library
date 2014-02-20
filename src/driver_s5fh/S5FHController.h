@@ -78,6 +78,12 @@ public:
    */
   void setControllerTarget(const S5FHCHANNEL& channel, const u_int32_t& position);
 
+  /*!
+   * \brief setting new position controller target for all fingers
+   * \param positions target positions for all fingers, Only the first nine values will be evaluated
+   */
+  void setControllerTargetAllChannels(const std::vector<int32_t>& positions);
+
 
   // Access functions
   //!
@@ -97,6 +103,11 @@ public:
   //! \param channel Motorchannel the feedback should be provided for
   //!
   void requestControllerFeedback(const S5FHCHANNEL& channel);
+
+  /*!
+   * \brief request feedback for ALL channels
+   */
+  void requestControllerFeedbackAllChannels();
 
   /*!
    * \brief request the settings of the position controller for a specific channel
@@ -206,6 +217,8 @@ public:
    //! Description values to get the corresponding enum value to a channel
    static const char * m_channel_description[];
 
+   //! Get all currently available controllerfeedbacks
+   void getControllerFeedbackAllChannels(S5FHControllerFeedbackAllChannels &controller_feedback);
 private:
 
   // Data Structures for holding configurations and feedback of the Controller

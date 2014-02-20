@@ -108,6 +108,25 @@ void S5FHController::setControllerTarget(const S5FHCHANNEL& channel, const u_int
   }
 }
 
+void S5FHController::setControllerTargetAllChannels(const std::vector<int32_t> &positions)
+{
+  if (positions.size() >= eS5FH_DIMENSION)
+  {
+   S5FHSerialPacket serial_packet(0,S5FH_SET_CONTROL_COMMAND_ALL);
+   S5FHControlCommandAllChannels control_command(positions);
+   ArrayBuilder ab(40);
+   ab << control_command;
+   serial_packet.data = ab.array;
+   m_serial_interface ->sendPacket(serial_packet);
+
+   LOGGING_TRACE_C(DriverS5FH, S5FHController, "Control command was given for all channels: Driving motors to positions: "<< positions[0] << " , " << positions[1] << " , " << positions[2] << " , " << positions[3] << " , " << positions[4] << " , " << positions[5] << " , " << positions[6] << " , " << positions[7] << " , " << positions[8] << " , " << endl);
+  }
+  else
+  {
+    LOGGING_ERROR_C(DriverS5FH, S5FHController, "Control command was given for all channels but with to few points. Expected at least "<< eS5FH_DIMENSION << " values but only got " << positions.size());
+  }
+}
+
 void S5FHController::enableChannel(const S5FHCHANNEL &channel)
 {
   S5FHSerialPacket serial_packet(0,S5FH_SET_CONTROLLER_STATE);
@@ -269,6 +288,14 @@ void S5FHController::requestControllerFeedback(const S5FHCHANNEL& channel)
 
 }
 
+void S5FHController::requestControllerFeedbackAllChannels()
+{
+   S5FHSerialPacket serial_packet(40,S5FH_GET_CONTROL_FEEDBACK_ALL);
+   m_serial_interface ->sendPacket(serial_packet);
+
+   LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Controller feedback was requested for all channels " << endl);
+}
+
 
 void S5FHController::requestPositionSettings(const S5FHCHANNEL& channel)
 {
@@ -373,9 +400,9 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
   ArrayBuilder ab;
   ab.appendWithoutConversion(packet.data);
 
-  m_received_package_count = packet_count;
+  S5FHControllerFeedbackAllChannels feedback_all;
 
-  // TODO: DEBUG OUTPUT WAS ADDED AS INFO! MAKE TRACE OR DEBUG ONCE THE DRIVER WORKS MORE OR LESS CORRECT
+  m_received_package_count = packet_count;
 
   // Packet meaning is encoded in the lower nibble of the adress byte
   switch (packet.address & 0x0F)
@@ -386,12 +413,20 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
       {
         //std::cout << "Recieved: Controllerfeedback RAW Data: " << ab;
         ab >> m_controller_feedback[channel];
-        LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current << endl);
+        LOGGING_TRACE_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current << endl);
       }
       else
       {
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
+        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
       }
+      break;
+    case S5FH_GET_CONTROL_FEEDBACK_ALL:
+    case S5FH_SET_CONTROL_COMMAND_ALL:
+      // We cannot just read them al into the vector (which would have been nice) because the feedback of all channels is structured
+      // Different from the feedback of one channel. So the S5FHControllerFeedbackAllChannels is used as an intermediary ( handles the deserialization)
+      ab >> feedback_all;
+      m_controller_feedback = feedback_all.feedbacks;
+      LOGGING_TRACE_C(DriverS5FH, S5FHController, "Received a Control Feedback/Control Command packet for channel all channels "<<  endl);
       break;
     case S5FH_GET_POSITION_SETTINGS:
     case S5FH_SET_POSITION_SETTINGS:
@@ -399,13 +434,13 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
       {
         //std::cout << "Recieved: Postitionsettings RAW Data: " << ab;
         ab >> m_position_settings[channel];
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for channel "<< channel  << endl);
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "wmn " << m_position_settings[channel].wmn << " "<< "wmx " << m_position_settings[channel].wmx << " "<< "dwmx "<< m_position_settings[channel].dwmx << " "<< "ky "  << m_position_settings[channel].ky  << " "<< "dt "  << m_position_settings[channel].dt  << " "<< "imn " << m_position_settings[channel].imn << " "<< "imx " << m_position_settings[channel].imx << " " << "kp "  << m_position_settings[channel].kp  << " " << "ki "  << m_position_settings[channel].ki  << " " << "kd "  << m_position_settings[channel].kd  << endl);
+        LOGGING_TRACE_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for channel "<< channel  << endl);
+        LOGGING_TRACE_C(DriverS5FH, S5FHController, "wmn " << m_position_settings[channel].wmn << " "<< "wmx " << m_position_settings[channel].wmx << " "<< "dwmx "<< m_position_settings[channel].dwmx << " "<< "ky "  << m_position_settings[channel].ky  << " "<< "dt "  << m_position_settings[channel].dt  << " "<< "imn " << m_position_settings[channel].imn << " "<< "imx " << m_position_settings[channel].imx << " " << "kp "  << m_position_settings[channel].kp  << " " << "ki "  << m_position_settings[channel].ki  << " " << "kd "  << m_position_settings[channel].kd  << endl);
 
       }
       else
       {
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
+        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a get/set position setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
       }
       break;
     case S5FH_GET_CURRENT_SETTINGS:
@@ -414,12 +449,12 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
       {
         std::cout << "Recieved: Current Settings RAW Data: " << ab;
         ab >> m_current_settings[channel];
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for channel "<< channel << endl);
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "wmn "<< m_current_settings[channel].wmn << " " << "wmx "<< m_current_settings[channel].wmx << " " << "ky " << m_current_settings[channel].ky  << " " << "dt " << m_current_settings[channel].dt  << " " << "imn "<< m_current_settings[channel].imn << " " << "imx "<< m_current_settings[channel].imx << " "                   << "kp " << m_current_settings[channel].kp  << " " << "ki " << m_current_settings[channel].ki  << " " << "umn "<< m_current_settings[channel].umn << " " << "umx "<< m_current_settings[channel].umx << " "<< endl);
+        LOGGING_TRACE_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for channel "<< channel << endl);
+        LOGGING_TRACE_C(DriverS5FH, S5FHController, "wmn "<< m_current_settings[channel].wmn << " " << "wmx "<< m_current_settings[channel].wmx << " " << "ky " << m_current_settings[channel].ky  << " " << "dt " << m_current_settings[channel].dt  << " " << "imn "<< m_current_settings[channel].imn << " " << "imx "<< m_current_settings[channel].imx << " "                   << "kp " << m_current_settings[channel].kp  << " " << "ki " << m_current_settings[channel].ki  << " " << "umn "<< m_current_settings[channel].umn << " " << "umx "<< m_current_settings[channel].umx << " "<< endl);
       }
       else
       {
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
+        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
       }
       break;
     case S5FH_GET_CONTROLLER_STATE:
@@ -427,12 +462,12 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
         //std::cout << "Recieved: Controller State RAW Data: " << ab;
         ab >> m_controller_state;
        // std::cout << "Received controllerState interpreded data: "<< m_controller_state << std::endl;
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set controler state packet " << endl);
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "Controllerstate (NO HEX):" << "pwm_fault " << "0x" << static_cast<int>(m_controller_state.pwm_fault) << " " << "pwm_otw " << "0x" << static_cast<int>(m_controller_state.pwm_otw) << " "  << "pwm_reset " << "0x" << static_cast<int>(m_controller_state.pwm_reset) << " " << "pwm_active " << "0x" << static_cast<int>(m_controller_state.pwm_active) << " " << "pos_ctr " << "0x" <<  static_cast<int>(m_controller_state.pos_ctrl) << " " << "cur_ctrl " << "0x" << static_cast<int>(m_controller_state.cur_ctrl) << endl);
+        LOGGING_TRACE_C(DriverS5FH, S5FHController, "Received a get/set controler state packet " << endl);
+        LOGGING_TRACE_C(DriverS5FH, S5FHController, "Controllerstate (NO HEX):" << "pwm_fault " << "0x" << static_cast<int>(m_controller_state.pwm_fault) << " " << "pwm_otw " << "0x" << static_cast<int>(m_controller_state.pwm_otw) << " "  << "pwm_reset " << "0x" << static_cast<int>(m_controller_state.pwm_reset) << " " << "pwm_active " << "0x" << static_cast<int>(m_controller_state.pwm_active) << " " << "pos_ctr " << "0x" <<  static_cast<int>(m_controller_state.pos_ctrl) << " " << "cur_ctrl " << "0x" << static_cast<int>(m_controller_state.cur_ctrl) << endl);
       break;
     case S5FH_GET_ENCODER_VALUES:
     case S5FH_SET_ENCODER_VALUES:
-        LOGGING_INFO_C(DriverS5FH, S5FHController, "Received a get/set encoder settings packet " << endl);
+        LOGGING_TRACE_C(DriverS5FH, S5FHController, "Received a get/set encoder settings packet " << endl);
         ab >> m_encoder_settings;
       break;
     case S5FH_GET_FIRMWARE_INFO:
@@ -443,7 +478,7 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
         LOGGING_INFO_C(DriverS5FH, S5FHController, m_firmware_info.s5fh  << " " << m_firmware_info.version_major << "." << m_firmware_info.version_minor << " : " << m_firmware_info.text << endl);
       break;
     default:
-      LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a Packet with unknown address: "<< (packet.address & 0x0F) << " - ignoring packet" << endl);
+        LOGGING_ERROR_C(DriverS5FH, S5FHController, "Received a Packet with unknown address: "<< (packet.address & 0x0F) << " - ignoring packet" << endl);
       break;
   }
 
@@ -461,6 +496,11 @@ bool S5FHController::getControllerFeedback(const S5FHCHANNEL &channel,S5FHContro
     LOGGING_WARNING_C(DriverS5FH, S5FHController, "Feedback was requested for unknown channel: "<< channel<< "- ignoring request" << endl);
     return false;
   }
+}
+
+void S5FHController::getControllerFeedbackAllChannels(S5FHControllerFeedbackAllChannels& controller_feedback)
+{
+  controller_feedback.feedbacks = m_controller_feedback;
 }
 
 bool S5FHController::getPositionSettings(const S5FHCHANNEL &channel, S5FHPositionSettings &position_settings)

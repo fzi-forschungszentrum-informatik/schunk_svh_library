@@ -185,11 +185,15 @@ private:
   //! \brief get default parameters for position settings
   std::vector<S5FHPositionSettings> getPositionSettingsDefaultParameters();
 
+  //! \brief get default parameters for position settings DURING RESET
+  std::vector<S5FHPositionSettings> getPositionSettingsDefaultResetParameters();
+
   //!
   //! \brief readParametersFromConfigFile
   //! \return
   //!
   bool readParametersFromConfigFile();
+
 
 };
 

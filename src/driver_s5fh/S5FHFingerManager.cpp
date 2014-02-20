@@ -59,9 +59,9 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
       // initialize feedback polling thread
       m_feedback_thread = new S5FHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
 
-      // load default position settings
+      // load default position settings before the fingers are resetted
       std::vector<S5FHPositionSettings> default_position_settings
-          = getPositionSettingsDefaultParameters();
+          = getPositionSettingsDefaultResetParameters();
 
       // load default current settings
       std::vector<S5FHCurrentSettings> default_current_settings
@@ -176,6 +176,9 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
     {
       LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Start homing channel " << channel << endl);
 
+      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Setting reset position values for controller of channel " << channel << endl);
+      m_controller->setPositionSettings(channel, getPositionSettingsDefaultResetParameters()[channel]);
+
       // reset homed flag
       m_is_homed[channel] = false;
 
@@ -268,6 +271,10 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
         }
       }
       m_controller->disableChannel(eS5FH_ALL);
+
+      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Restoring default position values for controller of channel " << channel << endl);
+      m_controller->setPositionSettings(channel, getPositionSettingsDefaultParameters()[channel]);
+
 
       m_is_homed[channel] = true;
 
@@ -507,18 +514,20 @@ std::vector<S5FHCurrentSettings> S5FHFingerManager::getCurrentSettingsDefaultPar
   return default_current_settings;
 }
 
+
 //!
-//! \brief returns default parameters for position settings
+//! \brief returns default RESET parameters for position settings
 //!
-std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultParameters()
+std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultResetParameters()
 {
   std::vector<S5FHPositionSettings> default_position_settings(eS5FH_DIMENSION);
-//  S5FHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  3.4e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
-//  S5FHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f,  8.5e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
-//  S5FHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
-  S5FHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  10.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+
+
+  //S5FHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  3.4e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+  S5FHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  7.5e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
   S5FHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f,  8.5e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
   S5FHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+
 
   default_position_settings[0] = pos_set_thumb;   // thumb flexion
   default_position_settings[1] = pos_set_thumb;   // thumb opposition
@@ -528,6 +537,55 @@ std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultP
   default_position_settings[5] = pos_set_finger;  // middle finger proximal joint
   default_position_settings[6] = pos_set_finger;  // ring finger
   default_position_settings[7] = pos_set_finger;  // pinky
+  default_position_settings[8] = pos_set_spread;  // finger spread
+
+  return default_position_settings;
+}
+
+
+//!
+//! \brief returns default parameters for position settings
+//!
+std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultParameters()
+{
+  std::vector<S5FHPositionSettings> default_position_settings(eS5FH_DIMENSION);
+  // Was this:
+//  S5FHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  3.4e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f,  8.5e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+
+    // All Fingers 0.5rad/sec except the fingers (1.5)
+//  S5FHPositionSettings pos_set_thumb_flexion =          {-1.0e6f, 1.0e6f,  26.288e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_thumb_opposition =       {-1.0e6f, 1.0e6f,  15.151e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_finger_index_distal =    {-1.0e6f, 1.0e6f,  16.917e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_finger_index_proximal =  {-1.0e6f, 1.0e6f,  25.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_finger_middle_distal =   {-1.0e6f, 1.0e6f,  16.917e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_finger_middle_proximal = {-1.0e6f, 1.0e6f,  25.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_finger_ring =            {-1.0e6f, 1.0e6f,  22.959e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_finger_pinky =           {-1.0e6f, 1.0e6f,  22.959e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+//  S5FHPositionSettings pos_set_spread =                 {-1.0e6f, 1.0e6f, 21.551e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+
+  // All Fingers with a speed that will close the complete range of the finger in 1 Seconds (except the thumb that wikll take 4)
+    S5FHPositionSettings pos_set_thumb_flexion =          {-1.0e6f, 1.0e6f,  42.5e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    S5FHPositionSettings pos_set_thumb_opposition =       {-1.0e6f, 1.0e6f,  25.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    S5FHPositionSettings pos_set_finger_index_distal =    {-1.0e6f, 1.0e6f,  45.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    S5FHPositionSettings pos_set_finger_index_proximal =  {-1.0e6f, 1.0e6f,  40.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    S5FHPositionSettings pos_set_finger_middle_distal =   {-1.0e6f, 1.0e6f,  45.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    S5FHPositionSettings pos_set_finger_middle_proximal = {-1.0e6f, 1.0e6f,  40.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    S5FHPositionSettings pos_set_finger_ring =            {-1.0e6f, 1.0e6f,  45.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    S5FHPositionSettings pos_set_finger_pinky =           {-1.0e6f, 1.0e6f,  45.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    S5FHPositionSettings pos_set_spread =                 {-1.0e6f, 1.0e6f,  25.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+
+
+
+  default_position_settings[0] = pos_set_thumb_flexion;   // thumb flexion
+  default_position_settings[1] = pos_set_thumb_opposition;   // thumb opposition
+  default_position_settings[2] = pos_set_finger_index_distal;  // index finger distal joint
+  default_position_settings[3] = pos_set_finger_index_proximal;  // index finger proximal joint
+  default_position_settings[4] = pos_set_finger_middle_distal;  // middle finger distal joint
+  default_position_settings[5] = pos_set_finger_middle_proximal;  // middle finger proximal joint
+  default_position_settings[6] = pos_set_finger_ring;  // ring finger
+  default_position_settings[7] = pos_set_finger_pinky;  // pinky
   default_position_settings[8] = pos_set_spread;  // finger spread
 
   return default_position_settings;

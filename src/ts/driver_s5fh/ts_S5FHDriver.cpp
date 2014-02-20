@@ -153,6 +153,56 @@ BOOST_AUTO_TEST_CASE(ConvertEncoderSettings)
   std::cout << "Done" << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE(ConvertControlCommandAllChannels)
+{
+  std::cout << "Converstion test of ControlCommandAllChannels ....";
+
+  // Reset Array Builder
+  payload.reset(40);
+
+  // Create Structures
+  S5FHControlCommandAllChannels test_control_command_in(0,1,2,3,4,5,6,7,8);
+  S5FHControlCommandAllChannels test_control_command_out;
+
+    // Conversion
+  payload << test_control_command_in;
+  payload >> test_control_command_out;
+
+  BOOST_CHECK_EQUAL(test_control_command_in,test_control_command_out);
+
+  std::cout << "Done" << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(ConvertControllerFeedbackAllChannels)
+{
+  std::cout << "Converstion test of ControllerFeedbackAllChannels ....";
+
+  // Reset Array Builder
+  payload.reset(40);
+
+  // Create Structures
+  S5FHControllerFeedbackAllChannels test_controller_feedback_all_channels_in(S5FHControllerFeedback(0,0),
+                                                                             S5FHControllerFeedback(1,1),
+                                                                             S5FHControllerFeedback(2,2),
+                                                                             S5FHControllerFeedback(3,3),
+                                                                             S5FHControllerFeedback(4,4),
+                                                                             S5FHControllerFeedback(5,5),
+                                                                             S5FHControllerFeedback(6,6),
+                                                                             S5FHControllerFeedback(7,7),
+                                                                             S5FHControllerFeedback(8,8));
+  S5FHControllerFeedbackAllChannels test_controller_feedback_all_channels_out;
+
+
+
+  // Conversion
+  payload << test_controller_feedback_all_channels_in;
+  payload >> test_controller_feedback_all_channels_out;
+
+  BOOST_CHECK_EQUAL(test_controller_feedback_all_channels_in,test_controller_feedback_all_channels_out);
+
+  std::cout << "Done" << std::endl;
+}
+
 
 BOOST_AUTO_TEST_CASE(ConvertSerialPacket)
 {

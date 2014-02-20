@@ -131,6 +131,7 @@ inline std::ostream& operator << (std::ostream& o, const S5FHControlCommand& cc)
 //! overload stream operator to easily serialize data
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHControlCommandAllChannels& data)
 {
+  // We could also just give the whole vector in ...
   for (std::vector<S5FHControlCommand>::const_iterator it = data.commands.begin() ; it != data.commands.end(); ++it)
   {
     ab << *it;

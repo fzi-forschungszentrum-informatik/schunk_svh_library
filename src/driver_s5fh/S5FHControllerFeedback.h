@@ -15,11 +15,12 @@
 #define S5FHCONTROLLERFEEDBACK_H
 
 #include <icl_core/BaseTypes.h>
+#include <icl_comm/ByteOrderConversion.h>
 
 namespace driver_s5fh {
 
 /*!
- * \brief The S5FHCurrentSettings save the current controller paramters for a single motor
+ * \brief The S5FHControllerFeedback saves the feedback of a single motor
  */
 struct S5FHControllerFeedback
 {
@@ -50,6 +51,9 @@ struct S5FHControllerFeedback
   }
 };
 
+/*!
+ * * \brief The S5FHControllerFeedbackAllChannes saves the feedback of a all motors
+ */
 struct S5FHControllerFeedbackAllChannels
 {
   //! Vector holding multiple channels
@@ -111,7 +115,7 @@ struct S5FHControllerFeedbackAllChannels
 };
 
 //! overload stream operator to easily serialize data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHControllerFeedback& data)
+inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab,const S5FHControllerFeedback& data)
 {
   ab << data.position
      << data.current;
@@ -136,16 +140,16 @@ inline std::ostream& operator << (std::ostream& o, const S5FHControllerFeedback&
 
 
 //! overload stream operator to easily serialize data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHControllerFeedbackAllChannels& data)
+inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab,S5FHControllerFeedbackAllChannels& data)
 {
   // The Data is transmitted not channel by channel but rather position first, Currents afterwards for all channels
 
-  for (std::vector<S5FHControllerFeedback>::const_iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  for (std::vector<S5FHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
   {
     ab << it->position;
   }
 
-  for (std::vector<S5FHControllerFeedback>::const_iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  for (std::vector<S5FHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
   {
     ab << it->current;
   }
@@ -156,7 +160,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHCont
 //! overload stream operator to easily deserialize data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControllerFeedbackAllChannels& data)
 {
-
+  // The Data is transmitted not channel by channel but rather position first, Currents afterwards for all channels
   for (std::vector<S5FHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
   {
     ab >> it->position;

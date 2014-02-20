@@ -30,14 +30,7 @@ void S5FHFeedbackPollingThread::run()
     {
       if (m_finger_manager->isConnected())
       {
-        for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
-        {
-          S5FHCHANNEL channel = static_cast<S5FHCHANNEL>(i);
-          if (m_finger_manager->isHomed(channel) && m_finger_manager->isEnabled(channel))
-          {
-            m_finger_manager->requestControllerFeedback(channel);
-          }
-        }
+        m_finger_manager->requestControllerFeedbackAllChannels();
       }
       else
       {

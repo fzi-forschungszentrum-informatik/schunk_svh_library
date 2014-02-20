@@ -477,7 +477,7 @@ void S5FHFingerManager::setHomePositionDefaultParameters()
   //HomeSettings home_set_finger_proximal = {-1,    2.0e3f,  47.0e3f,   8.0e3f}; // Better Looking and more homogeneous maximum ;)
   HomeSettings home_set_ring_finger     = home_set_finger_distal; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE10, ring finger
   HomeSettings home_set_pinky           = home_set_finger_distal; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE10, pinky
-  HomeSettings home_set_finger_spread   = {+1,  -27.0e3f,  -2.0e3f,  -8.0e3f};  // {+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE13, finger spread
+  HomeSettings home_set_finger_spread   = {+1,  -27.0e3f,  -2.0e3f,  -15.0e3f};  // {+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE13, finger spread
 
   m_home_settings[0] = home_set_thumb_flexion;    // thumb flexion
   m_home_settings[1] = home_set_thumb_oppsition;  // thumb opposition

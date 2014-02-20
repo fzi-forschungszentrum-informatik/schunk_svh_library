@@ -176,6 +176,9 @@ private:
   //! \brief vector storing reset flags for each channel
   std::vector<bool> m_is_homed;
 
+  //! \brief vector storing the reset order of the channels
+  std::vector<S5FHCHANNEL> m_reset_order;
+
   //! \brief set default parameters for home position
   void setHomePositionDefaultParameters();
 

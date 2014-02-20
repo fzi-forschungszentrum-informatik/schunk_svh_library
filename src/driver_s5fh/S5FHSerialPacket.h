@@ -36,6 +36,8 @@ const uint8_t PACKET_HEADER2 = 0xAA;
 //! adress constants for commands
 const uint8_t S5FH_GET_CONTROL_FEEDBACK = 0x00;
 const uint8_t S5FH_SET_CONTROL_COMMAND = 0x01;
+const uint8_t S5FH_GET_CONTROL_FEEDBACK_ALL = 0x02; // Requests the feedback of ALL Channels
+const uint8_t S5FH_SET_CONTROL_COMMAND_ALL = 0x03; // Sends the target position to ALL the channels
 const uint8_t S5FH_GET_POSITION_SETTINGS = 0x04;
 const uint8_t S5FH_SET_POSITION_SETTINGS = 0x05;
 const uint8_t S5FH_GET_CURRENT_SETTINGS = 0x06;

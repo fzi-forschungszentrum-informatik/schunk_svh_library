@@ -33,7 +33,7 @@ struct S5FHControllerFeedback
   //! \param _position Intitial position value, defaults to 0
   //! \param _current Initital current value, defaults to 0
   //!
-  S5FHControllerFeedback(int32_t _position = 0,int16_t _current = 0):
+  S5FHControllerFeedback(const int32_t& _position = 0,const int16_t& _current = 0):
     position(_position),
     current(_current)
   {
@@ -50,9 +50,69 @@ struct S5FHControllerFeedback
   }
 };
 
+struct S5FHControllerFeedbackAllChannels
+{
+  //! Vector holding multiple channels
+  std::vector<S5FHControllerFeedback> feedbacks;
+
+  /*!
+   * \brief Constructs a S5FHControllerFeedbackAllChannels data structure from explicit ffedback elements
+   * \param _feedback0 Feedback for the Thumb_Flexion
+   * \param _feedback1 Feedback for the Thumb_Opposition
+   * \param _feedback2 Feedback for the Index_Finger_Distal
+   * \param _feedback3 Feedback for the Index_Finger_Proximal
+   * \param _feedback4 Feedback for the Middle_Finger_Distal
+   * \param _feedback5 Feedback for the Middle_Finger_Proximal
+   * \param _feedback6 Feedback for the Ring_Finger
+   * \param _feedback7 Feedback for the Pinky
+   * \param _feedback8 Feedback for the Finger_Spread
+   */
+  S5FHControllerFeedbackAllChannels(const S5FHControllerFeedback& _feedback0,const S5FHControllerFeedback& _feedback1,
+                                    const S5FHControllerFeedback& _feedback2,const S5FHControllerFeedback& _feedback3,
+                                    const S5FHControllerFeedback& _feedback4,const S5FHControllerFeedback& _feedback5,
+                                    const S5FHControllerFeedback& _feedback6,const S5FHControllerFeedback& _feedback7,
+                                    const S5FHControllerFeedback& _feedback8)
+  {
+    feedbacks.push_back(_feedback0);
+    feedbacks.push_back(_feedback1);
+    feedbacks.push_back(_feedback2);
+    feedbacks.push_back(_feedback3);
+    feedbacks.push_back(_feedback4);
+    feedbacks.push_back(_feedback5);
+    feedbacks.push_back(_feedback6);
+    feedbacks.push_back(_feedback7);
+    feedbacks.push_back(_feedback8);
+  }
+
+  /*!
+   * \brief Creates a S5FHControllerFeedbackAllChannels structure from a vector
+   * \param _feedback Vector filles with S5FHControllerFeedback elements. Only the first 9 Elements will be used
+   */
+  S5FHControllerFeedbackAllChannels(std::vector<S5FHControllerFeedback> _feedbacks)
+  {
+    feedbacks.insert(feedbacks.begin(),_feedbacks.begin(),_feedbacks.begin()+9);
+  }
+
+  /*!
+   * \brief Constructs an empty S5FHControllerFeedbackAllChannels objects, prefilled with 9 default channel feedbacks, mainly usefull for deserialization
+   */
+  S5FHControllerFeedbackAllChannels():
+    feedbacks(9,S5FHControllerFeedback())
+  { }
+
+
+  //! Compares two S5FHControllerFeedbackAllChannels objects.
+  bool operator == (const S5FHControllerFeedbackAllChannels& other) const
+  {
+    return
+      (feedbacks == other.feedbacks);
+  }
+
+};
+
 //! overload stream operator to easily serialize data
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHControllerFeedback& data)
-{ 
+{
   ab << data.position
      << data.current;
   return ab;
@@ -73,6 +133,55 @@ inline std::ostream& operator << (std::ostream& o, const S5FHControllerFeedback&
   o << "Pos: " << cf.position << " Cur: " << cf.current << std::endl;
   return o;
 }
+
+
+//! overload stream operator to easily serialize data
+inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHControllerFeedbackAllChannels& data)
+{
+  // The Data is transmitted not channel by channel but rather position first, Currents afterwards for all channels
+
+  for (std::vector<S5FHControllerFeedback>::const_iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  {
+    ab << it->position;
+  }
+
+  for (std::vector<S5FHControllerFeedback>::const_iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  {
+    ab << it->current;
+  }
+  return ab;
+}
+
+
+//! overload stream operator to easily deserialize data
+inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControllerFeedbackAllChannels& data)
+{
+
+  for (std::vector<S5FHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  {
+    ab >> it->position;
+  }
+
+  for (std::vector<S5FHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  {
+    ab >> it->current;
+  }
+  return ab;
+}
+
+//! Output Stream operator
+inline std::ostream& operator << (std::ostream& o, const S5FHControllerFeedbackAllChannels& cf)
+{
+  o << "Feedbacks: " ;
+  unsigned int i = 0;
+  for (std::vector<S5FHControllerFeedback>::const_iterator it = cf.feedbacks.begin() ; it != cf.feedbacks.end(); ++it,++i)
+  {
+    o << "Chan " << i << " : "<< *it;
+  }
+  o << std::endl;
+  return o;
+}
+
 
 
 }

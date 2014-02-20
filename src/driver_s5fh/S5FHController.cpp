@@ -178,7 +178,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     ab.reset(40);
 
     // WARNING: DO NOT ! REMOVE THESE DELAYS OR THE HARDWARE WILL! FREAK OUT!
-    icl_core::os::usleep(100);
+    icl_core::os::usleep(500);
 
     controller_state.pos_ctrl = 0x0001;
     controller_state.cur_ctrl = 0x0001;
@@ -188,7 +188,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     ab.reset(40);
 
     // WARNING: DO NOT ! REMOVE THESE DELAYS OR THE HARDWARE WILL! FREAK OUT!
-    icl_core::os::usleep(100);
+    icl_core::os::usleep(500);
 
     ab << controller_state;
     serial_packet.data = ab.array;

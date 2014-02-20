@@ -244,7 +244,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
         if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
         {
           m_controller->disableChannel(eS5FH_ALL);
-          LOGGING_ERROR_C(DriverS5FH, resetChannel, "Timeout: Aborted finding home position for channel " << channel << endl);
+          LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Timeout: Aborted finding home position for channel " << channel << endl);
           return false;
         }
 
@@ -258,7 +258,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
         control_feedback_previous = control_feedback;
       }
 
-      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Hit counter of " << channel << " reached." << endl);
+      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Hit counter of " << channel << " reached." << endl);
 
       m_controller->disableChannel(eS5FH_ALL);
 
@@ -266,7 +266,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.minimumOffset);
       m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.maximumOffset);
       m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.idlePosition);
-      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Channel " << channel << " min pos = " << m_position_min[channel]
+      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << " min pos = " << m_position_min[channel]
                       << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel] << endl);
 
       position = static_cast<int32_t>(control_feedback.position + home.idlePosition);
@@ -286,25 +286,25 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       }
       m_controller->disableChannel(eS5FH_ALL);
 
-      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Restoring default position values for controller of channel " << channel << endl);
+      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
       m_controller->setPositionSettings(channel, getPositionSettingsDefaultParameters()[channel]);
 
 
       m_is_homed[channel] = true;
 
-      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "End homing of channel " << channel << endl);
+      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "End homing of channel " << channel << endl);
 
       return true;
     }
     else
     {
-      LOGGING_ERROR_C(DriverS5FH, resetChannel, "Could not reset channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
+      LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not reset channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
       return false;
     }
   }
   else
   {
-    LOGGING_ERROR_C(DriverS5FH, resetChannel, "Channel " << channel << " is out side of bounds!" << endl);
+    LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << " is out side of bounds!" << endl);
     return false;
   }
 }
@@ -381,7 +381,7 @@ bool S5FHFingerManager::getCurrent(const S5FHCHANNEL &channel, double &current)
   }
   else
   {
-    LOGGING_WARNING_C(DriverS5FH, setTargetPosition, "Could not get current for channel " << channel << endl);
+    LOGGING_WARNING_C(DriverS5FH, S5FHFingerManager, "Could not get current for channel " << channel << endl);
     return false;
   }
 }
@@ -420,19 +420,19 @@ bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double pos
       }
       else
       {
-        LOGGING_ERROR_C(DriverS5FH, setTargetPosition, "Target position for channel " << channel << " out of bounds!" << endl);
+        LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Target position for channel " << channel << " out of bounds!" << endl);
         return false;
       }
     }
     else
     {
-      LOGGING_ERROR_C(DriverS5FH, setTargetPosition, "Could not set target position for channel " << channel << ": Reset first!" << endl);
+      LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not set target position for channel " << channel << ": Reset first!" << endl);
       return false;
     }
   }
   else
   {
-    LOGGING_ERROR_C(DriverS5FH, setTargetPosition, "Could not set target position for channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
+    LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not set target position for channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
     return false;
   }
 }

@@ -327,6 +327,17 @@ void S5FHFingerManager::disableChannel(const S5FHCHANNEL &channel)
   m_controller->disableChannel(channel);
 }
 
+bool S5FHFingerManager::requestControllerFeedbackAllChannels()
+{
+  if (isConnected())
+  {
+    m_controller->requestControllerFeedbackAllChannels();
+    return true;
+  }
+
+  return false;
+}
+
 bool S5FHFingerManager::requestControllerFeedback(const S5FHCHANNEL &channel)
 {
   if (isConnected() && isHomed(channel) && isEnabled(channel))
@@ -386,16 +397,63 @@ bool S5FHFingerManager::getCurrent(const S5FHCHANNEL &channel, double &current)
   }
 }
 
+//! set all target positions at once
+bool S5FHFingerManager::setAllTargetPositions(const std::vector<double>& positions)
 {
   if (isConnected())
   {
+    // check size of position vector
+    if (positions.size() == eS5FH_DIMENSION)
     {
+      // create target positions vector
+      std::vector<int32_t> target_positions(eS5FH_DIMENSION, 0);
 
+      bool reject_command = false;
+      for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
       {
+        S5FHCHANNEL channel = static_cast<S5FHCHANNEL>(i);
+
+        // enable all homed and disabled channels
+        if (isHomed(channel) && !isEnabled(channel))
+        {
+          enableChannel(channel);
+        }
+
+        // convert all channels to ticks
+        target_positions[channel] = convertRad2Ticks(channel, positions[channel]);
+
+        // check for out of bounds
+        if (!isInsideBounds(channel, target_positions[channel]))
+        {
+          reject_command = true;
+        }
+      }
+
+      // send target position vector to controller and SCHUNK hand
+      if (!reject_command)
+      {
+        m_controller->setControllerTargetAllChannels(target_positions);
+        return true;
       }
       else
       {
+        LOGGING_WARNING_C(DriverS5FH, S5FHFingerManager, "Could not set target position vector: At least one channel is out of bounds!" << endl);
+        return false;
       }
+
+    }
+    else
+    {
+      LOGGING_WARNING_C(DriverS5FH, S5FHFingerManager, "Size of target position vector wrong: size = " << positions.size() << " expected size = " << (int)eS5FH_DIMENSION << endl);
+      return false;
+    }
+  }
+  else
+  {
+    LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not set target position vector: No connection to SCHUNK five finger hand!" << endl);
+    return false;
+  }
+}
 
 //! set target position of a single channel
 bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double position, double current)

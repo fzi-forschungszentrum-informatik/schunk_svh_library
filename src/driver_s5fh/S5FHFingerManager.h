@@ -72,6 +72,12 @@ public:
   void disableChannel(const S5FHCHANNEL &channel);
 
   //!
+  //! \brief sends request controller feedback packet for all channels
+  //! \return
+  //!
+  bool requestControllerFeedbackAllChannels();
+
+  //!
   //! \brief send request controller feedback paket
   //! \param channel
   //! \return
@@ -93,6 +99,13 @@ public:
   //! \return bool
   //!
   bool getCurrent(const S5FHCHANNEL &channel, double &current);
+
+  //!
+  //! \brief set all target positions at once
+  //! \param positions
+  //! \return
+  //!
+  bool setAllTargetPositions(const std::vector<double>& positions);
 
   //!
   //! \brief set target position of a channel

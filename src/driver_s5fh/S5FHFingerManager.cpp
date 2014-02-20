@@ -32,6 +32,19 @@ S5FHFingerManager::S5FHFingerManager() :
 {
   // load home position default parameters
   setHomePositionDefaultParameters();
+
+  // set default reset order of all channels
+  m_reset_order.resize(eS5FH_DIMENSION);
+  m_reset_order[0] = eS5FH_THUMB_OPPOSITION;
+  m_reset_order[1] = eS5FH_THUMB_FLEXION;
+  m_reset_order[2] = eS5FH_FINGER_SPREAD;
+  m_reset_order[3] = eS5FH_INDEX_FINGER_DISTAL;
+  m_reset_order[4] = eS5FH_INDEX_FINGER_PROXIMAL;
+  m_reset_order[5] = eS5FH_MIDDLE_FINGER_DISTAL;
+  m_reset_order[6] = eS5FH_MIDDLE_FINGER_PROXIMAL;
+  m_reset_order[7] = eS5FH_RING_FINGER;
+  m_reset_order[8] = eS5FH_PINKY;
+
 }
 
 S5FHFingerManager::~S5FHFingerManager()
@@ -158,14 +171,15 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
         bool reset_success = false;
         while (!reset_success && max_reset_counter > 0)
         {
-          reset_success = resetChannel(static_cast<S5FHCHANNEL>(i));
+          S5FHCHANNEL channel = static_cast<S5FHCHANNEL>(m_reset_order[i]);
+          reset_success = resetChannel(channel);
           max_reset_counter--;
 
           // wait before starting next reset
           icl_core::os::sleep(1);
         }
 
-        LOGGING_INFO_C(DriverS5FH, resetChannel, "Channel " << i << " reset success = " << reset_success << endl);
+        LOGGING_INFO_C(DriverS5FH, resetChannel, "Channel " << channel << " reset success = " << reset_success << endl);
 
         // set all reset flag
         reset_all_success = reset_all_success && reset_success;
@@ -174,9 +188,9 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
     }
     else if (channel > eS5FH_ALL && eS5FH_ALL < eS5FH_DIMENSION)
     {
-      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Start homing channel " << channel << endl);
+      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Start homing channel " << channel << endl);
 
-      LOGGING_DEBUG_C(DriverS5FH, resetChannel, "Setting reset position values for controller of channel " << channel << endl);
+      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
       m_controller->setPositionSettings(channel, getPositionSettingsDefaultResetParameters()[channel]);
 
       // reset homed flag

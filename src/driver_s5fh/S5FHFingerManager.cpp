@@ -179,7 +179,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
           icl_core::os::sleep(1);
         }
 
-        LOGGING_INFO_C(DriverS5FH, resetChannel, "Channel " << channel << " reset success = " << reset_success << endl);
+        LOGGING_INFO_C(DriverS5FH, resetChannel, "Channel " << static_cast<int>(channel) << " reset success = " << reset_success << endl);
 
         // set all reset flag
         reset_all_success = reset_all_success && reset_success;

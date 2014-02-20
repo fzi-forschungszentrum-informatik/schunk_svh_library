@@ -447,7 +447,7 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
     case S5FH_SET_CURRENT_SETTINGS:
       if (channel >=0 && channel < eS5FH_DIMENSION)
       {
-        std::cout << "Recieved: Current Settings RAW Data: " << ab;
+        //std::cout << "Recieved: Current Settings RAW Data: " << ab;
         ab >> m_current_settings[channel];
         LOGGING_TRACE_C(DriverS5FH, S5FHController, "Received a get/set current setting packet for channel "<< channel << endl);
         LOGGING_TRACE_C(DriverS5FH, S5FHController, "wmn "<< m_current_settings[channel].wmn << " " << "wmx "<< m_current_settings[channel].wmx << " " << "ky " << m_current_settings[channel].ky  << " " << "dt " << m_current_settings[channel].dt  << " " << "imn "<< m_current_settings[channel].imn << " " << "imx "<< m_current_settings[channel].imx << " "                   << "kp " << m_current_settings[channel].kp  << " " << "ki " << m_current_settings[channel].ki  << " " << "umn "<< m_current_settings[channel].umn << " " << "umx "<< m_current_settings[channel].umx << " "<< endl);

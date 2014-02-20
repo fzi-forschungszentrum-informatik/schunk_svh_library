@@ -621,6 +621,29 @@ std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultP
   return default_position_settings;
 }
 
+// Converts joint positions of a specific channel from RAD to ticks
+int32_t S5FHFingerManager::convertRad2Ticks(const S5FHCHANNEL &channel, double position)
+{
+  int32_t target_position = static_cast<int32_t>(position / m_ticks2rad[channel]);
+
+  if (m_home_settings[channel].direction > 0)
+  {
+    target_position += m_position_max[channel];
+  }
+  else
+  {
+    target_position += m_position_min[channel];
+  }
+
+  return target_position;
+}
+
+// Check bounds of target positions
+bool S5FHFingerManager::isInsideBounds(const S5FHCHANNEL &channel, const int32_t &target_position)
+{
+  return target_position >= m_position_min[channel] && target_position <= m_position_max[channel];
+}
+
 bool S5FHFingerManager::readParametersFromConfigFile()
 {
 //  bool read_successful = false;

@@ -192,6 +192,22 @@ private:
   std::vector<S5FHPositionSettings> getPositionSettingsDefaultResetParameters();
 
   //!
+  //! \brief Converts joint positions of a specific channel from RAD to ticks
+  //! \param channel
+  //! \param position
+  //! \return
+  //!
+  int32_t convertRad2Ticks(const S5FHCHANNEL &channel, double position);
+
+  //!
+  //! \brief Check bounds of target positions
+  //! \param channel
+  //! \param target_position
+  //! \return
+  //!
+  bool isInsideBounds(const S5FHCHANNEL &channel, const int32_t &target_position);
+
+  //!
   //! \brief readParametersFromConfigFile
   //! \return
   //!

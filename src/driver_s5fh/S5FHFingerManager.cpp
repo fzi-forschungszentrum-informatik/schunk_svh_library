@@ -579,7 +579,7 @@ std::vector<S5FHCurrentSettings> S5FHFingerManager::getCurrentSettingsDefaultPar
   std::vector<S5FHCurrentSettings> default_current_settings(eS5FH_DIMENSION);
   // curr min, Curr max,ky(error output scaling),dt(time base),imn (integral windup min), imx (integral windup max), kp,ki,umn,umx (output limter)
   //S5FHCurrentSettings cur_set_thumb          = {-350.0f, 350.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -354.0f, 354.0f}; // old: {-191.0f, 191.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
-  S5FHCurrentSettings cur_set_thumb          = {-600.0f, 600.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -600.0f, 600.0f};
+  S5FHCurrentSettings cur_set_thumb          = {-400.0f, 400.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -600.0f, 600.0f};
   S5FHCurrentSettings cur_set_distal_joint   = {-176.0f, 176.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
   S5FHCurrentSettings cur_set_proximal_joint = {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
   //S5FHCurrentSettings cur_set_finger_spread  = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // old: {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
@@ -611,7 +611,7 @@ std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultR
 //  S5FHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f,  8.5e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 //  S5FHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 
-  S5FHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  15.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+  S5FHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  10.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
   S5FHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f, 15.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
   S5FHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 

@@ -366,6 +366,11 @@ bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position
 
     position = static_cast<double>(cleared_position_ticks * m_ticks2rad[channel]);
 
+    // Dirty Hack: If controller drives to a negative position, we cannot get out because inputs smaller than 0 will be ignored
+    if (position < 0)
+    {
+      position = 0.0;
+    }
 
     LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << ": position_ticks = " << controller_feedback.position
                     << " | cleared_position_ticks = " << cleared_position_ticks << " | position rad = " << position << endl);

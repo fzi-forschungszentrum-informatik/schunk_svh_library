@@ -174,9 +174,6 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
           S5FHCHANNEL channel = static_cast<S5FHCHANNEL>(m_reset_order[i]);
           reset_success = resetChannel(channel);
           max_reset_counter--;
-
-          // wait before starting next reset
-          icl_core::os::sleep(1);
         }
 
         LOGGING_INFO_C(DriverS5FH, resetChannel, "Channel " << m_reset_order[i] << " reset success = " << reset_success << endl);

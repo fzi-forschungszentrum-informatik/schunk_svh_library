@@ -101,6 +101,22 @@ public:
   bool getCurrent(const S5FHCHANNEL &channel, double &current);
 
   //!
+  //! \brief returns actual current controller settings of channel
+  //! \param channel
+  //! \param current_settings
+  //! \return
+  //!
+  bool getCurrentControllerParams(const S5FHCHANNEL &channel, S5FHCurrentSettings &current_settings);
+
+  //!
+  //! \brief returns actual position controller settings of channel
+  //! \param channel
+  //! \param position_settings
+  //! \return
+  //!
+  bool getPositionControllerParams(const S5FHCHANNEL &channel, S5FHPositionSettings &position_settings);
+
+  //!
   //! \brief set all target positions at once
   //! \param positions
   //! \return
@@ -119,6 +135,7 @@ public:
   //!
   //! \brief overwrite current parameters
   //! \param channel
+  //! \param current_settings
   //! \return
   //!
   bool setCurrentControllerParams(const S5FHCHANNEL &channel, const S5FHCurrentSettings &current_settings);
@@ -126,6 +143,7 @@ public:
   //!
   //! \brief overwrite position parameters
   //! \param channel
+  //! \param position_settings
   //! \return
   //!
   bool setPositionControllerParams(const S5FHCHANNEL &channel, const S5FHPositionSettings &position_settings);

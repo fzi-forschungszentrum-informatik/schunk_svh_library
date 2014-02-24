@@ -394,6 +394,16 @@ bool S5FHFingerManager::getCurrent(const S5FHCHANNEL &channel, double &current)
   }
 }
 
+bool S5FHFingerManager::getCurrentControllerParams(const S5FHCHANNEL &channel, S5FHCurrentSettings &current_settings)
+{
+  return m_controller->getCurrentSettings(channel, current_settings);
+}
+
+bool S5FHFingerManager::getPositionControllerParams(const S5FHCHANNEL &channel, S5FHPositionSettings &position_settings)
+{
+  return m_controller->getPositionSettings(channel, position_settings);
+}
+
 //! set all target positions at once
 bool S5FHFingerManager::setAllTargetPositions(const std::vector<double>& positions)
 {

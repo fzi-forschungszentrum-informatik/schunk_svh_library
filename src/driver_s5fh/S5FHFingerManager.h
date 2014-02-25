@@ -210,6 +210,14 @@ private:
   //! \brief vector storing the reset order of the channels
   std::vector<S5FHCHANNEL> m_reset_order;
 
+  /*!
+    * \brief Vector containing factors for the currents at reset.
+    * Vector containing factors for the currents at reset.
+    * A hard stop is found if the maxCurrent (first 2 CurrentSettingsValues) x the reset factor was reached. 0.75 by default
+    * Beware. Setting this value very high might result in damage to the motors during reset.
+    */
+  std::vector<double> m_reset_current_factor;
+
   //! \brief set default parameters for home position
   void setHomePositionDefaultParameters();
 

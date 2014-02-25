@@ -45,6 +45,17 @@ S5FHFingerManager::S5FHFingerManager() :
   m_reset_order[7] = eS5FH_RING_FINGER;
   m_reset_order[8] = eS5FH_PINKY;
 
+  // Order is determined by the channel enum
+  m_reset_current_factor.resize(eS5FH_DIMENSION);
+  m_reset_current_factor[eS5FH_THUMB_FLEXION]=          0.75;
+  m_reset_current_factor[eS5FH_THUMB_OPPOSITION]=       0.75;
+  m_reset_current_factor[eS5FH_INDEX_FINGER_DISTAL]=    0.75;
+  m_reset_current_factor[eS5FH_INDEX_FINGER_PROXIMAL]=  0.75;
+  m_reset_current_factor[eS5FH_MIDDLE_FINGER_DISTAL]=   0.75;
+  m_reset_current_factor[eS5FH_MIDDLE_FINGER_PROXIMAL]= 0.75;
+  m_reset_current_factor[eS5FH_RING_FINGER]=            0.75;
+  m_reset_current_factor[eS5FH_PINKY]=                  0.75;
+  m_reset_current_factor[eS5FH_FINGER_SPREAD]=          0.5;  // needs a lower current threshold to properly reset
 }
 
 S5FHFingerManager::~S5FHFingerManager()
@@ -213,6 +224,9 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       {
         position = static_cast<int32_t>(pos_set.wmn);
       }
+
+      LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Driving channel " << channel << " to hardstop. Detection thresholds: Current MIN: "<< m_reset_current_factor[channel] * cur_set.wmn << "mA MAX: "<< m_reset_current_factor[channel] * cur_set.wmx <<"mA" << endl);
+
       m_controller->setControllerTarget(channel, position);
       m_controller->enableChannel(channel);
 
@@ -228,7 +242,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
         //m_controller->requestControllerFeedback(channel);
         m_controller->getControllerFeedback(channel, control_feedback);
 
-        if ((0.75 * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= 0.75 * cur_set.wmx))
+        if ((m_reset_current_factor[channel] * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= m_reset_current_factor[channel] * cur_set.wmx))
         {
           hit_count++;
         }
@@ -295,13 +309,13 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
     }
     else
     {
-      LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not reset channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
+      LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << " is out side of bounds!" << endl);
       return false;
     }
   }
   else
   {
-    LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << " is out side of bounds!" << endl);
+    LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not reset channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
     return false;
   }
 }

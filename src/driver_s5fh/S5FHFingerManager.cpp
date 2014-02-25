@@ -548,7 +548,7 @@ void S5FHFingerManager::setHomePositionDefaultParameters()
   //HomeSettings home_set_finger_proximal = {-1,    2.0e3f,  47.0e3f,   8.0e3f}; // Better Looking and more homogeneous maximum ;)
   HomeSettings home_set_ring_finger     = home_set_finger_distal; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE10, ring finger
   HomeSettings home_set_pinky           = home_set_finger_distal; //{+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE10, pinky
-  HomeSettings home_set_finger_spread   = {+1,  -27.0e3f,  -2.0e3f,  -15.0e3f};  // {+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE13, finger spread
+  HomeSettings home_set_finger_spread   = {+1,  -25.0e3f,  -2.0e3f,  -15.0e3f};  // {+1,  -47.0e3f,  -2.0e3f,  -8.0e3f};  // RE13, finger spread
 
   m_home_settings[0] = home_set_thumb_flexion;    // thumb flexion
   m_home_settings[1] = home_set_thumb_oppsition;  // thumb opposition
@@ -588,7 +588,7 @@ std::vector<S5FHCurrentSettings> S5FHFingerManager::getCurrentSettingsDefaultPar
   S5FHCurrentSettings cur_set_distal_joint   = {-176.0f, 176.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
   S5FHCurrentSettings cur_set_proximal_joint = {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
   //S5FHCurrentSettings cur_set_finger_spread  = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // old: {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
-  S5FHCurrentSettings cur_set_finger_spread  = {-500.0f, 500.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -500.0f, 500.0f};
+  S5FHCurrentSettings cur_set_finger_spread  = {-400.0f, 400.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -400.0f, 400.0f};
 
   default_current_settings[0] = cur_set_thumb;          // thumb flexion
   default_current_settings[1] = cur_set_thumb;          // thumb opposition
@@ -658,7 +658,7 @@ std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultP
 //  S5FHPositionSettings pos_set_spread =                 {-1.0e6f, 1.0e6f, 21.551e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 
   // All Fingers with a speed that will close the complete range of the finger in 1 Seconds    (except the thumb that wikll take 4) -> Changed that... lets see whats happening
-    S5FHPositionSettings pos_set_thumb_flexion =          {-1.0e6f, 1.0e6f,  85.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    S5FHPositionSettings pos_set_thumb_flexion =          {-1.0e6f, 1.0e6f,  65.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
     S5FHPositionSettings pos_set_thumb_opposition =       {-1.0e6f, 1.0e6f,  50.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
     S5FHPositionSettings pos_set_finger_index_distal =    {-1.0e6f, 1.0e6f,  45.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
     S5FHPositionSettings pos_set_finger_index_proximal =  {-1.0e6f, 1.0e6f,  40.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};

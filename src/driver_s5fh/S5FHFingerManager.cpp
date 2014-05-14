@@ -327,9 +327,9 @@ bool S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
   {
     if (channel == eS5FH_ALL)
     {
-      // Just for safety, enable chanels in the same order as we have resetted them (otherwise developers might geht confused)
       for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
       {
+        // Just for safety, enable chanels in the same order as we have resetted them (otherwise developers might geht confused)
         S5FHCHANNEL real_channel = static_cast<S5FHCHANNEL>(m_reset_order[i]);
         m_controller->enableChannel(real_channel);
       }
@@ -347,7 +347,17 @@ bool S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
 //! disables controller of channel
 void S5FHFingerManager::disableChannel(const S5FHCHANNEL &channel)
 {
-  m_controller->disableChannel(channel);
+  if (channel == eS5FH_ALL)
+  {
+    for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+    {
+      m_controller->disableChannel(static_cast<S5FHCHANNEL>(i));
+    }
+  }
+  else
+  {
+    m_controller->disableChannel(channel);
+  }
 }
 
 bool S5FHFingerManager::requestControllerFeedbackAllChannels()
@@ -567,7 +577,7 @@ bool S5FHFingerManager::isEnabled(const S5FHCHANNEL &channel)
 //! return homed flag
 bool S5FHFingerManager::isHomed(const S5FHCHANNEL &channel)
 {
-  if (channel==eS5FH_ALL)
+  if (channel == eS5FH_ALL)
   {
     bool all_homed = true;
     for (size_t i = 0; i < eS5FH_DIMENSION; ++i)

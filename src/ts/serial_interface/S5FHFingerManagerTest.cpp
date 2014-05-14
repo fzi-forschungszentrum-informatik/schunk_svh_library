@@ -27,7 +27,7 @@ int main(int argc, const char* argv[])
   S5FHFingerManager finger_manager;
   if (finger_manager.connect(serial_device_name))
   {
-    S5FHCHANNEL test_channel = eS5FH_PINKY;
+    S5FHCHANNEL test_channel = eS5FH_ALL;
 
     std::cout << "connected" << std::endl;
 
@@ -37,6 +37,15 @@ int main(int argc, const char* argv[])
 
     std::cout << "Pinky is enabled: " << finger_manager.isEnabled(test_channel) << std::endl;
     std::cout << "Pinky is homed: " << finger_manager.isHomed(test_channel) << std::endl;
+
+    std::cout << "Enabling Pinky: " << finger_manager.enableChannel(test_channel) << std::endl;
+
+
+    icl_core::os::sleep(2);
+
+    std::cout << "Pinky is enabled: " << finger_manager.isEnabled(test_channel) << std::endl;
+    std::cout << "Pinky is homed: " << finger_manager.isHomed(test_channel) << std::endl;
+
 
     icl_core::os::sleep(10);
 

@@ -325,10 +325,22 @@ bool S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
 {
   if (isConnected() && isHomed(channel))
   {
-    m_controller->enableChannel(channel);
+    if (channel == eS5FH_ALL)
+    {
+      // Just for safety, enable chanels in the same order as we have resetted them (otherwise developers might geht confused)
+      for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+      {
+        S5FHCHANNEL real_channel = static_cast<S5FHCHANNEL>(m_reset_order[i]);
+        m_controller->enableChannel(real_channel);
+      }
+    }
+    else if (channel > eS5FH_ALL && eS5FH_ALL < eS5FH_DIMENSION)
+    {
+
+      m_controller->enableChannel(channel);
+    }
     return true;
   }
-
   return false;
 }
 
@@ -539,12 +551,32 @@ bool S5FHFingerManager::setPositionControllerParams(const S5FHCHANNEL &channel, 
 //! return enable flag
 bool S5FHFingerManager::isEnabled(const S5FHCHANNEL &channel)
 {
+  if (channel==eS5FH_ALL)
+  {
+    bool all_enabled = true;
+    for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+    {
+      all_enabled = all_enabled && m_controller->isEnabled(static_cast<S5FHCHANNEL>(i));
+    }
+
+    return all_enabled;
+  }
   return m_controller->isEnabled(channel);
 }
 
 //! return homed flag
 bool S5FHFingerManager::isHomed(const S5FHCHANNEL &channel)
 {
+  if (channel==eS5FH_ALL)
+  {
+    bool all_homed = true;
+    for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+    {
+      all_homed = all_homed && m_is_homed[i];
+    }
+
+    return all_homed;
+  }
   return m_is_homed[channel];
 }
 

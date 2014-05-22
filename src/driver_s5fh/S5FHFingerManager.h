@@ -32,6 +32,19 @@ class DRIVER_S5FH_IMPORT_EXPORT S5FHFingerManager
 {
 public:
 
+  /*!
+   * \brief The MovementState enum indicated the overall State of the hand. Currently only used for updating the status websocket
+   */
+  enum MovementState
+  {
+    eST_DEACTIVATED,
+    eST_RESETTING,
+    eST_ENABLED,
+    eST_PARTIALLY_ENABLED,
+    eST_FAULT,
+    eST_DIMENSION
+  };
+
   /*! Constructs a finger manager for the SCHUNK five finger hand.
    * \param autostart if set to true, the driver will immediately connect to the hardware and try to reset all fingers
    * \param dev_name the dev to use for autostart. Default is /dev/ttyUSB0
@@ -170,6 +183,23 @@ public:
   //!
   bool isHomed(const S5FHCHANNEL &channel);
 
+  /*!
+   * \brief setMovementState Updates the movement state of the overll hand indicating the overall status
+   * \param state current movement state
+   * \note this is only used for monitoring purposes at the moment
+   */
+  void setMovementState(const MovementState &state);
+
+  //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  /*!
+   * \brief updateWebSocket Will gathe the current state of the hand and send it out via websocket
+   * \note this function will NOT update everything as it would be to much overhead to ask every single time if a finger is enabled or not. Things
+   *       that happen only sometimes will be updated in the corresponding functions (enable, diable, reset and so on)
+   *       this function is meant to be used for the periodically changing states
+   */
+  void updateWebSocket();
+  //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
 // ----------------------------------------------------------------------
 // ---- private functions and varaibles
 // ----------------------------------------------------------------------
@@ -177,7 +207,7 @@ public:
 private:
 
   //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-    boost::shared_ptr<icl_comm::websocket::WsBroadcaster> ws_broadcaster;
+    boost::shared_ptr<icl_comm::websocket::WsBroadcaster> m_ws_broadcaster;
   //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
   //! \brief pointer to s5fh controller
@@ -219,6 +249,9 @@ private:
   //! \brief vector storing reset flags for each channel
   std::vector<bool> m_is_homed;
 
+  //! Overall movement State to indicate what the hand is doing at the moment
+  MovementState m_movement_state;
+
   //! \brief vector storing the reset order of the channels
   std::vector<S5FHCHANNEL> m_reset_order;
 
@@ -229,6 +262,8 @@ private:
     * Beware. Setting this value very high might result in damage to the motors during reset.
     */
   std::vector<double> m_reset_current_factor;
+
+
 
   //! \brief set default parameters for home position
   void setHomePositionDefaultParameters();
@@ -263,6 +298,8 @@ private:
   //! \return
   //!
   bool readParametersFromConfigFile();
+
+
 
 
 };

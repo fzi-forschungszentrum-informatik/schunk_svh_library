@@ -28,7 +28,8 @@ S5FHFingerManager::S5FHFingerManager(const bool &autostart,const std::string &de
   m_position_min(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
   m_position_max(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
   m_position_home(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
-  m_is_homed(std::vector<bool>(eS5FH_DIMENSION, false))
+  m_is_homed(std::vector<bool>(eS5FH_DIMENSION, false)),
+  m_movement_state(eST_DEACTIVATED)
 {
   // load home position default parameters
   setHomePositionDefaultParameters();
@@ -62,8 +63,8 @@ S5FHFingerManager::S5FHFingerManager(const bool &autostart,const std::string &de
     try
     {
       // TODO: Make the socket adress non const :)
-     ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_S5FH,"/tmp/ws_broadcaster"));
-     ws_broadcaster->robot->setInputToRadFactor(1);
+     m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_S5FH,"/tmp/ws_broadcaster"));
+     m_ws_broadcaster->robot->setInputToRadFactor(1);
     }
     catch (icl_comm::websocket::SocketException e)
     {
@@ -198,6 +199,8 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
     // reset all channels
     if (channel == eS5FH_ALL)
     {
+      setMovementState(eST_RESETTING);
+
       bool reset_all_success = true;
       for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
       {
@@ -326,6 +329,10 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 
 
       m_is_homed[channel] = true;
+      //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      m_ws_broadcaster->robot->setJointHomed(true,channel);
+      m_ws_broadcaster->sendState();
+      //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
       LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "End homing of channel " << channel << endl);
 
@@ -360,8 +367,18 @@ bool S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
     }
     else if (channel > eS5FH_ALL && eS5FH_ALL < eS5FH_DIMENSION)
     {
-
       m_controller->enableChannel(channel);
+      //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      m_ws_broadcaster->robot->setJointEnabled(true,channel);
+      m_ws_broadcaster->sendState();
+      //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
+      setMovementState(eST_PARTIALLY_ENABLED);
+      if (isEnabled(eS5FH_ALL))
+      {
+        setMovementState(eST_ENABLED);
+      }
+
     }
     return true;
   }
@@ -381,6 +398,22 @@ void S5FHFingerManager::disableChannel(const S5FHCHANNEL &channel)
   else
   {
     m_controller->disableChannel(channel);
+    //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+    m_ws_broadcaster->robot->setJointEnabled(false,channel);
+    m_ws_broadcaster->sendState();
+    //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+    setMovementState(eST_PARTIALLY_ENABLED);
+
+    bool all_disabled = true;
+    for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+    {
+      all_disabled = all_disabled && !isEnabled(static_cast<S5FHCHANNEL>(i));
+    }
+    if (all_disabled)
+    {
+      setMovementState(eST_DEACTIVATED);
+    }
+
   }
 }
 
@@ -411,7 +444,7 @@ bool S5FHFingerManager::requestControllerFeedback(const S5FHCHANNEL &channel)
 bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position)
 {
   S5FHControllerFeedback controller_feedback;
-  if (isHomed(channel) && m_controller->getControllerFeedback(channel, controller_feedback))
+  if ((channel >=0 && channel < eS5FH_DIMENSION) && isHomed(channel) && m_controller->getControllerFeedback(channel, controller_feedback))
   {
     int32_t cleared_position_ticks = controller_feedback.position;
 
@@ -442,6 +475,38 @@ bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position
     return false;
   }
 }
+
+
+
+//#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+void S5FHFingerManager::updateWebSocket()
+{
+  double position;
+  //double current // will be implemented later in the WS Broadcaster
+  for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+  {
+    // NOTE: Although the call to getPosition and current cann fail fue to multiple reason, the only one we would encounter with these calls is a
+    // non-homed finger. So it is quite safe to assume that the finger is NOT homed if these calls fail and we can safe multiple acces to the homed variable
+
+    if (getPosition(static_cast<S5FHCHANNEL>(i),position)) // && (getCurrent(i,current))
+    {
+      m_ws_broadcaster->robot->setJointPosition(position,i);
+      //m_ws_broadcaster>robot>setJpintCurrent(current,i);
+    }
+    else
+    {
+      m_ws_broadcaster->robot->setJointHomed(false,i);
+    }
+
+    m_ws_broadcaster->sendState();
+  }
+
+}
+//#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
+
+
+
 
 //! returns actual current value for given channel
 bool S5FHFingerManager::getCurrent(const S5FHCHANNEL &channel, double &current)
@@ -541,9 +606,9 @@ bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double pos
       // check for bounds
       if (isInsideBounds(channel, target_position))
       {
-        if (!m_controller->isEnabled(channel))
+        if (!isEnabled(channel))
         {
-          m_controller->enableChannel(channel);
+          enableChannel(channel);
         }
 
         m_controller->setControllerTarget(channel, target_position);
@@ -612,6 +677,18 @@ bool S5FHFingerManager::isHomed(const S5FHCHANNEL &channel)
     return all_homed;
   }
   return m_is_homed[channel];
+}
+
+void S5FHFingerManager::setMovementState(const S5FHFingerManager::MovementState &state)
+{
+  m_movement_state = state;
+
+  //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  m_ws_broadcaster->robot->setMovementState(state);
+  m_ws_broadcaster->sendState();
+  //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
+
 }
 
 //!

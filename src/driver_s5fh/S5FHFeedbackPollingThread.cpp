@@ -31,6 +31,9 @@ void S5FHFeedbackPollingThread::run()
       if (m_finger_manager->isConnected())
       {
         m_finger_manager->requestControllerFeedbackAllChannels();
+        //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+        m_finger_manager->updateWebSocket();
+        //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
       }
       else
       {

@@ -18,7 +18,7 @@
 
 namespace driver_s5fh {
 
-S5FHFingerManager::S5FHFingerManager() :
+S5FHFingerManager::S5FHFingerManager(const bool &autostart) :
   m_controller(new S5FHController()),
   m_feedback_thread(NULL),
   m_connected(false),
@@ -56,6 +56,29 @@ S5FHFingerManager::S5FHFingerManager() :
   m_reset_current_factor[eS5FH_RING_FINGER]=            0.75;
   m_reset_current_factor[eS5FH_PINKY]=                  0.75;
   m_reset_current_factor[eS5FH_FINGER_SPREAD]=          0.5;  // needs a lower current threshold to properly reset
+
+
+  //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+    try
+    {
+      // TODO: Make the socket adress non const :)
+     ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_S5FH,"/tmp/ws_broadcaster"));
+     ws_broadcaster->robot->setInputToRadFactor(1);
+    }
+    catch (icl_comm::websocket::SocketException e)
+    {
+      std::cout << e.what() << std::endl;
+    }
+  //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
+
+  // Try First Connect and Reset of all Fingers if autostart is enabled
+  if (autostart && connect())
+  {
+    resetChannel(eS5FH_ALL);
+    LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Driver Autostart succesfull! Input can now be sent. Have a safe and productive day" << endl);
+  }
+
 }
 
 S5FHFingerManager::~S5FHFingerManager()
@@ -118,6 +141,7 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
           m_connected = true;
           LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Successfully established connection to SCHUNK five finger hand." << endl
                           << "Send packages = " << send_count << ", received packages = " << received_count << endl);
+
         }
         LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
 

@@ -40,6 +40,8 @@ ICMAKER_INTERNAL_DEPENDENCIES(
   icl_core_thread
   icl_comm
   icl_comm_serial
+
+  icl_comm_websocket # OPTIONAL
 )
 
 ICMAKER_BUILD_LIBRARY()

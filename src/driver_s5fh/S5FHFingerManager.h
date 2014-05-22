@@ -18,6 +18,12 @@
 #include <driver_s5fh/S5FHController.h>
 #include <driver_s5fh/S5FHFeedbackPollingThread.h>
 
+//#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+// Shunk Diagnostics addon
+#include <icl_comm_websocket/WsBroadcaster.h>
+#include <boost/shared_ptr.hpp>
+//#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
 namespace driver_s5fh {
 
 /*! This class manages controller parameters and the finger reset.
@@ -27,8 +33,9 @@ class DRIVER_S5FH_IMPORT_EXPORT S5FHFingerManager
 public:
 
   /*! Constructs a finger manager for the SCHUNK five finger hand.
+   * \param autostart if set to true, the driver will immediately connect to the hardware and try to reset all fingers
    */
-  S5FHFingerManager();
+  S5FHFingerManager(const bool &autostart = false);
 
   virtual ~S5FHFingerManager();
 
@@ -167,6 +174,10 @@ public:
 // ----------------------------------------------------------------------
 
 private:
+
+  //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+    boost::shared_ptr<icl_comm::websocket::WsBroadcaster> ws_broadcaster;
+  //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
   //! \brief pointer to s5fh controller
   S5FHController *m_controller;

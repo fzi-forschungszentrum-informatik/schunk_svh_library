@@ -18,7 +18,7 @@
 
 namespace driver_s5fh {
 
-S5FHFingerManager::S5FHFingerManager(const bool &autostart) :
+S5FHFingerManager::S5FHFingerManager(const bool &autostart,const std::string &dev_name) :
   m_controller(new S5FHController()),
   m_feedback_thread(NULL),
   m_connected(false),
@@ -73,7 +73,7 @@ S5FHFingerManager::S5FHFingerManager(const bool &autostart) :
 
 
   // Try First Connect and Reset of all Fingers if autostart is enabled
-  if (autostart && connect())
+  if (autostart && connect(dev_name))
   {
     resetChannel(eS5FH_ALL);
     LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Driver Autostart succesfull! Input can now be sent. Have a safe and productive day" << endl);

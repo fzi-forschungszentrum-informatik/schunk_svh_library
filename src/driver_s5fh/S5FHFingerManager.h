@@ -34,8 +34,9 @@ public:
 
   /*! Constructs a finger manager for the SCHUNK five finger hand.
    * \param autostart if set to true, the driver will immediately connect to the hardware and try to reset all fingers
+   * \param dev_name the dev to use for autostart. Default is /dev/ttyUSB0
    */
-  S5FHFingerManager(const bool &autostart = false);
+  S5FHFingerManager(const bool &autostart = false, const std::string &dev_name = "/dev/ttyUSB0");
 
   virtual ~S5FHFingerManager();
 

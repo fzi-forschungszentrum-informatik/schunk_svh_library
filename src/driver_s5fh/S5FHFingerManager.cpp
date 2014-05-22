@@ -35,12 +35,12 @@ S5FHFingerManager::S5FHFingerManager(const bool &autostart,const std::string &de
 
   // set default reset order of all channels
   m_reset_order.resize(eS5FH_DIMENSION);
-  m_reset_order[0] = eS5FH_THUMB_OPPOSITION;
-  m_reset_order[1] = eS5FH_THUMB_FLEXION;
-  m_reset_order[2] = eS5FH_FINGER_SPREAD;
-  m_reset_order[3] = eS5FH_INDEX_FINGER_DISTAL;
-  m_reset_order[4] = eS5FH_INDEX_FINGER_PROXIMAL;
-  m_reset_order[5] = eS5FH_MIDDLE_FINGER_DISTAL;
+  m_reset_order[0] = eS5FH_INDEX_FINGER_PROXIMAL;
+  m_reset_order[1] = eS5FH_MIDDLE_FINGER_DISTAL;
+  m_reset_order[2] = eS5FH_THUMB_OPPOSITION;
+  m_reset_order[3] = eS5FH_THUMB_FLEXION;
+  m_reset_order[4] = eS5FH_FINGER_SPREAD;
+  m_reset_order[5] = eS5FH_INDEX_FINGER_DISTAL;
   m_reset_order[6] = eS5FH_MIDDLE_FINGER_PROXIMAL;
   m_reset_order[7] = eS5FH_RING_FINGER;
   m_reset_order[8] = eS5FH_PINKY;

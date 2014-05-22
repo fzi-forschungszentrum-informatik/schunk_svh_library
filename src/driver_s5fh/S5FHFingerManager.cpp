@@ -330,8 +330,11 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 
       m_is_homed[channel] = true;
       //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-      m_ws_broadcaster->robot->setJointHomed(true,channel);
-      m_ws_broadcaster->sendState();
+      if (m_ws_broadcaster)
+      {
+        m_ws_broadcaster->robot->setJointHomed(true,channel);
+        m_ws_broadcaster->sendState();
+      }
       //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
       LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "End homing of channel " << channel << endl);
@@ -369,8 +372,11 @@ bool S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
     {
       m_controller->enableChannel(channel);
       //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-      m_ws_broadcaster->robot->setJointEnabled(true,channel);
-      m_ws_broadcaster->sendState();
+      if (m_ws_broadcaster)
+      {
+        m_ws_broadcaster->robot->setJointEnabled(true,channel);
+        m_ws_broadcaster->sendState();
+      }
       //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
       setMovementState(eST_PARTIALLY_ENABLED);
@@ -399,8 +405,11 @@ void S5FHFingerManager::disableChannel(const S5FHCHANNEL &channel)
   {
     m_controller->disableChannel(channel);
     //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-    m_ws_broadcaster->robot->setJointEnabled(false,channel);
-    m_ws_broadcaster->sendState();
+    if (m_ws_broadcaster)
+    {
+      m_ws_broadcaster->robot->setJointEnabled(false,channel);
+      m_ws_broadcaster->sendState();
+    }
     //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
     setMovementState(eST_PARTIALLY_ENABLED);
 
@@ -481,26 +490,28 @@ bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position
 //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
 void S5FHFingerManager::updateWebSocket()
 {
-  double position;
-  //double current // will be implemented later in the WS Broadcaster
-  for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+  if (m_ws_broadcaster)
   {
-    // NOTE: Although the call to getPosition and current cann fail fue to multiple reason, the only one we would encounter with these calls is a
-    // non-homed finger. So it is quite safe to assume that the finger is NOT homed if these calls fail and we can safe multiple acces to the homed variable
-
-    if (getPosition(static_cast<S5FHCHANNEL>(i),position)) // && (getCurrent(i,current))
+    double position;
+    //double current // will be implemented later in the WS Broadcaster
+    for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
     {
-      m_ws_broadcaster->robot->setJointPosition(position,i);
-      //m_ws_broadcaster>robot>setJpintCurrent(current,i);
-    }
-    else
-    {
-      m_ws_broadcaster->robot->setJointHomed(false,i);
-    }
+      // NOTE: Although the call to getPosition and current cann fail fue to multiple reason, the only one we would encounter with these calls is a
+      // non-homed finger. So it is quite safe to assume that the finger is NOT homed if these calls fail and we can safe multiple acces to the homed variable
 
-    m_ws_broadcaster->sendState();
+      if (getPosition(static_cast<S5FHCHANNEL>(i),position)) // && (getCurrent(i,current))
+      {
+          m_ws_broadcaster->robot->setJointPosition(position,i);
+        //m_ws_broadcaster>robot>setJpintCurrent(current,i);
+      }
+      else
+      {
+        m_ws_broadcaster->robot->setJointHomed(false,i);
+      }
+
+      m_ws_broadcaster->sendState();
+    }
   }
-
 }
 //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
@@ -684,8 +695,11 @@ void S5FHFingerManager::setMovementState(const S5FHFingerManager::MovementState 
   m_movement_state = state;
 
   //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-  m_ws_broadcaster->robot->setMovementState(state);
-  m_ws_broadcaster->sendState();
+  if (m_ws_broadcaster)
+  {
+    m_ws_broadcaster->robot->setMovementState(state);
+    m_ws_broadcaster->sendState();
+  }
   //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
 

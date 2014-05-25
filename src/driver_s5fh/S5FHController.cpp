@@ -271,6 +271,12 @@ void S5FHController::disableChannel(const S5FHCHANNEL& channel)
 }
 
 
+void S5FHController::requestControllerState()
+{
+  S5FHSerialPacket serial_packet(40,S5FH_GET_CONTROLLER_STATE);
+  m_serial_interface ->sendPacket(serial_packet);
+}
+
 void S5FHController::requestControllerFeedback(const S5FHCHANNEL& channel)
 {
   if ((channel != eS5FH_ALL) && (channel >=0 && channel < eS5FH_DIMENSION))
@@ -461,7 +467,7 @@ void S5FHController::receivedPacketCallback(const S5FHSerialPacket& packet, unsi
     case S5FH_SET_CONTROLLER_STATE:
         //std::cout << "Recieved: Controller State RAW Data: " << ab;
         ab >> m_controller_state;
-       // std::cout << "Received controllerState interpreded data: "<< m_controller_state << std::endl;
+        //std::cout << "Received controllerState interpreded data: "<< m_controller_state << std::endl;
         LOGGING_TRACE_C(DriverS5FH, S5FHController, "Received a get/set controler state packet " << endl);
         LOGGING_TRACE_C(DriverS5FH, S5FHController, "Controllerstate (NO HEX):" << "pwm_fault " << "0x" << static_cast<int>(m_controller_state.pwm_fault) << " " << "pwm_otw " << "0x" << static_cast<int>(m_controller_state.pwm_otw) << " "  << "pwm_reset " << "0x" << static_cast<int>(m_controller_state.pwm_reset) << " " << "pwm_active " << "0x" << static_cast<int>(m_controller_state.pwm_active) << " " << "pos_ctr " << "0x" <<  static_cast<int>(m_controller_state.pos_ctrl) << " " << "cur_ctrl " << "0x" << static_cast<int>(m_controller_state.cur_ctrl) << endl);
       break;

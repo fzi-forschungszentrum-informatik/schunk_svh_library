@@ -98,6 +98,9 @@ public:
   //!
   void disableChannel(const S5FHCHANNEL& channel);
 
+  //! Request Current controller state (mainly usefull for debug purposes)
+  void requestControllerState();
+
   //!
   //! \brief request feedback (position and current) to a specific channel
   //! \param channel Motorchannel the feedback should be provided for

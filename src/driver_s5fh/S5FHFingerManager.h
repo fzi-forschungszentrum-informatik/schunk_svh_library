@@ -190,6 +190,10 @@ public:
    */
   void setMovementState(const MovementState &state);
 
+
+  //! This is a debuging function. Should not be called by users
+  void requestControllerState();
+
   //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
   /*!
    * \brief updateWebSocket Will gathe the current state of the hand and send it out via websocket
@@ -300,6 +304,8 @@ private:
   bool readParametersFromConfigFile();
 
 
+  // DEBUG
+  S5FHControllerFeedback debug_feedback;
 
 
 };

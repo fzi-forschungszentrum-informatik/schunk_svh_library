@@ -228,6 +228,15 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
       m_controller->setPositionSettings(channel, getPositionSettingsDefaultResetParameters()[channel]);
 
+      // TODO_ DEBUG REMOVE ME
+      // This was/is nessesary due to fixing the PID values keep this in here until after automatica
+      if (channel == eS5FH_THUMB_OPPOSITION)
+      {
+         S5FHCurrentSettings cur_set_thumb          = {-400.0f, 400.0f, 0.405f, 4e-6f, -400.0f, 400.0f, 0.850f, 85.0f, -500.0f, 500.0f};
+         m_controller->setCurrentSettings(channel,cur_set_thumb);
+      }
+      // TODO: DEBUG REMOVE ME
+
       // reset homed flag
       m_is_homed[channel] = false;
 
@@ -326,6 +335,14 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
 
       LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
       m_controller->setPositionSettings(channel, getPositionSettingsDefaultParameters()[channel]);
+
+      // TODO_ DEBUG REMOVE ME
+      // automatica Debug
+      if (channel == eS5FH_THUMB_OPPOSITION)
+      {
+         m_controller->setCurrentSettings(channel,getCurrentSettingsDefaultParameters()[channel]);
+      }
+      // TODO: DEBUG REMOVE ME
 
 
       m_is_homed[channel] = true;
@@ -467,6 +484,15 @@ bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position
     }
 
     position = static_cast<double>(cleared_position_ticks * m_ticks2rad[channel]);
+
+     // DEBUG remove me
+     // automatica debug
+//    if (channel == eS5FH_THUMB_OPPOSITION && !(controller_feedback == debug_feedback))
+//    {
+//      debug_feedback = controller_feedback;
+//      std::cout << "Thumb Oppositon Feedback Ticks: " << controller_feedback.position << " cleared: " <<cleared_position_ticks << " Rad: " << position << "curr: " << controller_feedback.current << std::endl;
+//      //m_controller->requestControllerState();
+//    }
 
     // Dirty Hack: If controller drives to a negative position, we cannot get out because inputs smaller than 0 will be ignored
     if (position < 0)
@@ -612,6 +638,14 @@ bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double pos
     {
       int32_t target_position = convertRad2Ticks(channel, position);
 
+      // TODO: DEBUG REMOVE ME
+      // Automatica debug
+//      if(channel == eS5FH_THUMB_OPPOSITION)
+//      {
+//        std::cout << "Thumb Oppostion: Target: "<< position << "Target Ticks: " << target_position << std::endl;
+//      }
+      //DEBUG END
+
       LOGGING_DEBUG_C(DriverS5FH, setTargetPosition, "Target position for channel " << channel << " = " << target_position << endl);
 
       // check for bounds
@@ -755,14 +789,25 @@ std::vector<S5FHCurrentSettings> S5FHFingerManager::getCurrentSettingsDefaultPar
   std::vector<S5FHCurrentSettings> default_current_settings(eS5FH_DIMENSION);
   // curr min, Curr max,ky(error output scaling),dt(time base),imn (integral windup min), imx (integral windup max), kp,ki,umn,umx (output limter)
   //S5FHCurrentSettings cur_set_thumb          = {-350.0f, 350.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -354.0f, 354.0f}; // old: {-191.0f, 191.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
-  S5FHCurrentSettings cur_set_thumb          = {-400.0f, 400.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -500.0f, 500.0f};
-  S5FHCurrentSettings cur_set_thumb_opposition = {-400.0f, 400.0f, 0.405f, 4e-6f, -400.0f, 400.0f, 0.90f, 85.0f, -800.0f, 800.0f};
-  S5FHCurrentSettings cur_set_distal_joint   = {-176.0f, 176.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
-  S5FHCurrentSettings cur_set_proximal_joint = {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
-  //S5FHCurrentSettings cur_set_finger_spread  = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // old: {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
-  S5FHCurrentSettings cur_set_finger_spread  = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -400.0f, 400.0f};
+  //S5FHCurrentSettings cur_set_thumb          = {-400.0f, 400.0f, 0.405f, 4e-6f, -400.0f, 400.0f, 0.850f, 85.0f, -500.0f, 500.0f}; // Values that were used ntill automatica
+  S5FHCurrentSettings cur_set_thumb         = {-400.0f, 400.0f, 0.405f, 4e-6f, -500.0f, 500.0f, 0.6f, 0.4f, -400.0f, 400.0f}; // Winner of the PID awards 2014 ! Best chosen one for automatica!
 
-  default_current_settings[0] = cur_set_thumb_opposition;          // thumb flexion
+  //S5FHCurrentSettings cur_set_thumb_opposition = {-400.0f, 400.0f, 0.405f, 4e-6f, -400.0f, 400.0f, 0.90f, 85.0f, -800.0f, 800.0f}; // This was used until the Automatica
+  //S5FHCurrentSettings cur_set_thumb_opposition = {-400.0f, 400.0f, 0.405f, 4e-6f, -500.0f, 500.0f, 0.6f, 0.4f, -400.0f, 400.0f};   // This Works for reset with the broken hand
+
+  S5FHCurrentSettings cur_set_thumb_opposition = {-400.0f, 400.0f, 0.405f, 4e-6f, -500.0f, 500.0f, 0.6f, 0.4f, -400.0f, 400.0f}; // Winner of the PID awards 2014 ! Best chosen one for automatica!
+
+  //S5FHCurrentSettings cur_set_distal_joint   = {-176.0f, 176.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // Last known before automatica
+  S5FHCurrentSettings cur_set_distal_joint   = {-300.0f, 300.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.85f, 0.4f, -300.0f, 300.0f}; // Also changed after the PID winner was .. well amazing
+  //S5FHCurrentSettings cur_set_proximal_joint = {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // last known before automatica
+  S5FHCurrentSettings cur_set_proximal_joint = {-350.0f, 350.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.85f, 0.4f, -350.0f, 350.0f}; // Derived from the PID awards winner, best runner up
+
+
+  //S5FHCurrentSettings cur_set_finger_spread  = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // old: {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};
+  S5FHCurrentSettings cur_set_finger_spread  = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -400.0f, 400.0f}; // Last best known version before the automatica
+  //S5FHCurrentSettings cur_set_finger_spread  = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.85f, 0.4f, -400.0f, 400.0f}; // maybe everything is better with the winner Parameter? Lets hope the spread to!
+
+  default_current_settings[0] = cur_set_thumb;          // thumb flexion
   default_current_settings[1] = cur_set_thumb_opposition;          // thumb opposition
   default_current_settings[2] = cur_set_distal_joint;   // index finger distal joint
   default_current_settings[3] = cur_set_proximal_joint; // index finger proximal joint
@@ -788,6 +833,7 @@ std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultR
 //  S5FHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f,  8.5e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 //  S5FHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 
+  //Wmin Wmax DWMax Ky Dt IMin Imax KP KI KD
   S5FHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  10.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
   S5FHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f, 15.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
   S5FHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
@@ -831,11 +877,16 @@ std::vector<S5FHPositionSettings> S5FHFingerManager::getPositionSettingsDefaultP
 
   // All Fingers with a speed that will close the complete range of the finger in 1 Seconds    (except the thumb that wikll take 4) -> Changed that... lets see whats happening
     S5FHPositionSettings pos_set_thumb_flexion =          {-1.0e6f, 1.0e6f,  65.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
-    S5FHPositionSettings pos_set_thumb_opposition =       {-1.0e6f, 1.0e6f,  50.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    //S5FHPositionSettings pos_set_thumb_opposition =       {-1.0e6f, 1.0e6f,  50.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f}; // Automatica Tweaks
+
+    S5FHPositionSettings pos_set_thumb_opposition =       {-1.0e6f, 1.0e6f,  50.0e3f, 1.00f, 1e-3f, -4000.0f, 4000.0f, 0.05f, 0.1f, 0.0f};
+
     S5FHPositionSettings pos_set_finger_index_distal =    {-1.0e6f, 1.0e6f,  45.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
-    S5FHPositionSettings pos_set_finger_index_proximal =  {-1.0e6f, 1.0e6f,  40.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    //S5FHPositionSettings pos_set_finger_index_proximal =  {-1.0e6f, 1.0e6f,  40.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f}; // Automatica Tweaks
+    S5FHPositionSettings pos_set_finger_index_proximal =  {-1.0e6f, 1.0e6f,  40.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.3f, 0.05f, 0.0f};
     S5FHPositionSettings pos_set_finger_middle_distal =   {-1.0e6f, 1.0e6f,  45.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
-    S5FHPositionSettings pos_set_finger_middle_proximal = {-1.0e6f, 1.0e6f,  40.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
+    //S5FHPositionSettings pos_set_finger_middle_proximal = {-1.0e6f, 1.0e6f,  40.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f}; // Automatica Tweaks
+    S5FHPositionSettings pos_set_finger_middle_proximal = {-1.0e6f, 1.0e6f,  40.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.3f, 0.05f, 0.0f};
     S5FHPositionSettings pos_set_finger_ring =            {-1.0e6f, 1.0e6f,  45.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
     S5FHPositionSettings pos_set_finger_pinky =           {-1.0e6f, 1.0e6f,  45.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
     S5FHPositionSettings pos_set_spread =                 {-1.0e6f, 1.0e6f,  25.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
@@ -871,6 +922,15 @@ int32_t S5FHFingerManager::convertRad2Ticks(const S5FHCHANNEL &channel, double p
 {
   int32_t target_position = static_cast<int32_t>(position / m_ticks2rad[channel]);
 
+
+  // TODO: DEBUG REMOVE ME
+  // Automatica Debug
+//  if (channel == eS5FH_THUMB_OPPOSITION)
+//  {
+//    std::cout << "RadToTicks: Input(rad) " << position <<"In Ticks: " << target_position ;
+//  }
+  // TODO: DEBUG REMOVE ME
+
   if (m_home_settings[channel].direction > 0)
   {
     target_position += m_position_max[channel];
@@ -880,6 +940,15 @@ int32_t S5FHFingerManager::convertRad2Ticks(const S5FHCHANNEL &channel, double p
     target_position += m_position_min[channel];
   }
 
+
+  // TODO: DEBUG REMOVE ME
+  // automatica debug
+//  if (channel == eS5FH_THUMB_OPPOSITION)
+//  {
+//    std::cout << "Cleared " << target_position << std::endl ;
+//  }
+  // TODO: DEBUG REMOVE ME
+
   return target_position;
 }
 
@@ -887,6 +956,11 @@ int32_t S5FHFingerManager::convertRad2Ticks(const S5FHCHANNEL &channel, double p
 bool S5FHFingerManager::isInsideBounds(const S5FHCHANNEL &channel, const int32_t &target_position)
 {
   return target_position >= m_position_min[channel] && target_position <= m_position_max[channel];
+}
+
+void S5FHFingerManager::requestControllerState()
+{
+  m_controller->requestControllerState();
 }
 
 bool S5FHFingerManager::readParametersFromConfigFile()

@@ -544,6 +544,12 @@ S5FHFirmwareInfo S5FHController::getFirmwareInfo()
   return m_firmware_info;
 }
 
+void S5FHController::resetPackageCounts()
+{
+  m_received_package_count = 0;
+  m_serial_interface->resetTransmitPackageCount();
+}
+
 unsigned int S5FHController::getSentPackageCount()
 {
   if (m_serial_interface != NULL)
@@ -552,7 +558,7 @@ unsigned int S5FHController::getSentPackageCount()
   }
   else
   {
-    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Request for transmit packet count could not be answered as the device is not connectd - ignoring request" << endl);
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Request for transmit packet count could not be answered as the device is not connected - ignoring request" << endl);
     return 0;
   }
 }

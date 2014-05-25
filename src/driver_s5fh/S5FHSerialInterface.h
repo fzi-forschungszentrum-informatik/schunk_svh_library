@@ -68,6 +68,11 @@ public:
   //!
   unsigned int transmittedPacketCount() { return m_packets_transmitted; }
 
+  /*!
+   * \brief resetTransmitPackageCount Resets the transmitpackage count to zero
+   */
+  void resetTransmitPackageCount();
+
 private:
 
   //! serial device connected state

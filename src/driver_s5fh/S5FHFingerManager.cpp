@@ -104,6 +104,9 @@ bool S5FHFingerManager::connect(const std::string &dev_name)
   {
     if (m_controller->connect(dev_name))
     {
+      // Reset the package counts (in case a previous attempt was made)
+      m_controller->resetPackageCounts();
+
       // initialize feedback polling thread
       m_feedback_thread = new S5FHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
 

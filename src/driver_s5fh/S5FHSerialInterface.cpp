@@ -147,4 +147,9 @@ bool S5FHSerialInterface::sendPacket(S5FHSerialPacket& packet)
   return true;
 }
 
+void S5FHSerialInterface::resetTransmitPackageCount()
+{
+  m_packets_transmitted = 0;
+}
+
 }

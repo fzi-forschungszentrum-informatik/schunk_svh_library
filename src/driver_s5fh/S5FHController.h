@@ -209,6 +209,10 @@ public:
     */
    unsigned int getReceivedPackageCount();
 
+   /*!
+    * \brief resetPackageCounts sets the sent and reveived package counts to zero
+    */
+   void resetPackageCounts();
 
    /*!
     * \brief Check if a channel was enabled

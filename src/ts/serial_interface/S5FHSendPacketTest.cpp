@@ -27,7 +27,7 @@ int main(int argc, const char* argv[])
 {
   icl_core::logging::initialize();
 
-  std::string serial_device_name = "/dev/ttyUSB1";
+  std::string serial_device_name = "/dev/ttyUSB0";
 
   S5FHSerialInterface serial_com(NULL);
   serial_com.connect(serial_device_name);

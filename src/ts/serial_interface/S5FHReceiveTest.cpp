@@ -24,7 +24,7 @@ int main(int argc, const char* argv[])
 {
   icl_core::logging::initialize();
 
-  std::string serial_device_name = "/dev/ttyUSB2";
+  std::string serial_device_name = "/dev/ttyUSB1";
 
   Serial *serial_device = new Serial(serial_device_name.c_str(), SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8));
   serial_device->Open();

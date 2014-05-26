@@ -49,7 +49,7 @@ public:
    * \param autostart if set to true, the driver will immediately connect to the hardware and try to reset all fingers
    * \param dev_name the dev to use for autostart. Default is /dev/ttyUSB0
    */
-  S5FHFingerManager(const bool &autostart = false, const std::string &dev_name = "/dev/ttyUSB0");
+  S5FHFingerManager(const bool &autostart = false, const std::string &dev_name = "/dev/ttyUSB0", const uint32_t &disable_mask = 0);
 
   virtual ~S5FHFingerManager();
 
@@ -252,6 +252,9 @@ private:
 
   //! \brief vector storing reset flags for each channel
   std::vector<bool> m_is_homed;
+
+  //! vector storing information if a finger is enabled. In Case it is all request for it will be granted but not executed on hardware
+  std::vector<bool> m_is_switched_off;
 
   //! Overall movement State to indicate what the hand is doing at the moment
   MovementState m_movement_state;

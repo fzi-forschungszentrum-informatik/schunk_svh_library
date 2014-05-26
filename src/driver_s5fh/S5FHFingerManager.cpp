@@ -18,7 +18,7 @@
 
 namespace driver_s5fh {
 
-S5FHFingerManager::S5FHFingerManager(const bool &autostart,const std::string &dev_name) :
+S5FHFingerManager::S5FHFingerManager(const bool &autostart,const std::string &dev_name, const uint32_t &disable_mask) :
   m_controller(new S5FHController()),
   m_feedback_thread(NULL),
   m_connected(false),
@@ -29,6 +29,7 @@ S5FHFingerManager::S5FHFingerManager(const bool &autostart,const std::string &de
   m_position_max(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
   m_position_home(std::vector<int32_t>(eS5FH_DIMENSION, 0)),
   m_is_homed(std::vector<bool>(eS5FH_DIMENSION, false)),
+  m_is_switched_off(std::vector<bool>(eS5FH_DIMENSION,false)),
   m_movement_state(eST_DEACTIVATED)
 {
   // load home position default parameters
@@ -57,6 +58,12 @@ S5FHFingerManager::S5FHFingerManager(const bool &autostart,const std::string &de
   m_reset_current_factor[eS5FH_RING_FINGER]=            0.75;
   m_reset_current_factor[eS5FH_PINKY]=                  0.75;
   m_reset_current_factor[eS5FH_FINGER_SPREAD]=          0.5;  // needs a lower current threshold to properly reset
+
+  for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
+  {
+    m_is_switched_off[i] = ((disable_mask & 0x1FF) & (1<<i));
+    LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Joint: " << m_controller->m_channel_description[i] << "was disabled as per user request. It will not do anything!" << endl);
+  }
 
 
   //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
@@ -190,6 +197,7 @@ void S5FHFingerManager::disconnect()
 
   if (m_controller != NULL)
   {
+    m_controller->disableChannel(eS5FH_ALL);
     m_controller->disconnect();
   }
 }
@@ -222,130 +230,140 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
         // set all reset flag
         reset_all_success = reset_all_success && reset_success;
       }
+
+      // TODO: Set better movement state at this point
+
       return reset_all_success;
     }
     else if (channel > eS5FH_ALL && eS5FH_ALL < eS5FH_DIMENSION)
     {
       LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Start homing channel " << channel << endl);
 
-      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
-      m_controller->setPositionSettings(channel, getPositionSettingsDefaultResetParameters()[channel]);
-
-      // TODO_ DEBUG REMOVE ME
-      // This was/is nessesary due to fixing the PID values keep this in here until after automatica
-      if (channel == eS5FH_THUMB_OPPOSITION)
+      if (!m_is_switched_off[channel])
       {
-         S5FHCurrentSettings cur_set_thumb          = {-400.0f, 400.0f, 0.405f, 4e-6f, -400.0f, 400.0f, 0.850f, 85.0f, -500.0f, 500.0f};
-         m_controller->setCurrentSettings(channel,cur_set_thumb);
-      }
-      // TODO: DEBUG REMOVE ME
+        LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
+        m_controller->setPositionSettings(channel, getPositionSettingsDefaultResetParameters()[channel]);
 
-      // reset homed flag
-      m_is_homed[channel] = false;
+        // TODO_ DEBUG REMOVE ME
+        // This was/is nessesary due to fixing the PID values keep this in here until after automatica
+        if (channel == eS5FH_THUMB_OPPOSITION)
+        {
+           S5FHCurrentSettings cur_set_thumb          = {-400.0f, 400.0f, 0.405f, 4e-6f, -400.0f, 400.0f, 0.850f, 85.0f, -500.0f, 500.0f};
+           m_controller->setCurrentSettings(channel,cur_set_thumb);
+        }
+        // TODO: DEBUG REMOVE ME
 
-      // read default home settings for channel
-      HomeSettings home = m_home_settings[channel];
+        // reset homed flag
+        m_is_homed[channel] = false;
 
-      S5FHPositionSettings pos_set;
-      S5FHCurrentSettings cur_set;
-      m_controller->getPositionSettings(channel, pos_set);
-      m_controller->getCurrentSettings(channel, cur_set);
+        // read default home settings for channel
+        HomeSettings home = m_home_settings[channel];
 
-      // find home position
-      m_controller->disableChannel(eS5FH_ALL);
-      int32_t position = 0;
+        S5FHPositionSettings pos_set;
+        S5FHCurrentSettings cur_set;
+        m_controller->getPositionSettings(channel, pos_set);
+        m_controller->getCurrentSettings(channel, cur_set);
 
-      if (home.direction > 0)
-      {
-        position = static_cast<int32_t>(pos_set.wmx);
+        // find home position
+        m_controller->disableChannel(eS5FH_ALL);
+        int32_t position = 0;
+
+        if (home.direction > 0)
+        {
+          position = static_cast<int32_t>(pos_set.wmx);
+        }
+        else
+        {
+          position = static_cast<int32_t>(pos_set.wmn);
+        }
+
+        LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Driving channel " << channel << " to hardstop. Detection thresholds: Current MIN: "<< m_reset_current_factor[channel] * cur_set.wmn << "mA MAX: "<< m_reset_current_factor[channel] * cur_set.wmx <<"mA" << endl);
+
+        m_controller->setControllerTarget(channel, position);
+        m_controller->enableChannel(channel);
+
+        S5FHControllerFeedback control_feedback_previous;
+        S5FHControllerFeedback control_feedback;
+
+        // initialize timeout
+        icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
+
+        for (size_t hit_count = 0; hit_count < 10; )
+        {
+          m_controller->setControllerTarget(channel, position);
+          //m_controller->requestControllerFeedback(channel);
+          m_controller->getControllerFeedback(channel, control_feedback);
+
+          if ((m_reset_current_factor[channel] * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= m_reset_current_factor[channel] * cur_set.wmx))
+          {
+            hit_count++;
+          }
+          else if (hit_count > 0)
+          {
+            hit_count--;
+          }
+
+          // check for time out: Abort, if position does not change after homing timeout.
+          if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
+          {
+            m_controller->disableChannel(eS5FH_ALL);
+            LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Timeout: Aborted finding home position for channel " << channel << endl);
+            return false;
+          }
+
+          // reset time of position changes
+          if (control_feedback.position != control_feedback_previous.position)
+          {
+            start_time = icl_core::TimeStamp::now();
+          }
+
+          // save previous control feedback
+          control_feedback_previous = control_feedback;
+        }
+
+        LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Hit counter of " << channel << " reached." << endl);
+
+        m_controller->disableChannel(eS5FH_ALL);
+
+        // set reference values
+        m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.minimumOffset);
+        m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.maximumOffset);
+        m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.idlePosition);
+        LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << " min pos = " << m_position_min[channel]
+                        << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel] << endl);
+
+        position = static_cast<int32_t>(control_feedback.position + home.idlePosition);
+
+        // go to idle position
+        m_controller->enableChannel(channel);
+        while (true)
+        {
+          m_controller->setControllerTarget(channel, position);
+          //m_controller->requestControllerFeedback(channel);
+          m_controller->getControllerFeedback(channel, control_feedback);
+
+          if (abs(position - control_feedback.position) < 1000)
+          {
+            break;
+          }
+        }
+        m_controller->disableChannel(eS5FH_ALL);
+
+        LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
+        m_controller->setPositionSettings(channel, getPositionSettingsDefaultParameters()[channel]);
+
+        // TODO_ DEBUG REMOVE ME
+        // automatica Debug
+        if (channel == eS5FH_THUMB_OPPOSITION)
+        {
+           m_controller->setCurrentSettings(channel,getCurrentSettingsDefaultParameters()[channel]);
+        }
+        // TODO: DEBUG REMOVE ME
       }
       else
       {
-        position = static_cast<int32_t>(pos_set.wmn);
+         LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << "Switched of by user, homing is set to finished" << endl);
       }
-
-      LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Driving channel " << channel << " to hardstop. Detection thresholds: Current MIN: "<< m_reset_current_factor[channel] * cur_set.wmn << "mA MAX: "<< m_reset_current_factor[channel] * cur_set.wmx <<"mA" << endl);
-
-      m_controller->setControllerTarget(channel, position);
-      m_controller->enableChannel(channel);
-
-      S5FHControllerFeedback control_feedback_previous;
-      S5FHControllerFeedback control_feedback;
-
-      // initialize timeout
-      icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
-
-      for (size_t hit_count = 0; hit_count < 10; )
-      {
-        m_controller->setControllerTarget(channel, position);
-        //m_controller->requestControllerFeedback(channel);
-        m_controller->getControllerFeedback(channel, control_feedback);
-
-        if ((m_reset_current_factor[channel] * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= m_reset_current_factor[channel] * cur_set.wmx))
-        {
-          hit_count++;
-        }
-        else if (hit_count > 0)
-        {
-          hit_count--;
-        }
-
-        // check for time out: Abort, if position does not change after homing timeout.
-        if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
-        {
-          m_controller->disableChannel(eS5FH_ALL);
-          LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Timeout: Aborted finding home position for channel " << channel << endl);
-          return false;
-        }
-
-        // reset time of position changes
-        if (control_feedback.position != control_feedback_previous.position)
-        {
-          start_time = icl_core::TimeStamp::now();
-        }
-
-        // save previous control feedback
-        control_feedback_previous = control_feedback;
-      }
-
-      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Hit counter of " << channel << " reached." << endl);
-
-      m_controller->disableChannel(eS5FH_ALL);
-
-      // set reference values
-      m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.minimumOffset);
-      m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.maximumOffset);
-      m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.idlePosition);
-      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Channel " << channel << " min pos = " << m_position_min[channel]
-                      << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel] << endl);
-
-      position = static_cast<int32_t>(control_feedback.position + home.idlePosition);
-
-      // go to idle position
-      m_controller->enableChannel(channel);
-      while (true)
-      {
-        m_controller->setControllerTarget(channel, position);
-        //m_controller->requestControllerFeedback(channel);
-        m_controller->getControllerFeedback(channel, control_feedback);
-
-        if (abs(position - control_feedback.position) < 1000)
-        {
-          break;
-        }
-      }
-      m_controller->disableChannel(eS5FH_ALL);
-
-      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
-      m_controller->setPositionSettings(channel, getPositionSettingsDefaultParameters()[channel]);
-
-      // TODO_ DEBUG REMOVE ME
-      // automatica Debug
-      if (channel == eS5FH_THUMB_OPPOSITION)
-      {
-         m_controller->setCurrentSettings(channel,getCurrentSettingsDefaultParameters()[channel]);
-      }
-      // TODO: DEBUG REMOVE ME
 
 
       m_is_homed[channel] = true;
@@ -357,7 +375,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       }
       //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
-      LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "End homing of channel " << channel << endl);
+      LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Successfully homed channel " << channel << endl);
 
       return true;
     }
@@ -385,12 +403,24 @@ bool S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
       {
         // Just for safety, enable chanels in the same order as we have resetted them (otherwise developers might geht confused)
         S5FHCHANNEL real_channel = static_cast<S5FHCHANNEL>(m_reset_order[i]);
-        m_controller->enableChannel(real_channel);
+        if (!m_is_switched_off[real_channel])
+        {
+          // recursion to get the other updates corresponing with activation of a channel
+          enableChannel(real_channel);
+        }
       }
     }
     else if (channel > eS5FH_ALL && eS5FH_ALL < eS5FH_DIMENSION)
     {
-      m_controller->enableChannel(channel);
+      // Note: This part is another one of thise places where the names can lead to confusion. I am sorry about that
+      // Switched off is a logical term. The user has chosen NOT to use this channel because of hardware trouble.
+      // To enable a smooth driver behaviour all replys regarding these channels will be answered in the most positive way
+      // the caller could expect. Enabled refers to the actual enabled state of the hardware controller loops that drive the motors.
+      // As the user has chosen not to use certain channels we explicitly do NOT enable these but tell a calling driver that we did
+      if (!m_is_switched_off[channel])
+      {
+        m_controller->enableChannel(channel);
+      }
       //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
       if (m_ws_broadcaster)
       {
@@ -404,7 +434,6 @@ bool S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
       {
         setMovementState(eST_ENABLED);
       }
-
     }
     return true;
   }
@@ -418,12 +447,15 @@ void S5FHFingerManager::disableChannel(const S5FHCHANNEL &channel)
   {
     for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
     {
-      m_controller->disableChannel(static_cast<S5FHCHANNEL>(i));
+      disableChannel(static_cast<S5FHCHANNEL>(i));
     }
   }
   else
   {
-    m_controller->disableChannel(channel);
+    if (!m_is_switched_off[channel])
+    {
+      m_controller->disableChannel(channel);
+    }
     //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
     if (m_ws_broadcaster)
     {
@@ -436,7 +468,8 @@ void S5FHFingerManager::disableChannel(const S5FHCHANNEL &channel)
     bool all_disabled = true;
     for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
     {
-      all_disabled = all_disabled && !isEnabled(static_cast<S5FHCHANNEL>(i));
+      // Aggain only check channels that are not switched off. Switched off channels will always answer that they are enabled
+      all_disabled = all_disabled && (m_is_switched_off[channel] ||!isEnabled(static_cast<S5FHCHANNEL>(i)));
     }
     if (all_disabled)
     {
@@ -475,6 +508,13 @@ bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position
   S5FHControllerFeedback controller_feedback;
   if ((channel >=0 && channel < eS5FH_DIMENSION) && isHomed(channel) && m_controller->getControllerFeedback(channel, controller_feedback))
   {
+    // Switched off channels will always remain at zero position as the tics we get back migh be total gibberish
+    if (m_is_switched_off[channel])
+    {
+      position = 0.0;
+      return true;
+    }
+
     int32_t cleared_position_ticks = controller_feedback.position;
 
     if (m_home_settings[channel].direction > 0)
@@ -509,7 +549,7 @@ bool S5FHFingerManager::getPosition(const S5FHCHANNEL &channel, double &position
   }
   else
   {
-    //LOGGING_WARNING_C(DriverS5FH, S5FHFingerManager, "Could not get postion for channel " << channel << endl);
+    LOGGING_WARNING_C(DriverS5FH, S5FHFingerManager, "Could not get postion for channel " << channel << endl);
     return false;
   }
 }
@@ -590,8 +630,8 @@ bool S5FHFingerManager::setAllTargetPositions(const std::vector<double>& positio
       {
         S5FHCHANNEL channel = static_cast<S5FHCHANNEL>(i);
 
-        // enable all homed and disabled channels
-        if (isHomed(channel) && !isEnabled(channel))
+        // enable all homed and disabled channels.. except its switched of
+        if (!m_is_switched_off[channel] && isHomed(channel) && !isEnabled(channel))
         {
           enableChannel(channel);
         }
@@ -599,8 +639,8 @@ bool S5FHFingerManager::setAllTargetPositions(const std::vector<double>& positio
         // convert all channels to ticks
         target_positions[channel] = convertRad2Ticks(channel, positions[channel]);
 
-        // check for out of bounds
-        if (!isInsideBounds(channel, target_positions[channel]))
+        // check for out of bounds (except the switched off channels)
+        if (!m_is_switched_off[channel] && !isInsideBounds(channel, target_positions[channel]))
         {
           reject_command = true;
         }
@@ -635,42 +675,59 @@ bool S5FHFingerManager::setAllTargetPositions(const std::vector<double>& positio
 //! set target position of a single channel
 bool S5FHFingerManager::setTargetPosition(const S5FHCHANNEL &channel, double position, double current)
 {
+
   if (isConnected())
   {
-    if (isHomed(channel))
+    if (channel >= 0 && channel < eS5FH_DIMENSION)
     {
-      int32_t target_position = convertRad2Ticks(channel, position);
-
-      // TODO: DEBUG REMOVE ME
-      // Automatica debug
-//      if(channel == eS5FH_THUMB_OPPOSITION)
-//      {
-//        std::cout << "Thumb Oppostion: Target: "<< position << "Target Ticks: " << target_position << std::endl;
-//      }
-      //DEBUG END
-
-      LOGGING_DEBUG_C(DriverS5FH, setTargetPosition, "Target position for channel " << channel << " = " << target_position << endl);
-
-      // check for bounds
-      if (isInsideBounds(channel, target_position))
+      if (m_is_switched_off[channel])
       {
-        if (!isEnabled(channel))
-        {
-          enableChannel(channel);
-        }
-
-        m_controller->setControllerTarget(channel, target_position);
+        // Switched off channels  behave transparent so we return a true value while we ignore the input
+        LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Target position for channel " << channel << " was ignored as it is switched off by the user"<< endl);
         return true;
+      }
+
+
+      if (isHomed(channel))
+      {
+        int32_t target_position = convertRad2Ticks(channel, position);
+
+        // TODO: DEBUG REMOVE ME
+        // Automatica debug
+  //      if(channel == eS5FH_THUMB_OPPOSITION)
+  //      {
+  //        std::cout << "Thumb Oppostion: Target: "<< position << "Target Ticks: " << target_position << std::endl;
+  //      }
+        //DEBUG END
+
+        LOGGING_DEBUG_C(DriverS5FH, S5FHFingerManager, "Target position for channel " << channel << " = " << target_position << endl);
+
+        // check for bounds
+        if (isInsideBounds(channel, target_position))
+        {
+          if (!isEnabled(channel))
+          {
+            enableChannel(channel);
+          }
+
+          m_controller->setControllerTarget(channel, target_position);
+          return true;
+        }
+        else
+        {
+          LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Target position for channel " << channel << " out of bounds!" << endl);
+          return false;
+        }
       }
       else
       {
-        LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Target position for channel " << channel << " out of bounds!" << endl);
+        LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not set target position for channel " << channel << ": Reset first!" << endl);
         return false;
       }
     }
     else
     {
-      LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not set target position for channel " << channel << ": Reset first!" << endl);
+      LOGGING_ERROR_C(DriverS5FH, S5FHFingerManager, "Could not set target position for channel " << channel << ": Illegal Channel" << endl);
       return false;
     }
   }
@@ -708,7 +765,16 @@ bool S5FHFingerManager::isEnabled(const S5FHCHANNEL &channel)
 
     return all_enabled;
   }
-  return m_controller->isEnabled(channel);
+
+  // Switched off Channels will aways be reported as enabled to simulate everything is fine. Others need to ask the controller
+  // if the channel is realy switched on
+  // Note: i can see that based on the names this might lead to a little confusion... sorry about that but there are only limited number of
+  // words for not active ;) enabled refers to the actual state of the position and current controllers. So enabled
+  // means enabled on a hardware level. Switched off is a logical decission in this case. The user has specified this
+  // particular channel not to be used (due to hardware issues) and therefore the driver (aka the finger manager) will act
+  // AS IF the channel was enabled but is in fact switched off by the user. If you have a better variable name or a better
+  // idea how to handle that you are welcome to change it. (GH 2014-05-26)
+  return (m_is_switched_off[channel] || m_controller->isEnabled(channel));
 }
 
 //! return homed flag
@@ -724,7 +790,8 @@ bool S5FHFingerManager::isHomed(const S5FHCHANNEL &channel)
 
     return all_homed;
   }
-  return m_is_homed[channel];
+  // Channels that are switched off will always be reported as homed to simulate everything is fine. Others have to check
+  return (m_is_switched_off[channel] || m_is_homed[channel]);
 }
 
 void S5FHFingerManager::setMovementState(const S5FHFingerManager::MovementState &state)
@@ -958,7 +1025,8 @@ int32_t S5FHFingerManager::convertRad2Ticks(const S5FHCHANNEL &channel, double p
 // Check bounds of target positions
 bool S5FHFingerManager::isInsideBounds(const S5FHCHANNEL &channel, const int32_t &target_position)
 {
-  return target_position >= m_position_min[channel] && target_position <= m_position_max[channel];
+  // Switched off channels will always be reported as inside bounds
+  return (m_is_switched_off[channel] || ((target_position >= m_position_min[channel]) && (target_position <= m_position_max[channel])));
 }
 
 void S5FHFingerManager::requestControllerState()

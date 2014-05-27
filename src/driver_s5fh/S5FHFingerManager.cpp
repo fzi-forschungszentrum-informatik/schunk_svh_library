@@ -363,7 +363,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
         m_ws_broadcaster->robot->setJointHomed(true,channel);
         if (!m_ws_broadcaster->sendState())
         {
-          LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - it will try to fix itself, maybe sending will work next time." << endl);
+          LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
         }
       //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
@@ -417,7 +417,7 @@ bool S5FHFingerManager::enableChannel(const S5FHCHANNEL &channel)
       m_ws_broadcaster->robot->setJointEnabled(true,channel);
       if (!m_ws_broadcaster->sendState())
       {
-        LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - it will try to fix itself, maybe sending will work next time." << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
       }
       //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
@@ -452,7 +452,7 @@ void S5FHFingerManager::disableChannel(const S5FHCHANNEL &channel)
       m_ws_broadcaster->robot->setJointEnabled(false,channel);
       if (!m_ws_broadcaster->sendState())
       {
-        LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - it will try to fix itself, maybe sending will work next time." << endl);
+        LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
       }
 
     //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
@@ -571,7 +571,7 @@ void S5FHFingerManager::updateWebSocket()
 
     if (!m_ws_broadcaster->sendState())
     {
-      LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - it will try to fix itself, maybe sending will work next time." << endl);
+      LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
     }
   }
 }
@@ -795,7 +795,7 @@ void S5FHFingerManager::setMovementState(const S5FHFingerManager::MovementState 
     m_ws_broadcaster->robot->setMovementState(state);
     if (!m_ws_broadcaster->sendState())
     {
-      LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - it will try to fix itself, maybe sending will work next time." << endl);
+      LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
     }
   //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 

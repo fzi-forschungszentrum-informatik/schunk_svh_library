@@ -57,7 +57,7 @@ S5FHFingerManager::S5FHFingerManager(const bool &autostart, const std::vector<bo
   m_reset_current_factor[eS5FH_MIDDLE_FINGER_PROXIMAL]= 0.75;
   m_reset_current_factor[eS5FH_RING_FINGER]=            0.75;
   m_reset_current_factor[eS5FH_PINKY]=                  0.75;
-  m_reset_current_factor[eS5FH_FINGER_SPREAD]=          0.5;  // needs a lower current threshold to properly reset
+  m_reset_current_factor[eS5FH_FINGER_SPREAD]=          0.75;  // needs a lower current threshold to properly reset
 
   for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
   {
@@ -871,9 +871,9 @@ std::vector<S5FHCurrentSettings> S5FHFingerManager::getCurrentSettingsDefaultPar
   S5FHCurrentSettings cur_set_thumb_opposition = {-400.0f, 400.0f, 0.405f, 4e-6f, -500.0f, 500.0f, 0.6f, 0.4f, -400.0f, 400.0f}; // Winner of the PID awards 2014 ! Best chosen one for automatica!
 
   //S5FHCurrentSettings cur_set_distal_joint   = {-176.0f, 176.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // Last known before automatica
-  S5FHCurrentSettings cur_set_distal_joint   = {-300.0f, 300.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.85f, 0.4f, -300.0f, 300.0f}; // Also changed after the PID winner was .. well amazing
+  S5FHCurrentSettings cur_set_distal_joint   = {-300.0f, 300.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.85f, 2.0f, -300.0f, 300.0f}; // Also changed after the PID winner was .. well amazing
   //S5FHCurrentSettings cur_set_proximal_joint = {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // last known before automatica
-  S5FHCurrentSettings cur_set_proximal_joint = {-350.0f, 350.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.85f, 0.4f, -350.0f, 350.0f}; // Derived from the PID awards winner, best runner up
+  S5FHCurrentSettings cur_set_proximal_joint = {-350.0f, 350.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.85f, 2.0f, -350.0f, 350.0f}; // Derived from the PID awards winner, best runner up
 
 
   //S5FHCurrentSettings cur_set_finger_spread  = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f}; // old: {-167.0f, 167.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};

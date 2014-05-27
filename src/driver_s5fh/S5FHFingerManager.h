@@ -49,7 +49,7 @@ public:
    * \param autostart if set to true, the driver will immediately connect to the hardware and try to reset all fingers
    * \param dev_name the dev to use for autostart. Default is /dev/ttyUSB0
    */
-  S5FHFingerManager(const bool &autostart = false, const uint32_t &disable_mask = 0, const std::string &dev_name = "/dev/ttyUSB0");
+  S5FHFingerManager(const bool &autostart = false, const std::vector<bool> &disable_mask = std::vector<bool>(9,false), const std::string &dev_name = "/dev/ttyUSB0");
 
   virtual ~S5FHFingerManager();
 

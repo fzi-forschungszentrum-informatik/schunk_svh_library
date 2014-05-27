@@ -18,7 +18,7 @@
 
 namespace driver_s5fh {
 
-S5FHFingerManager::S5FHFingerManager(const bool &autostart, const uint32_t &disable_mask ,const std::string &dev_name) :
+S5FHFingerManager::S5FHFingerManager(const bool &autostart, const std::vector<bool> &disable_mask, const std::string &dev_name) :
   m_controller(new S5FHController()),
   m_feedback_thread(NULL),
   m_connected(false),
@@ -61,7 +61,7 @@ S5FHFingerManager::S5FHFingerManager(const bool &autostart, const uint32_t &disa
 
   for (size_t i = 0; i < eS5FH_DIMENSION; ++i)
   {
-    m_is_switched_off[i] = ((disable_mask & 0x1FF) & (1<<i));
+    m_is_switched_off[i] = disable_mask[i];
     if (m_is_switched_off[i])
     {
       LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Joint: " << m_controller->m_channel_description[i] << " was disabled as per user request. It will not do anything!" << endl);

@@ -15,12 +15,11 @@
 #define S5FHSERIALPACKET_H
 
 #include <icl_core/BaseTypes.h>
-#include <icl_core/Vector.h>
 #include <iostream>
 #include <iomanip>
 
 #include <icl_comm/ByteOrderConversion.h>
-//#include <icl_core_logging/ThreadStream.h>
+
 
 
 namespace driver_s5fh {

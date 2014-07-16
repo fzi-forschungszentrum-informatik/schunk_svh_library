@@ -12,7 +12,6 @@
  */
 //----------------------------------------------------------------------
 #include <driver_s5fh/S5FHSerialPacket.h>
-//#include <sstream>
 
 namespace driver_s5fh {
 

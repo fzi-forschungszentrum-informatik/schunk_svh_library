@@ -13,7 +13,7 @@
 //----------------------------------------------------------------------
 #include "driver_s5fh/S5FHController.h"
 
-#include "driver_s5fh/Logging.h"
+#include <driver_s5fh/Logging.h>
 #include <icl_comm/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
 

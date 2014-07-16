@@ -14,8 +14,6 @@
 #include <driver_s5fh/S5FHReceiveThread.h>
 #include <driver_s5fh/Logging.h>
 
-#include <icl_core/BaseTypes.h>
-#include <icl_core/Vector.h>
 
 using icl_comm::ArrayBuilder;
 

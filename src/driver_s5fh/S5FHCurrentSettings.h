@@ -14,7 +14,6 @@
 #ifndef S5FHCURRENTSETTINGS_H
 #define S5FHCURRENTSETTINGS_H
 
-#include <icl_core/BaseTypes.h>
 #include <icl_comm/ByteOrderConversion.h>
 
 namespace driver_s5fh {

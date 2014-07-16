@@ -14,7 +14,6 @@
 #ifndef S5FHPOSITIONSETTINGS_H
 #define S5FHPOSITIONSETTINGS_H
 
-#include <icl_core/BaseTypes.h>
 #include <icl_comm/ByteOrderConversion.h>
 
 namespace driver_s5fh {

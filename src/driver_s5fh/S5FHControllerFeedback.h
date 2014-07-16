@@ -14,7 +14,6 @@
 #ifndef S5FHCONTROLLERFEEDBACK_H
 #define S5FHCONTROLLERFEEDBACK_H
 
-#include <icl_core/BaseTypes.h>
 #include <icl_comm/ByteOrderConversion.h>
 
 namespace driver_s5fh {

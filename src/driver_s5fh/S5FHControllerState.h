@@ -14,7 +14,6 @@
 #ifndef S5FHCONTROLLERSTATE_H
 #define S5FHCONTROLLERSTATE_H
 
-#include <icl_core/BaseTypes.h>
 
 namespace driver_s5fh {
 

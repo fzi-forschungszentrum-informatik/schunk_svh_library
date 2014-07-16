@@ -137,8 +137,8 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
   if (m_enable_mask == 0)
   {
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Enable was called and no channel was previously activated, commands are sent individually......" << endl);
-    LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Sending pwm_fault and pwm_otw..." << endl);
-    // reset????
+    LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Sending pwm_fault and pwm_otw...(0x001F)" << endl);
+    // Reset faults and overtemperature warnings saved in the controller
     controller_state.pwm_fault = 0x001F;
     controller_state.pwm_otw   = 0x001F;
     ab << controller_state;
@@ -146,9 +146,10 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
+    // Small delays seem to make communication at this point more reliable although they should NOT be necessary
     icl_core::os::usleep(2000);
 
-    LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Adding pwm_reset and pwm_active..." << endl);
+    LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Enabling 12V Driver (pwm_reset and pwm_active)..." << endl);
     // enable +12v supply driver ??????
     controller_state.pwm_reset = 0x0200;
     controller_state.pwm_active = 0x0200;
@@ -159,7 +160,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
 
     icl_core::os::usleep(2000);
 
-     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Adding pos_ctrl and cur_ctrl..." << endl);
+     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Enabling pos_ctrl and cur_ctrl..." << endl);
     // enable controller ???????
     controller_state.pos_ctrl = 0x0001;
     controller_state.cur_ctrl = 0x0001;

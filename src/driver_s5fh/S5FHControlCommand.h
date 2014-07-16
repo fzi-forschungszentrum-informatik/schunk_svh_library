@@ -8,7 +8,10 @@
  *
  * \author  Georg Heppner
  * \date    2014-02-03
+ * \date    2014-07-16
  *
+ * This file contains the ControlCommand Data Structure that is used to
+ * transmit target positions an neccessary helper functions
  */
 //----------------------------------------------------------------------
 #ifndef S5FHCONTROLCOMMAND_H
@@ -19,6 +22,7 @@
 namespace driver_s5fh {
 
 /*!
+ * \class S5FHControlCommand
  * \brief ControlCommands are given as a single target position for the position controller (given in ticks)
  */
 struct S5FHControlCommand
@@ -26,10 +30,10 @@ struct S5FHControlCommand
   //! Returned position value of the motor [Ticks]
   int32_t position;
 
-  //!
-  //! \brief Constructs a new control command to comandeer the position of the fingers
-  //! \param _position target position given in encoder ticks defaults to 0 if none is given
-  //!
+  /**
+   * \brief Constructs a new control command to comandeer the position of the fingers
+   * \param _position target position given in encoder ticks defaults to 0 if none is given
+   **/
   S5FHControlCommand(const int32_t& _position = 0):
     position(_position)
   {}
@@ -37,13 +41,13 @@ struct S5FHControlCommand
   //! Compares two S5FHControlCommand objects.
   bool operator == (const S5FHControlCommand& other) const
   {
-    return
-      (position == other.position);
+    return (position == other.position);
   }
 
 };
 
 /*!
+ * \class S5FHControlCommandAllChannels
  * \brief Structure for transmitting all controllcommands at once
  */
 struct S5FHControlCommandAllChannels
@@ -51,19 +55,18 @@ struct S5FHControlCommandAllChannels
   //! Multiple controllcommands that shall be send at once
   std::vector<S5FHControlCommand> commands;
 
-  // TODO: Make a constructor with a variable number of arguments and correct mapping that is not completely ugly
-  //!
-  //! \brief Constructs a controllcommand adressing all channels at once All
-  //! \param _position0 Target position for the Thumb_Flexion
-  //! \param _position1 Target position for the Thumb_Opposition
-  //! \param _position2 Target position for the Index_Finger_Distal
-  //! \param _position3 Target position for the Index_Finger_Proximal
-  //! \param _position4 Target position for the Middle_Finger_Distal
-  //! \param _position5 Target position for the Middle_Finger_Proximal
-  //! \param _position6 Target position for the Ring_Finger
-  //! \param _position7 Target position for the Pinky
-  //! \param _position8 Target position for the Finger_Spread
-  //!
+  /**
+   * \brief Constructs a controllcommand adressing all channels at once All
+   * \param _position0 Target position for the Thumb_Flexion
+   * \param _position1 Target position for the Thumb_Opposition
+   * \param _position2 Target position for the Index_Finger_Distal
+   * \param _position3 Target position for the Index_Finger_Proximal
+   * \param _position4 Target position for the Middle_Finger_Distal
+   * \param _position5 Target position for the Middle_Finger_Proximal
+   * \param _position6 Target position for the Ring_Finger
+   * \param _position7 Target position for the Pinky
+   * \param _position8 Target position for the Finger_Spread
+  **/
   S5FHControlCommandAllChannels(const int32_t& _position0,const int32_t& _position1,const int32_t& _position2,
                                 const int32_t& _position3,const int32_t& _position4,const int32_t& _position5,
                                 const int32_t& _position6,const int32_t& _position7,const int32_t& _position8)
@@ -81,7 +84,7 @@ struct S5FHControlCommandAllChannels
 
   /*!
    * \brief Construct a control command for all channels from a vector. Only the first 9 Values are used
-   * \param positions Vector of position values. Only the first 9 values are evaluated
+   * \param positions vector of position values. Only the first 9 values are evaluated
    */
   S5FHControlCommandAllChannels(const std::vector<int32_t>& positions)
   {
@@ -89,7 +92,8 @@ struct S5FHControlCommandAllChannels
   }
 
   /*!
-   * \brief Constructs an empty S5FHControlCommandAllChannels structure pre filled with 9 empty S5FHControlCommands. Mainly usefull for deserialisation
+   * \brief Constructs an empty S5FHControlCommandAllChannels structure pre filled with 9 empty S5FHControlCommands.
+   *        Mainly usefull for deserialisation
    */
   S5FHControlCommandAllChannels():
     commands(9,S5FHControlCommand())
@@ -98,14 +102,13 @@ struct S5FHControlCommandAllChannels
   //! Compares two S5FHControlCommand objects.
   bool operator == (const S5FHControlCommandAllChannels& other) const
   {
-    return
-      (commands == other.commands);
+    return (commands == other.commands);
   }
 };
 
 
-//! overload stream operator to easily serialize data
-//! slightly uneccessary at this point but put in anayway to make sure it is used :)
+//! overload stream operator to easily serialize control commands for one channel
+//! slightly uneccessary at this point but put in anayway for the time it`s needed
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHControlCommand& data)
 {
   ab << data.position;
@@ -113,21 +116,21 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
 }
 
 
-//! overload stream operator to easily deserialize data
+//! overload stream operator to easily deserialize control commands for one channel
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControlCommand& data)
 {
   ab >> data.position;
   return ab;
 }
 
-//! Output Stream operator
+//! Output Stream operator for fast debugging
 inline std::ostream& operator << (std::ostream& o, const S5FHControlCommand& cc)
 {
   o << "Pos: " << cc.position << std::endl;
   return o;
 }
 
-//! overload stream operator to easily serialize data
+//! overload stream operator to easily serialize control commands for all channels
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHControlCommandAllChannels& data)
 {
   // We could also just give the whole vector in ...
@@ -139,7 +142,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
 }
 
 
-//! overload stream operator to easily deserialize data
+//! overload stream operator to easily deserialize control commands for all channels
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControlCommandAllChannels& data)
 {
   for (std::vector<S5FHControlCommand>::iterator it = data.commands.begin() ; it != data.commands.end(); ++it)
@@ -150,7 +153,7 @@ inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHCont
 }
 
 
-//! Output Stream operator
+//! Output Stream operator of all channels control command
 inline std::ostream& operator << (std::ostream& o, const S5FHControlCommandAllChannels& cc)
 {
   o << "Commands: " ;
@@ -163,12 +166,6 @@ inline std::ostream& operator << (std::ostream& o, const S5FHControlCommandAllCh
   o << std::endl;
   return o;
 }
-
-
-
-
-
-
 }
 
 #endif // S5FHCONTROLCOMMAND_H

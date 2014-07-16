@@ -8,17 +8,16 @@
  *
  * \author  Georg Heppner
  * \date    2014-02-03
+ * \date    2014-07-16
  *
+ * This file contains the S5FHFirmwareInfo data structure that is used to
+ * receive information about the current firmware settings
  */
 //----------------------------------------------------------------------
 #ifndef S5FHFIRMWAREINFO_H
 #define S5FHFIRMWAREINFO_H
 
-#include <icl_core/BaseTypes.h>
-#include <icl_core/Vector.h>
-
 namespace driver_s5fh {
-
 
 /*!
  * \brief The S5FHFirmwareInfo  holds the data of a firmware response from the hardware
@@ -37,14 +36,11 @@ struct S5FHFirmwareInfo
   //! Compares two S5FHFirmware objects.
   bool operator == (const S5FHFirmwareInfo& other) const
   {
-    return
-      (version_major == other.version_major
-       && version_minor == other.version_minor
-       );
+    return (version_major == other.version_major && version_minor == other.version_minor);
   }
 };
 
-//! overload stream operator to easily serialize data
+//! overload stream operator to easily serialize firmware data
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHFirmwareInfo& data)
 {
   // Stream operator can not handle arrays (due to missing size information) to make things easy we just copy the data around. Feel free to do something else
@@ -63,7 +59,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, S5FHFirm
 
 
 
-//! overload stream operator to easily serialize data
+//! overload stream operator to easily serialize firmware data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHFirmwareInfo& data)
 {
   // Stream operator can not handle arrays (due to missing size information) to make things easy we just copy the data around. Feel free to do something else
@@ -84,7 +80,7 @@ inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHFirm
   return ab;
 }
 
-//! Output Stream operator
+//! Output Stream operator for easy output of the firmware information
 inline std::ostream& operator << (std::ostream& o, const S5FHFirmwareInfo& fw)
 {
   o << fw.s5fh.c_str()  << " " << fw.version_major << "." << fw.version_minor << " : " << fw.text.c_str() << endl;

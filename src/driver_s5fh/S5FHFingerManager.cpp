@@ -361,7 +361,7 @@ bool S5FHFingerManager::resetChannel(const S5FHCHANNEL &channel)
       m_is_homed[channel] = true;
       //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
         m_ws_broadcaster->robot->setJointHomed(true,channel);
-        if (!m_ws_broadcaster->sendState())
+        if (!m_ws_broadcaster->sendState());
         {
           //LOGGING_INFO_C(DriverS5FH, S5FHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
         }

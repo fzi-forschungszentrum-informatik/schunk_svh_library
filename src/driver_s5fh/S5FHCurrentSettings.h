@@ -8,7 +8,10 @@
  *
  * \author  Georg Heppner
  * \date    2014-02-03
+ * \date    2014-07-16
  *
+ * This file contains the CurrentSettings data structure that is used to
+ * send and receive the settings for the current controller in the position/current cascade
  */
 //----------------------------------------------------------------------
 #ifndef S5FHCURRENTSETTINGS_H
@@ -63,7 +66,7 @@ struct S5FHCurrentSettings
 
 };
 
-//! overload stream operator to easily serialize data
+//! overload stream operator to easily serialize current settings data
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHCurrentSettings& data)
 {
   ab << data.wmn
@@ -79,7 +82,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
   return ab;
 }
 
-//! overload stream operator to easily serialize data
+//! overload stream operator to easily serialize current settings data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHCurrentSettings& data)
 {
   ab >> data.wmn
@@ -97,7 +100,7 @@ inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHCurr
   return ab;
 }
 
-//! Output Stream operator
+//! Output stream operator for easy output of current settings
 inline std::ostream& operator << (std::ostream& o, const S5FHCurrentSettings& cs)
 {
   o << "wmn "<< cs.wmn << " "
@@ -115,9 +118,5 @@ inline std::ostream& operator << (std::ostream& o, const S5FHCurrentSettings& cs
 }
 
 
-
 }
-
-
-
 #endif // S5FHCURRENTSETTINGS_H

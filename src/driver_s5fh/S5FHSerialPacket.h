@@ -8,61 +8,65 @@
  *
  * \author  Georg Heppner
  * \date    2014-02-03
+ * \date    2014-07-16
  *
+ * This file contains the S5FHSerialPacket data structure that is used to
+ * send and receive everything from an to the actual hardware.
+ * The serial packet is used to wrap up the payload data for convenient handling.
+ * By wrapping everything in the same packet structure it can be handled quite neatly
  */
 //----------------------------------------------------------------------
 #ifndef S5FHSERIALPACKET_H
 #define S5FHSERIALPACKET_H
 
-#include <icl_core/BaseTypes.h>
-#include <iostream>
-#include <iomanip>
-
 #include <icl_comm/ByteOrderConversion.h>
-
-
 
 namespace driver_s5fh {
 
-//! packet size consts
-const size_t cPACKET_APPENDIX_SIZE = 8;
-const size_t cDEFAULT_PACKET_SIZE = 48;
+//===============
+// Some constants
+//===============
 
-//! packet headers
-const uint8_t PACKET_HEADER1 = 0x4C;
-const uint8_t PACKET_HEADER2 = 0xAA;
+// packet sizes
+const size_t cPACKET_APPENDIX_SIZE = 8; //!< The packet overhead size in bytes
+const size_t cDEFAULT_PACKET_SIZE = 48; //!< Default packet payload size in bytes
 
-//! adress constants for commands
-const uint8_t S5FH_GET_CONTROL_FEEDBACK = 0x00;
-const uint8_t S5FH_SET_CONTROL_COMMAND = 0x01;
-const uint8_t S5FH_GET_CONTROL_FEEDBACK_ALL = 0x02; // Requests the feedback of ALL Channels
-const uint8_t S5FH_SET_CONTROL_COMMAND_ALL = 0x03; // Sends the target position to ALL the channels
-const uint8_t S5FH_GET_POSITION_SETTINGS = 0x04;
-const uint8_t S5FH_SET_POSITION_SETTINGS = 0x05;
-const uint8_t S5FH_GET_CURRENT_SETTINGS = 0x06;
-const uint8_t S5FH_SET_CURRENT_SETTINGS = 0x07;
-const uint8_t S5FH_GET_CONTROLLER_STATE = 0x08;
-const uint8_t S5FH_SET_CONTROLLER_STATE = 0x09;
-const uint8_t S5FH_GET_ENCODER_VALUES = 0x0A;
-const uint8_t S5FH_SET_ENCODER_VALUES = 0x0B;
-const uint8_t S5FH_GET_FIRMWARE_INFO = 0x0C;
+// packet headers
+const uint8_t PACKET_HEADER1 = 0x4C;    //!< Header sync byte 1
+const uint8_t PACKET_HEADER2 = 0xAA;    //!< Header sync byte 2
+
+// adress constants for commands
+const uint8_t S5FH_GET_CONTROL_FEEDBACK = 0x00;     //!< Request the position and current of a channel to be sent
+const uint8_t S5FH_SET_CONTROL_COMMAND = 0x01;      //!< Sets the Target position of a channel
+const uint8_t S5FH_GET_CONTROL_FEEDBACK_ALL = 0x02; //!< Requests the positions and currents of ALL channels
+const uint8_t S5FH_SET_CONTROL_COMMAND_ALL = 0x03;  //!< Sends the target position to ALL the channels
+const uint8_t S5FH_GET_POSITION_SETTINGS = 0x04;    //!< Requests the active settings of the position controller
+const uint8_t S5FH_SET_POSITION_SETTINGS = 0x05;    //!< Sets new settings for the position controller
+const uint8_t S5FH_GET_CURRENT_SETTINGS = 0x06;     //!< Requests the active settings of the current controllel
+const uint8_t S5FH_SET_CURRENT_SETTINGS = 0x07;     //!< Sets new settings for the current controller
+const uint8_t S5FH_GET_CONTROLLER_STATE = 0x08;     //!< Requests the state of the controller (active,faults,enabled channels)
+const uint8_t S5FH_SET_CONTROLLER_STATE = 0x09;     //!< Sets new controller states (enable channels, clear faults)
+const uint8_t S5FH_GET_ENCODER_VALUES = 0x0A;       //!< Request the current encoder scalings
+const uint8_t S5FH_SET_ENCODER_VALUES = 0x0B;       //!< Set new encoder scalings
+const uint8_t S5FH_GET_FIRMWARE_INFO = 0x0C;        //!< Request the firmware info to be transmitted
 
 /*!
  * \brief The SerialPacket holds the (non generated) header and data of one message to the S5FH-Hardware
  */
 struct S5FHSerialPacket
 {
-  //! Continiously incremented counter per package
+  //! \brief Continiously incremented counter per package
+  //! \note Continous counter is currently not used by this software, the hw will just copy the send counter back to the response
   uint8_t index;
   //! Adress denotes the actual function of the package
   uint8_t address;
   //! Payload of the package
   std::vector <uint8_t> data;
 
-  //!
-  //! \brief S5FHSerialPacket contains the send and received data in raw format (bytewise)
-  //! \param data_length initial size to set the data length to. NOTE: To Deserialize a packet this value HAS TO BE SET!
-  //!
+  /*!
+   * \brief S5FHSerialPacket contains the send and received data in raw format (bytewise)
+   * \param data_length initial size to set the data length to. NOTE: To Deserialize a packet this value HAS TO BE SET!
+   */
   S5FHSerialPacket(size_t _data_length=0,uint8_t _address = S5FH_GET_CONTROL_FEEDBACK):
     address(_address),
     data(_data_length,0)
@@ -79,18 +83,14 @@ struct S5FHSerialPacket
   }
 };
 
-//! overload stream operator to easily serialize data
+//! overload stream operator to easily serialize raw packet data
 icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHSerialPacket& data);
 
-//! overload stream operator to easily Deserialize data
+//! overload stream operator to easily deserialize raw packet data
 icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHSerialPacket& data);
 
-//! Output Stream operator
+//! Output Stream operator for easy printing of packet data
 std::ostream& operator << (std::ostream& o, const S5FHSerialPacket& sp);
 
-//////! overload logging stream operator
-//icl_core::logging::ThreadStream& operator << (icl_core::logging::ThreadStream& stream, const S5FHSerialPacket& value);
-
 }
-
 #endif // S5FHSERIALPACKET_H

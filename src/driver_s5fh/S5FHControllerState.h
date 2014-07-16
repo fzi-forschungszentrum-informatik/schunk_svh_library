@@ -8,33 +8,41 @@
  *
  * \author  Georg Heppner
  * \date    2014-02-03
+ * \date    2014-07-16
  *
+ * This file contains the ControllerStateFeedback data structure that is used to
+ * send and receive feedback of the current state of the hardware controller
+ * this includes activation of the position as well as the current controllers
+ * overtemperature and fault warnings and activation of power supplies
  */
 //----------------------------------------------------------------------
 #ifndef S5FHCONTROLLERSTATE_H
 #define S5FHCONTROLLERSTATE_H
 
-
 namespace driver_s5fh {
 
 /*!
- * \brief The S5FHControllerState indicates the current State of the MeCoVis controllerm IC which is used in the S5FH
+ * \brief The S5FHControllerState indicates the current state of the MeCoVis controller IC which is used in the S5FH
  */
 struct S5FHControllerState
 {
-  //! Reset of controller??? (0x001F to Reset)
+  //! Fault indication of the controllers (0x001F -> high bit to reset software state. 0x00 -> low bit to reset hardware)
+  //! \note The Faults are not yet mapped to channels directly so the information should only be treated as a fault/no fault
   uint16_t pwm_fault;
-  //! Reset of controller??? (0x001F to Reset)
+  //! Over Temperature Warning of the controllers (0x001F -> high bit to reset software state. 0x00 -> low bit to reset hardware)
+  //! \note The Faults are not yet mapped to channels directly so the information should only be treated as a fault/no fault
   uint16_t pwm_otw;
-  //! Enable 12V supply driver??? (0x0200 to activate)
+  //! Bitmask for low-active resets of the channels (0-8). Channel 9 (0x0200) is a special channel that activates a 12VDV-DV converter for the small motors.
   uint16_t pwm_reset;
-  //! Enable 12V supply driver??? (0x0200 to activate)
+  //! Currently unused but should be called the same way as pwm_reset is
+  //! \note This flag is currently unused by the hardware but should be handled exactly the same as pwm reset at the moment
   uint16_t pwm_active;
-  //! Enable/Disable of position controller (0x0001 to Activate)
+  //! Enable/Disable of position controller (0x0001 to Activate )
   uint16_t pos_ctrl;
   //! Enable/Disbale of current controller (0x0001 to Activate)
   uint16_t cur_ctrl;
 
+  //! Default constructor with zero values for everything
   S5FHControllerState(uint16_t _pwm_fault =0,uint16_t _pwm_otw = 0 , uint16_t _pwm_reset = 0 ,uint16_t _pwm_active = 0 ,uint16_t _pos_ctrl =0, uint16_t _cur_ctrl =0):
   pwm_fault(_pwm_fault),
   pwm_otw(_pwm_otw),
@@ -44,7 +52,7 @@ struct S5FHControllerState
   cur_ctrl(_cur_ctrl)
   {  }
 
-    //! Compares two S5FHControllerState objects.
+  //! Compares two S5FHControllerState objects.
   bool operator == (const S5FHControllerState& other) const
   {
     return
@@ -56,7 +64,8 @@ struct S5FHControllerState
        && cur_ctrl == other.cur_ctrl);
   }
 };
-//! overload stream operator to easily serialize data
+
+//! overload stream operator to easily serialize controller state data
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHControllerState& data)
 {
   ab << data.pwm_fault
@@ -68,7 +77,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
   return ab;
 }
 
-//! overload stream operator to easily serialize data
+//! overload stream operator to easily serialize controller state data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHControllerState& data)
 {
   ab >> data.pwm_fault
@@ -81,7 +90,7 @@ inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHCont
   return ab;
 }
 
-//! Output Stream operator
+//! Output Stream operator to easily output controller state data
 inline std::ostream& operator << (std::ostream& o, const S5FHControllerState& cs)
 {
   o << std::setw(4) << std::setfill('0') << std::hex
@@ -96,7 +105,6 @@ inline std::ostream& operator << (std::ostream& o, const S5FHControllerState& cs
   std::cout << std::dec ;
   return o;
 }
-
 
 }
 

@@ -8,7 +8,10 @@
  *
  * \author  Georg Heppner
  * \date    2014-02-03
+ * \date    2014-07-16
  *
+ * This file contains the S5FHPositionSettings data structure that is used to
+ * receive and send the current parameters of the position controller within the hand.
  */
 //----------------------------------------------------------------------
 #ifndef S5FHPOSITIONSETTINGS_H
@@ -62,7 +65,7 @@ public:
   }
 };
 
-//! overload stream operator to easily serialize data
+//! overload stream operator to easily serialize position settings data
 inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5FHPositionSettings& data)
 {
   ab << data.wmn
@@ -78,7 +81,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const S5
   return ab;
 }
 
-//! overload stream operator to easily deserialize data
+//! overload stream operator to easily deserialize position settings data
 inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHPositionSettings& data)
 {
   ab >> data.wmn
@@ -94,8 +97,7 @@ inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, S5FHPosi
   return ab;
 }
 
-//! Output Stream operator
-
+//! Output stream operator to easily print position settings
 inline std::ostream& operator << (std::ostream& o, const S5FHPositionSettings& ps)
 {
   o << "wmn " << ps.wmn << " "

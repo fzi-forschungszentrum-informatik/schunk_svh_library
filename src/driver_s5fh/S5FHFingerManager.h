@@ -19,7 +19,7 @@
 #include <driver_s5fh/S5FHFeedbackPollingThread.h>
 
 //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-// Shunk Diagnostics addon
+// Schunk Diagnostics addon
 #include <icl_comm_websocket/WsBroadcaster.h>
 #include <boost/shared_ptr.hpp>
 //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_

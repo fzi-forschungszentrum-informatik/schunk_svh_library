@@ -8,7 +8,13 @@
  *
  * \author  Lars Pfotzer
  * \date    2014-02-17
+ * \date    2014-07-16
  *
+ * This file contains the FeedBackpollingthread.
+ * The hardware itself will not send data all the time, only once in response
+ * to each packet sent. As the desired behaviour is to get constant position feedback
+ * of the fingers we trigger a controllerfeedback periodically to receive continious data.
+ * The feedback polling thread is implemented in this file.
  */
 //----------------------------------------------------------------------
 #include <driver_s5fh/Logging.h>
@@ -31,6 +37,8 @@ void S5FHFeedbackPollingThread::run()
       if (m_finger_manager->isConnected())
       {
         m_finger_manager->requestControllerFeedbackAllChannels();
+
+        // This would inform a websocket server about new states, disregard that.
         //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
         m_finger_manager->updateWebSocket();
         //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_

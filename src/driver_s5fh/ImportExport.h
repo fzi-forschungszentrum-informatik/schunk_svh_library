@@ -9,6 +9,7 @@
  * \author  Lars Pfotzer
  * \date    2014-01-30
  *
+ * Defines used for windows DLL support.
  */
 //----------------------------------------------------------------------
 #ifndef DRIVER_S5FH_IMPORT_EXPORT_H_INCLUDED

@@ -8,7 +8,13 @@
  *
  * \author  Lars Pfotzer
  * \date    2014-02-03
+ * \date    2014-07-16
  *
+ * This file contains the ReceiveThread for the serial communication.
+ * In order to receive packages independently from the sending direction
+ * this thread periodically polls the serial interface for new data. If data
+ * is present a statemachine will evaluate the right packet structure and send the
+ * data to further parsing once a complete serial packaged is received
  */
 //----------------------------------------------------------------------
 #include <driver_s5fh/S5FHReceiveThread.h>
@@ -29,8 +35,7 @@ S5FHReceiveThread::S5FHReceiveThread(const TimeSpan& period, Serial *device,
     m_ab(0),
     m_packets_received(0),
     m_received_callback(received_callback)
-{
-}
+{}
 
 void S5FHReceiveThread::run()
 {
@@ -40,6 +45,7 @@ void S5FHReceiveThread::run()
     {
       if (m_serial_device->IsOpen())
       {
+        // All we every want to do is receiving data :)
         receiveData();
       }
       else
@@ -55,6 +61,18 @@ void S5FHReceiveThread::run()
 
 bool S5FHReceiveThread::receiveData()
 {
+
+  /*
+   * Each packet has to follow the defined packet structure which is ensured by the following state machine.
+   * The "Bytestream" (not realy a stream) is interpreted byte by byte. If the structure is still right the
+   * next state is entered, if a wrong byte is detected the whole packet is discarded and the SM switches to
+   * the synchronization state aggain.
+   * If the SM reaches the final state the packet will be given to the packet handler to decide what to do with
+   * its content.
+   *  NOTE: All layers working with a SerialPacket (except this one) assume that the packet has a valid structure
+   *        and all data fields present.
+   */
+
   switch (m_received_state)
   {
     case eRS_HEADER1:
@@ -99,13 +117,13 @@ bool S5FHReceiveThread::receiveData()
     }
     case eRS_INDEX:
     {
-      // Reset Array Builder
+      // Reset Array Builder for each fresh packet
       m_ab.reset(0);
 
-      // read index data byte
       uint8_t index = 0;
       if (m_serial_device->Read(&index, sizeof(uint8_t)))
       {
+        // Data bytes are not cenverted in endianess at this point
         m_ab.appendWithoutConversion(index);
         m_received_state = eRS_ADDRESS;
       }
@@ -113,7 +131,7 @@ bool S5FHReceiveThread::receiveData()
     }
     case eRS_ADDRESS:
     {
-      // read address data byte
+      //get the address
       uint8_t address = 0;
       if (m_serial_device->Read(&address, sizeof(uint8_t)))
       {
@@ -124,7 +142,7 @@ bool S5FHReceiveThread::receiveData()
     }
     case eRS_LENGTH:
     {
-      // read data length
+      // get payload length
       uint16_t length = 0;
       if (m_serial_device->Read(&length, sizeof(uint16_t)))
       {
@@ -136,7 +154,8 @@ bool S5FHReceiveThread::receiveData()
     }
     case eRS_DATA:
     {
-      // read received data
+      // get the payload itself
+      // Some conversion due to legacy hardware calls
       uint8_t buffer[m_length];
       if (m_serial_device->Read(reinterpret_cast<void *>(buffer), m_length))
       {
@@ -173,7 +192,7 @@ bool S5FHReceiveThread::receiveData()
       }
       else
       {
-        LOGGING_TRACE_C(DriverS5FH, S5FHReceiveThread, "Could not read two bytes from serial port" << endl);
+        LOGGING_TRACE_C(DriverS5FH, S5FHReceiveThread, "Could not read checksum bytes from serial port" << endl);
       }
       break;
     }
@@ -186,7 +205,7 @@ bool S5FHReceiveThread::receiveData()
 
       m_packets_received++;
 
-      //! packet received callback function
+      // notify whoever is waiting for this
       if (m_received_callback)
       {
         m_received_callback(received_packet, m_packets_received);

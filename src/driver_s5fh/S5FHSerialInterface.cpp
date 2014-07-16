@@ -8,7 +8,13 @@
  *
  * \author  Lars Pfotzer
  * \date    2014-01-30
+ * \date    2014-07-16
  *
+ * This file contains the S5FHSerialInterface class that is used to
+ * handle the protocoll overhead of the serial communication.
+ * It uses an icl_comm serial device that opens the physical connection and
+ * is responsible to manage this hardware resource as well as protocoll issues
+ * like sync bytes, checksum calculation and counting of packets send and received.
  */
 //----------------------------------------------------------------------
 #include "driver_s5fh/S5FHSerialInterface.h"
@@ -54,6 +60,7 @@ bool S5FHSerialInterface::connect(const std::string &dev_name)
   }
   else
   {
+    LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not create serial device handle: " << dev_name.c_str() << endl);
     return false;
   }
 
@@ -71,10 +78,12 @@ bool S5FHSerialInterface::connect(const std::string &dev_name)
   }
   else
   {
+    LOGGING_ERROR_C(DriverS5FH, S5FHSerialInterface, "Could not create the receive thread for the serial device!" << endl);
     return false;
   }
 
   m_connected = true;
+  LOGGING_TRACE_C(DriverS5FH, S5FHSerialInterface, "Serial device  " << dev_name.c_str()  << " opened and receive thread started. Communication can now begin." << endl);
 
   return true;
 }
@@ -92,6 +101,7 @@ void S5FHSerialInterface::close()
 
     delete m_receive_thread;
     m_receive_thread = NULL;
+    LOGGING_TRACE_C(DriverS5FH, S5FHSerialInterface, "Serial device receive thread was terminated." << endl);
   }
 
   // close and delete serial device handler
@@ -101,6 +111,7 @@ void S5FHSerialInterface::close()
 
     delete m_serial_device;
     m_serial_device = NULL;
+    LOGGING_TRACE_C(DriverS5FH, S5FHSerialInterface, "Serial device handle was closed and terminated." << endl);
   }
 }
 
@@ -111,6 +122,7 @@ bool S5FHSerialInterface::sendPacket(S5FHSerialPacket& packet)
     uint8_t check_sum1 = 0;
     uint8_t check_sum2 = 0;
 
+    // Calculate Checksum for the packet
     for (size_t i = 0; i < packet.data.size(); i++)
     {
       check_sum1 += packet.data[i];
@@ -118,26 +130,31 @@ bool S5FHSerialInterface::sendPacket(S5FHSerialPacket& packet)
     }
 
     // set packet counter
-    packet.index = static_cast<u_int8_t>(m_packets_transmitted % u_int8_t(-1));
+    packet.index = static_cast<uint8_t>(m_packets_transmitted % uint8_t(-1));
 
     if (m_serial_device->IsOpen())
     {
-      // serialize packet
+      // Prepare arraybuilder
       size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
       icl_comm::ArrayBuilder send_array(size);
+      // Write header and packet information and checksum
       send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
 
+      // actual hardware call to send the packet
       size_t bytes_send = 0;
       while (bytes_send < size)
       {
         bytes_send += m_serial_device->Write(send_array.array.data() + bytes_send, size - bytes_send);
       }
 
+      // Small delay -> THIS SHOULD NOT BE NECESSARY as the communication speed should be handable by the HW. However, it will die if this sleep is
+      // not used and this may also depend on your computer speed -> This issue might stem also from the hardware and will hopefully be fixed soon.
       icl_core::os::usleep(8000);
 
     }
     else
     {
+      LOGGING_TRACE_C(DriverS5FH, S5FHSerialInterface, "sendPacket failed, serial device was not properly initialized." << endl);
       return false;
     }
 

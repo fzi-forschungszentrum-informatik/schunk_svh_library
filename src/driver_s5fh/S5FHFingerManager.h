@@ -9,6 +9,12 @@
  * \author  Lars pfotzer
  * \date    2014-01-30
  *
+ * This file contains the Finger Manager
+ * that is managing the Schunk five finger hand on a high level.
+ * The fingermanager is responsible to filter all calls and only make
+ * allowed calls to the controller. The fingermanager is also responsible
+ * for storing any kind of Konfiguration (like current controller settings).
+ * The fingermanager is also responsible to poll the controller for continious data (if wanted)
  */
 //----------------------------------------------------------------------
 #ifndef DRIVER_S5FH_S5FH_FINGER_MANAGER_H_INCLUDED
@@ -18,11 +24,11 @@
 #include <driver_s5fh/S5FHController.h>
 #include <driver_s5fh/S5FHFeedbackPollingThread.h>
 
-//#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
 // Schunk Diagnostics addon
 #include <icl_comm_websocket/WsBroadcaster.h>
 #include <boost/shared_ptr.hpp>
-//#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
 namespace driver_s5fh {
 
@@ -33,7 +39,7 @@ class DRIVER_S5FH_IMPORT_EXPORT S5FHFingerManager
 public:
 
   /*!
-   * \brief The MovementState enum indicated the overall State of the hand. Currently only used for updating the status websocket
+   * \brief The MovementState enum indicated the overall state of the hand. Currently only used for updating the status websocket
    */
   enum MovementState
   {
@@ -53,11 +59,11 @@ public:
 
   virtual ~S5FHFingerManager();
 
-  //!
-  //! \brief Open connection to SCHUNK five finger hand. Wait until expected return packages are received.
-  //! \param dev_name
-  //! \return
-  //!
+ /*!
+  *  \brief Open connection to SCHUNK five finger hand. Wait until expected return packages are received.
+  *  \param dev_name
+  * \return
+  */
   bool connect(const std::string &dev_name);
 
   //!
@@ -194,7 +200,7 @@ public:
   //! This is a debuging function. Should not be called by users
   void requestControllerState();
 
-  //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
   /*!
    * \brief updateWebSocket Will gathe the current state of the hand and send it out via websocket
    * \note this function will NOT update everything as it would be to much overhead to ask every single time if a finger is enabled or not. Things
@@ -202,7 +208,7 @@ public:
    *       this function is meant to be used for the periodically changing states
    */
   void updateWebSocket();
-  //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
 // ----------------------------------------------------------------------
 // ---- private functions and varaibles
@@ -210,9 +216,9 @@ public:
 
 private:
 
-  //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+    #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
     boost::shared_ptr<icl_comm::websocket::WsBroadcaster> m_ws_broadcaster;
-  //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+   #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
   //! \brief pointer to s5fh controller
   S5FHController *m_controller;

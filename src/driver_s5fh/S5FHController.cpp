@@ -6,9 +6,24 @@
 //----------------------------------------------------------------------
 /*!\file
  *
+ * \author  Georg Heppner
  * \author  Lars Pfotzer
  * \date    2014-01-30
+ * \date    2014-07-20
  *
+ * This file contains the SVH controler, the heart of the driver.
+ * It is responsible to manage all logical decissions regarding the hardware
+ * on a low level. It knows what packet index is used for which function
+ * and holds all the data objects that can be queried externally.
+ * The controller should not be queried by outside calls directly as it asumes
+ * the calls to be non maleformed or contain out of bounds acces as this is handled
+ * by the finger manager. Also note that the calls on this level should be made
+ * channel wise. The iteration of channels is done in the finger controller.
+ *
+ * Request and Get principle: As the communication with the hand had some issues with the bandwith
+ * there are two types of function calls. The request functions tell the driver to actually request the data
+ * from the hardware. The get functions just get the last received value from the controller without actually
+ * querrying the hardware. This might be changed in further releases.
  */
 //----------------------------------------------------------------------
 #include "driver_s5fh/S5FHController.h"
@@ -19,22 +34,19 @@
 
 using icl_comm::ArrayBuilder;
 
-/* FIXME:
- *  *
- * TODO:
- *
- *TODO(optional):
+/*
+ *TODO(optional for further releases):
  * - Data about the positions and currents is currently pulled by the fingermanager -> this could be enhanced by using mutexes to inform higher layers about changes
  * - Sanity checks of set values to ensure safe access that will impose absolute hardware limits (i.e. CurrentSettings)
- * - Logging Output!!! Everywhere!
+ * - Increase logging output
  * - bool isEnabled(const S5FHCHANNEL &channel); --> Check if the finger was actually turned on by evaluating (PWM_RESET & (1 << Channel))
- * - Do somethings usefull with the FirmwareInformation
+ * - Sanity check against the firmware information
  */
 
 namespace driver_s5fh {
 
 
-//! Description for enum matching:
+//! Description of the channels for enum matching:
 const char * S5FHController::m_channel_description[]= {
   "Thumb_Flexion",
   "Thumb_Opposition", // wrist
@@ -92,6 +104,7 @@ void S5FHController::setControllerTarget(const S5FHCHANNEL& channel, const u_int
   // TODO Opt: Sanity checks for position
   if (channel != eS5FH_ALL)
   {
+    // The channel is encoded in the index byte
     S5FHSerialPacket serial_packet(0,S5FH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
     S5FHControlCommand control_command(position);
     // Note the 40 byte ArrayBuilder initialization -> this is needed to get a zero padding in the serialpacket. Otherwise it would be shorter
@@ -104,7 +117,7 @@ void S5FHController::setControllerTarget(const S5FHCHANNEL& channel, const u_int
   }
   else
   {
-    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Control command was given for unknown channel: "<< channel << "- ignoring request"<< endl);
+    LOGGING_WARNING_C(DriverS5FH, S5FHController, "Control command was given for unknown (or all) channel: "<< channel << "- ignoring request"<< endl);
   }
 }
 
@@ -121,9 +134,10 @@ void S5FHController::setControllerTargetAllChannels(const std::vector<int32_t> &
 
    LOGGING_TRACE_C(DriverS5FH, S5FHController, "Control command was given for all channels: Driving motors to positions: "<< positions[0] << " , " << positions[1] << " , " << positions[2] << " , " << positions[3] << " , " << positions[4] << " , " << positions[5] << " , " << positions[6] << " , " << positions[7] << " , " << positions[8] << " , " << endl);
   }
+  // TODO: We could allow for fewer positions to be set. As it would be hard to decice what to do with other channels we will leave this out for now
   else
   {
-    LOGGING_ERROR_C(DriverS5FH, S5FHController, "Control command was given for all channels but with to few points. Expected at least "<< eS5FH_DIMENSION << " values but only got " << positions.size());
+    LOGGING_ERROR_C(DriverS5FH, S5FHController, "Control command was given for all channels but with to few points. Expected at least "<< eS5FH_DIMENSION << " values but only got " << positions.size() << "use the individual setTarget function for this" << endl);
   }
 }
 
@@ -133,7 +147,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
   S5FHControllerState controller_state;
   ArrayBuilder ab(40);
 
-  //TODO: make the following better.. for now the MeCoVis example is just copied more or less exactly
+  // In case no channel was enabled we need to enable the 12V dc drivers first
   if (m_enable_mask == 0)
   {
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Enable was called and no channel was previously activated, commands are sent individually......" << endl);
@@ -150,7 +164,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     icl_core::os::usleep(2000);
 
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Enabling 12V Driver (pwm_reset and pwm_active)..." << endl);
-    // enable +12v supply driver ??????
+    // enable +12v supply driver
     controller_state.pwm_reset = 0x0200;
     controller_state.pwm_active = 0x0200;
     ab << controller_state;
@@ -161,7 +175,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     icl_core::os::usleep(2000);
 
      LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Enabling pos_ctrl and cur_ctrl..." << endl);
-    // enable controller ???????
+    // enable controller
     controller_state.pos_ctrl = 0x0001;
     controller_state.cur_ctrl = 0x0001;
     ab << controller_state;
@@ -174,13 +188,16 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "...Done" << endl);
   }
 
-  // FIXME!!! WARNING CHECK WHAT MeCoVIS is using for their channels as this might have very serious influences!!!!
+  // enable actual channels (again we only accept individual channels)
   if (channel >=0 && channel < eS5FH_DIMENSION)
   {
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Enabling motor: "<< channel << endl);
+    // oring all channels to create the activation mask-> high = channel active
     m_enable_mask |= (1<<channel);
 
-    // SENDING ALL AT ONCE WILL LEAD TO "Jumping" behaviour of the controller on faster Systems ---> MeCoVis hardware problem .. ask about that
+    // SENDING ALL AT ONCE WILL LEAD TO "Jumping" behaviour of the controller on faster Systems ---> this seems to have to
+    // do with the initialization of the hardware controllers. If we split it in two calls we will reset them first and then activate
+    // making sure that all values are initialized properly
 //    controller_state.pwm_fault  = 0x001F;
 //    controller_state.pwm_otw    = 0x001F;
 //    controller_state.pwm_reset  = (0x0200 | (m_enable_mask & 0x01FF));
@@ -197,7 +214,7 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
-    // WARNING: DO NOT ! REMOVE THESE DELAYS OR THE HARDWARE WILL! FREAK OUT!
+    // WARNING: DO NOT ! REMOVE THESE DELAYS OR THE HARDWARE WILL! FREAK OUT! (see reason above)
     icl_core::os::usleep(500);
 
     controller_state.pos_ctrl = 0x0001;
@@ -207,12 +224,12 @@ void S5FHController::enableChannel(const S5FHCHANNEL &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
-    // WARNING: DO NOT ! REMOVE THESE DELAYS OR THE HARDWARE WILL! FREAK OUT!
-    icl_core::os::usleep(500);
+    // remove this
+//    icl_core::os::usleep(500);
 
-    ab << controller_state;
-    serial_packet.data = ab.array;
-    m_serial_interface ->sendPacket(serial_packet);
+//    ab << controller_state;
+//    serial_packet.data = ab.array;
+//    m_serial_interface ->sendPacket(serial_packet);
   }
   else
   {
@@ -226,16 +243,19 @@ void S5FHController::disableChannel(const S5FHCHANNEL& channel)
 {
   if (m_serial_interface != NULL && m_serial_interface->isConnected())
   {
+    // prepare general packet
     S5FHSerialPacket serial_packet(0,S5FH_SET_CONTROLLER_STATE);
     S5FHControllerState controller_state;
     ArrayBuilder ab(40);
-    //TODO: The following code is very.. strange -> Ask MeCoVis if that is really... really really what one is supposed to send to disable things
+
+    // we just accept it at this point because it makes no difference in the calls
     if (channel == eS5FH_ALL)
     {
       m_enable_mask = 0;
       controller_state.pwm_fault = 0x001F;
       controller_state.pwm_otw   = 0x001F;
 
+      // default initialization to zero -> controllers are deactivated
       ab << controller_state;
       serial_packet.data = ab.array;
       m_serial_interface->sendPacket(serial_packet);
@@ -321,7 +341,7 @@ void S5FHController::setPositionSettings(const S5FHCHANNEL& channel,const S5FHPo
     serial_packet.data = ab.array;
     m_serial_interface ->sendPacket(serial_packet);
 
-    // Save already in case we dont get imeediate response
+    // Save already in case we dont get imidiate response
     m_position_settings[channel] = position_settings;
 
     LOGGING_DEBUG_C(DriverS5FH, S5FHController, "Position controller settings where send to change channel: "<< channel << endl);

@@ -10,6 +10,19 @@
  * \author  Georg Heppner
  * \date    2014-01-30
  *
+ * This file contains the SVH controler, the heart of the driver.
+ * It is responsible to manage all logical decissions regarding the hardware
+ * on a low level. It knows what packet index is used for which function
+ * and holds all the data objects that can be queried externally.
+ * The controller should not be queried by outside calls directly as it asumes
+ * the calls to be non maleformed or contain out of bounds acces as this is handled
+ * by the finger manager. Also note that the calls on this level should be made
+ * channel wise. The iteration of channels is done in the finger controller.
+ *
+ * Request and Get principle: As the communication with the hand had some issues with the bandwith
+ * there are two types of function calls. The request functions tell the driver to actually request the data
+ * from the hardware. The get functions just get the last received value from the controller without actually
+ * querrying the hardware. This might be changed in further releases.
  */
 //----------------------------------------------------------------------
 #ifndef DRIVER_S5FH_S5FH_CONTROLLER_H_INCLUDED
@@ -30,7 +43,7 @@ namespace driver_s5fh {
 
 //! Channel indicates which motor to use in command calls. WARNING: DO NOT CHANGE THE ORDER OF THESE
 enum{
-  eS5FH_ALL = -1,
+  eS5FH_ALL = -1,   // this should be used with care as not all functions support it yet
   eS5FH_THUMB_FLEXION = 0,
   eS5FH_THUMB_OPPOSITION, // wrist
   eS5FH_INDEX_FINGER_DISTAL,
@@ -44,37 +57,39 @@ enum{
 } typedef S5FHCHANNEL;
 
 
-/*! This class controls the the SCHUNK five finger hand.
+/*!
+ * \brief This class controls the the SCHUNK five finger hand.
+ *
+ * The controller manages all calls to the hardware and receives every feedback.
+ * All data is interpreted and stored in the apropriate objects that can be queried by others.
+ * \note Be carefull what you change in here as it interfaces directly with the hardware
  */
 class DRIVER_S5FH_IMPORT_EXPORT S5FHController
 {
 public:
-  /*! Constructs a controller class for the SCHUNK five finger hand.
-   */
+  //!Constructs a controller class for the SCHUNK five finger hand.
   S5FHController();
 
   /*! SCHUNK five finger hand destructor
-   *  Disable the serial device and shut down hand as far
+   *  Destructor, Disable the serial device and shut down hand as far
    *  as possible
    */
   ~S5FHController();
 
-  //!
-  //! \brief open serial device connection
-  //! \param dev_name
-  //! \return
-  //!
+  /*!
+   * \brief open serial device connection
+   * \param dev_name system handle (filename in linux) to the device
+   * \return true if connect was successfull
+   */
   bool connect(const std::string &dev_name);
 
-  //!
-  //! \brief disconnect serial device
-  //!
+  //! disconnect serial device
   void disconnect();
 
   /*!
-   * \brief setting new position controller target for finger index
+   * \brief set new position target for finger index
    * \param channel Motorchanel to set the target for
-   * \param position Target position given in encoder Ticks
+   * \param position Target position for the channel given in encoder Ticks
    */
   void setControllerTarget(const S5FHCHANNEL& channel, const u_int32_t& position);
 
@@ -86,30 +101,31 @@ public:
 
 
   // Access functions
-  //!
-  //! \brief Enable one or all motor channels
-  //! \param channel Motor to activate 0 for all
-  //!
+  /*!
+   *  \brief Enable one or all motor channels
+   *  \param channel Motor to activate
+   */
   void enableChannel(const S5FHCHANNEL& channel);
 
-  //!
-  //! \brief Disable one or all motor channels
-  //! \param channel Motor to deactivate 0 for all
-  //!
+  /*!
+   *  \brief Disable one or all motor channels
+   *  \param channel Motor to deactivate
+   */
   void disableChannel(const S5FHCHANNEL& channel);
 
   //! Request Current controller state (mainly usefull for debug purposes)
   void requestControllerState();
 
-  //!
-  //! \brief request feedback (position and current) to a specific channel
-  //! \param channel Motorchannel the feedback should be provided for
-  //!
+  /*!
+   *  \brief request feedback (position and current) to a specific channel
+   *  \param channel Motorchannel the feedback should be provided for
+   */
   void requestControllerFeedback(const S5FHCHANNEL& channel);
 
   /*!
    * \brief request feedback for ALL channels
    */
+  // TODO: This function should be included in the regular requestControllerFeedback with all channels
   void requestControllerFeedbackAllChannels();
 
   /*!
@@ -168,8 +184,8 @@ public:
    * \param ControllerFeedback (current, encoder position) of the specified channel
    * \return true if the feedback could be read, false otherwise
    *
-   * Controllerfeedback (crurrent,channel) is stored in the controller once it is send by the hardware.
-   * This is the case once a controlCommand (TODO: MeCoVis is this correct?) has been send or the feedback has
+   * Controllerfeedback (crurrent,channel) is stored/updated in the controller once it is send by the hardware.
+   * This is the case once a controlCommand has been send or the feedback has
    * specifically been requested by using the getControllerFeedback() function
    *
    */
@@ -221,7 +237,7 @@ public:
     */
    bool isEnabled(const S5FHCHANNEL &channel);
 
-   //! Description values to get the corresponding enum value to a channel
+   //! Description values to get the corresponding string value to a channel enum
    static const char * m_channel_description[];
 
    //! Get all currently available controllerfeedbacks
@@ -256,7 +272,7 @@ private:
   //! Bitmask to tell which fingers are enabled
   u_int16_t m_enable_mask;
 
-  //! store how many packages where actually received. Updated Every time the receivepacket callback is called
+  //! store how many packages where actually received. Updated every time the receivepacket callback is called
   unsigned int m_received_package_count;
 
 

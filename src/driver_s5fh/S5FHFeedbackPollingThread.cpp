@@ -39,9 +39,9 @@ void S5FHFeedbackPollingThread::run()
         m_finger_manager->requestControllerFeedbackAllChannels();
 
         // This would inform a websocket server about new states, disregard that.
-        //#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+        #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
         m_finger_manager->updateWebSocket();
-        //#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+        #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
       }
       else
       {

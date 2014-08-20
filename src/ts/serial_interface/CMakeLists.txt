@@ -1,17 +1,17 @@
 # this is for emacs file handling -*- mode: cmake; indent-tabs-mode: nil -*-
-ICMAKER_SET("ts_S5FHSendPacket" IDE_FOLDER ${DRIVER_S5FH_IDE_FOLDER})
+ICMAKER_SET("ts_SVHSendPacket" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 
 ICMAKER_ADD_SOURCES(
-  S5FHSendPacketTest.cpp
+  SVHSendPacketTest.cpp
   )
 
-ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_S5FH_INCLUDE_DIRS} )
+ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_SVH_INCLUDE_DIRS} )
 
 ICMAKER_EXTERNAL_DEPENDENCIES(
   )
 
 ICMAKER_INTERNAL_DEPENDENCIES(
-  driver_s5fh
+  driver_svh
   icl_core
   icl_core_thread
   icl_comm
@@ -21,19 +21,19 @@ ICMAKER_BUILD_TEST()
 
 ############################################################################
 
-ICMAKER_SET("ts_S5FHReceive" IDE_FOLDER ${DRIVER_S5FH_IDE_FOLDER})
+ICMAKER_SET("ts_SVHReceive" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 
 ICMAKER_ADD_SOURCES(
-  S5FHReceiveTest.cpp
+  SVHReceiveTest.cpp
   )
 
-ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_S5FH_INCLUDE_DIRS} )
+ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_SVH_INCLUDE_DIRS} )
 
 ICMAKER_EXTERNAL_DEPENDENCIES(
   )
 
 ICMAKER_INTERNAL_DEPENDENCIES(
-  driver_s5fh
+  driver_svh
   icl_core
   icl_core_thread
   icl_comm
@@ -43,19 +43,19 @@ ICMAKER_BUILD_TEST()
 
 #############################################################################
 
-ICMAKER_SET("ts_S5FHSendFeedbackPacket" IDE_FOLDER ${DRIVER_S5FH_IDE_FOLDER})
+ICMAKER_SET("ts_SVHSendFeedbackPacket" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 
 ICMAKER_ADD_SOURCES(
-  S5FHSendFeedbackPacketTest.cpp
+  SVHSendFeedbackPacketTest.cpp
   )
 
-ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_S5FH_INCLUDE_DIRS} )
+ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_SVH_INCLUDE_DIRS} )
 
 ICMAKER_EXTERNAL_DEPENDENCIES(
   )
 
 ICMAKER_INTERNAL_DEPENDENCIES(
-  driver_s5fh
+  driver_svh
   icl_core
   icl_core_thread
   icl_comm
@@ -65,19 +65,19 @@ ICMAKER_BUILD_TEST()
 
 ##############################################################################
 
-ICMAKER_SET("ts_S5FHReceiveFeedbackPacket" IDE_FOLDER ${DRIVER_S5FH_IDE_FOLDER})
+ICMAKER_SET("ts_SVHReceiveFeedbackPacket" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 
 ICMAKER_ADD_SOURCES(
-  S5FHReceiveFeedbackPacketTest.cpp
+  SVHReceiveFeedbackPacketTest.cpp
   )
 
-ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_S5FH_INCLUDE_DIRS} )
+ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_SVH_INCLUDE_DIRS} )
 
 ICMAKER_EXTERNAL_DEPENDENCIES(
   )
 
 ICMAKER_INTERNAL_DEPENDENCIES(
-  driver_s5fh
+  driver_svh
   icl_core
   icl_core_thread
   icl_comm
@@ -87,19 +87,19 @@ ICMAKER_BUILD_TEST()
 
 ##############################################################################
 
-ICMAKER_SET("ts_S5FHControllerInitSendTest" IDE_FOLDER ${DRIVER_S5FH_IDE_FOLDER})
+ICMAKER_SET("ts_SVHControllerInitSendTest" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 
 ICMAKER_ADD_SOURCES(
-  S5FHControllerInitSendTest.cpp
+  SVHControllerInitSendTest.cpp
   )
 
-ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_S5FH_INCLUDE_DIRS} )
+ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_SVH_INCLUDE_DIRS} )
 
 ICMAKER_EXTERNAL_DEPENDENCIES(
   )
 
 ICMAKER_INTERNAL_DEPENDENCIES(
-  driver_s5fh
+  driver_svh
   icl_core
   icl_core_thread
   icl_comm
@@ -109,19 +109,19 @@ ICMAKER_BUILD_TEST()
 
 ##############################################################################
 
-ICMAKER_SET("ts_S5FHFingerManagerTest" IDE_FOLDER ${DRIVER_S5FH_IDE_FOLDER})
+ICMAKER_SET("ts_SVHFingerManagerTest" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 
 ICMAKER_ADD_SOURCES(
-  S5FHFingerManagerTest.cpp
+  SVHFingerManagerTest.cpp
   )
 
-ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_S5FH_INCLUDE_DIRS} )
+ICMAKER_INCLUDE_DIRECTORIES( ${DRIVER_SVH_INCLUDE_DIRS} )
 
 ICMAKER_EXTERNAL_DEPENDENCIES(
   )
 
 ICMAKER_INTERNAL_DEPENDENCIES(
-  driver_s5fh
+  driver_svh
   icl_core
   icl_core_thread
   icl_comm

@@ -57,7 +57,6 @@ enum{
   eSVH_DIMENSION //9
 } typedef SVHChannel;
 
-
 /*!
  * \brief This class controls the the SCHUNK five finger hand.
  *

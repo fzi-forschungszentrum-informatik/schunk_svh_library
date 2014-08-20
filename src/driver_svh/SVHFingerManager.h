@@ -202,7 +202,7 @@ public:
   void requestControllerState();
 
 
-  // These 3 functions could be private but where made public for printing and debug puroses. As there is no harm to it it should not be a problem
+  // These 3 functions could be private but where made public for printing and debug purposes. As there is no harm to it it should not be a problem
 
   //! \brief get default parameters for position settings DURING RESET
   std::vector<SVHPositionSettings> getPositionSettingsDefaultResetParameters();

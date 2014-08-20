@@ -9,12 +9,13 @@
  * \author  Lars Pfotzer
  * \author  Georg Heppner
  * \date    2014-01-30
+ * \date    2014-08-20
  *
  * This file contains the Finger Manager
  * that is managing the Schunk five finger hand on a high level.
  * The fingermanager is responsible to filter all calls and only make
  * allowed calls to the controller. The fingermanager is also responsible
- * for storing any kind of Konfiguration (like current controller settings).
+ * for storing any kind of configuration (like current controller settings).
  * The fingermanager is also responsible to poll the controller for continious data (if wanted)
  *
  *

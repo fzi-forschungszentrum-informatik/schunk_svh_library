@@ -91,7 +91,7 @@ public:
    * \param channel Motorchanel to set the target for
    * \param position Target position for the channel given in encoder Ticks
    */
-  void setControllerTarget(const SVHCHANNEL& channel, const uint32_t& position);
+  void setControllerTarget(const SVHCHANNEL& channel, const int32_t &position);
 
   /*!
    * \brief Setting new position controller target for all fingers

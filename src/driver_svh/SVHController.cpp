@@ -39,7 +39,6 @@ using icl_comm::ArrayBuilder;
  * - Data about the positions and currents is currently pulled by the fingermanager -> this could be enhanced by using mutexes to inform higher layers about changes
  * - Sanity checks of set values to ensure safe access that will impose absolute hardware limits (i.e. CurrentSettings)
  * - Increase logging output
- * - bool isEnabled(const SVHCHANNEL &channel); --> Check if the finger was actually turned on by evaluating (PWM_RESET & (1 << Channel))
  * - Sanity check against the firmware information
  */
 
@@ -68,8 +67,6 @@ SVHController::SVHController():
   m_enable_mask(0),
   m_received_package_count(0)
 {
-
-
 }
 
 SVHController::~SVHController()
@@ -99,10 +96,10 @@ void SVHController::disconnect()
   m_serial_interface->close();
 }
 
-void SVHController::setControllerTarget(const SVHCHANNEL& channel, const uint32_t& position)
+void SVHController::setControllerTarget(const SVHCHANNEL& channel, const int32_t& position)
 {
-  // TODO Opt: Sanity checks for position
-  if (channel != eSVH_ALL)
+  // No Sanity Checks for out of bounds positions at this point as the finger manager has already handled these
+  if ((channel != eSVH_ALL) && (channel >=0 && channel < eSVH_DIMENSION))
   {
     // The channel is encoded in the index byte
     SVHSerialPacket serial_packet(0,SVH_SET_CONTROL_COMMAND|static_cast<uint8_t>(channel << 4));
@@ -113,7 +110,7 @@ void SVHController::setControllerTarget(const SVHCHANNEL& channel, const uint32_
     serial_packet.data = ab.array;
     m_serial_interface ->sendPacket(serial_packet);
 
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "Control command was given for channel: "<< channel << "Driving motor to position: "<< position << endl);
+    LOGGING_TRACE_C(DriverSVH, SVHController, "Control command was given for channel: "<< channel << "Driving motor to position: "<< position << endl);
   }
   else
   {
@@ -134,10 +131,12 @@ void SVHController::setControllerTargetAllChannels(const std::vector<int32_t> &p
 
    LOGGING_TRACE_C(DriverSVH, SVHController, "Control command was given for all channels: Driving motors to positions: "<< positions[0] << " , " << positions[1] << " , " << positions[2] << " , " << positions[3] << " , " << positions[4] << " , " << positions[5] << " , " << positions[6] << " , " << positions[7] << " , " << positions[8] << " , " << endl);
   }
-  // TODO: We could allow for fewer positions to be set. As it would be hard to decice what to do with other channels we will leave this out for now
+  // We could theoretically allow fewer channels but this leaves some questions. Are the given channels in right order?
+  // was it realy intented to just give fewer positions? What to do witht the ones that did not get anything?
+  // Just disallowing it seems to be the most understandable decission.
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHController, "Control command was given for all channels but with to few points. Expected at least "<< eSVH_DIMENSION << " values but only got " << positions.size() << "use the individual setTarget function for this" << endl);
+    LOGGING_WARNING_C(DriverSVH, SVHController, "Control command was given for all channels but with to few points. Expected at least "<< eSVH_DIMENSION << " values but only got " << positions.size() << "use the individual setTarget function for this" << endl);
   }
 }
 
@@ -151,7 +150,7 @@ void SVHController::enableChannel(const SVHCHANNEL &channel)
   if (m_enable_mask == 0)
   {
     LOGGING_DEBUG_C(DriverSVH, SVHController, "Enable was called and no channel was previously activated, commands are sent individually......" << endl);
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "Sending pwm_fault and pwm_otw...(0x001F)" << endl);
+    LOGGING_DEBUG_C(DriverSVH, SVHController, "Sending pwm_fault and pwm_otw...(0x001F) to reset software warnings" << endl);
     // Reset faults and overtemperature warnings saved in the controller
     controller_state.pwm_fault = 0x001F;
     controller_state.pwm_otw   = 0x001F;
@@ -160,10 +159,10 @@ void SVHController::enableChannel(const SVHCHANNEL &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
-    // Small delays seem to make communication at this point more reliable although they should NOT be necessary
+    // Small delays seem to make communication at this point more reliable although they SHOULD NOT be necessary
     icl_core::os::usleep(2000);
 
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "Enabling 12V Driver (pwm_reset and pwm_active)..." << endl);
+    LOGGING_DEBUG_C(DriverSVH, SVHController, "Enabling 12V Driver (pwm_reset and pwm_active = =0x0200)..." << endl);
     // enable +12v supply driver
     controller_state.pwm_reset = 0x0200;
     controller_state.pwm_active = 0x0200;
@@ -188,22 +187,16 @@ void SVHController::enableChannel(const SVHCHANNEL &channel)
     LOGGING_DEBUG_C(DriverSVH, SVHController, "...Done" << endl);
   }
 
-  // enable actual channels (again we only accept individual channels)
+  // enable actual channels (again we only accept individual channels for safety)
   if (channel >=0 && channel < eSVH_DIMENSION)
   {
     LOGGING_DEBUG_C(DriverSVH, SVHController, "Enabling motor: "<< channel << endl);
     // oring all channels to create the activation mask-> high = channel active
     m_enable_mask |= (1<<channel);
 
-    // SENDING ALL AT ONCE WILL LEAD TO "Jumping" behaviour of the controller on faster Systems ---> this seems to have to
+    // SENDING EVERYTHING AT ONCE WILL LEAD TO "Jumping" behaviour of the controller on faster Systems ---> this has to
     // do with the initialization of the hardware controllers. If we split it in two calls we will reset them first and then activate
-    // making sure that all values are initialized properly
-//    controller_state.pwm_fault  = 0x001F;
-//    controller_state.pwm_otw    = 0x001F;
-//    controller_state.pwm_reset  = (0x0200 | (m_enable_mask & 0x01FF));
-//    controller_state.pwm_active = (0x0200 | (m_enable_mask & 0x01FF));
-//    controller_state.pos_ctrl   = 0x0001;
-//    controller_state.cur_ctrl   = 0x0001;
+    // making sure that all values are initialized properly effectively preventing any jumping behaviour
     ab.reset(40);
     controller_state.pwm_fault = 0x001F;
     controller_state.pwm_otw   = 0x001F;
@@ -223,13 +216,6 @@ void SVHController::enableChannel(const SVHCHANNEL &channel)
     serial_packet.data = ab.array;
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
-
-    // remove this
-//    icl_core::os::usleep(500);
-
-//    ab << controller_state;
-//    serial_packet.data = ab.array;
-//    m_serial_interface ->sendPacket(serial_packet);
   }
   else
   {

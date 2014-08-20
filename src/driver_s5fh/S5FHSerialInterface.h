@@ -12,19 +12,21 @@
  * \date    2014-07-16
  *
  * This file contains the S5FHSerialInterface class that is used to
- * handle the protocoll overhead of the serial communication.
+ * handle the protocol overhead of the serial communication.
  * It uses an icl_comm serial device that opens the physical connection and
  * is responsible to manage this hardware resource as well as protocoll issues
- * like sync bytes, checksum calculation and counting of packets send and received.
+ * like sync bytes, checksum calculation and counting of packets sent and received.
  */
 //----------------------------------------------------------------------
 #ifndef DRIVER_S5FH_S5FH_SERIAL_INTERFACE_H_INCLUDED
 #define DRIVER_S5FH_S5FH_SERIAL_INTERFACE_H_INCLUDED
 
+// Windows declarations
 #include <driver_s5fh/ImportExport.h>
+// Packet definition
 #include <driver_s5fh/S5FHSerialPacket.h>
+// Receiving end (polling thread as there is no event mechanism)
 #include <driver_s5fh/S5FHReceiveThread.h>
-
 // Hardware interface
 #include <icl_comm_serial/Serial.h>
 using icl_comm::serial::Serial;

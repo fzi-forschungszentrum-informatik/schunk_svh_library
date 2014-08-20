@@ -200,6 +200,20 @@ public:
   //! This is a debuging function. Should not be called by users
   void requestControllerState();
 
+
+  // These 3 functions could be private but where made public for printing and debug puroses. As there is no harm to it it should not be a problem
+
+  //! \brief get default parameters for position settings DURING RESET
+  std::vector<S5FHPositionSettings> getPositionSettingsDefaultResetParameters();
+
+  //! \brief get default parameters for current settings
+  std::vector<S5FHCurrentSettings> getCurrentSettingsDefaultParameters();
+
+  //! \brief get default parameters for position settings
+  std::vector<S5FHPositionSettings> getPositionSettingsDefaultParameters();
+
+
+
   #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
   /*!
    * \brief updateWebSocket Will gathe the current state of the hand and send it out via websocket
@@ -281,14 +295,7 @@ private:
   //! \brief set default parameters for home position
   void setHomePositionDefaultParameters();
 
-  //! \brief get default parameters for current settings
-  std::vector<S5FHCurrentSettings> getCurrentSettingsDefaultParameters();
 
-  //! \brief get default parameters for position settings
-  std::vector<S5FHPositionSettings> getPositionSettingsDefaultParameters();
-
-  //! \brief get default parameters for position settings DURING RESET
-  std::vector<S5FHPositionSettings> getPositionSettingsDefaultResetParameters();
 
   //!
   //! \brief Converts joint positions of a specific channel from RAD to ticks

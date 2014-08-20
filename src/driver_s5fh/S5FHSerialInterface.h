@@ -82,6 +82,12 @@ public:
    */
   void resetTransmitPackageCount();
 
+  /*!
+   * \brief printPacketOnConsole is a pure helper function to show what raw data is actually sent. This is not meant for any productive use other than understand whats going on.
+   * \param packet the prepared Serial Packet(without header information and such)
+   */
+  void printPacketOnConsole(S5FHSerialPacket &packet);
+
 private:
 
   //! serial device connected state
@@ -101,6 +107,9 @@ private:
 
   //! packet counters
   unsigned int m_packets_transmitted;
+
+  //! packet counter simulation for pure showing purposes
+  unsigned int m_dummy_packets_printed;
 };
 
 }

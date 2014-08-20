@@ -169,4 +169,32 @@ void S5FHSerialInterface::resetTransmitPackageCount()
   m_packets_transmitted = 0;
 }
 
+void S5FHSerialInterface::printPacketOnConsole(S5FHSerialPacket &packet)
+{
+
+  uint8_t check_sum1 = 0;
+  uint8_t check_sum2 = 0;
+
+  // Calculate Checksum for the packet
+  for (size_t i = 0; i < packet.data.size(); i++)
+  {
+    check_sum1 += packet.data[i];
+    check_sum2 ^= packet.data[i];
+  }
+
+  // set packet counter
+  packet.index = static_cast<uint8_t>(m_dummy_packets_printed % uint8_t(-1));
+
+
+  // Prepare arraybuilder
+  size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
+  icl_comm::ArrayBuilder send_array(size);
+  // Write header and packet information and checksum
+  send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
+
+  std::cout << send_array << std::endl;
+
+  m_dummy_packets_printed++;
+}
+
 }

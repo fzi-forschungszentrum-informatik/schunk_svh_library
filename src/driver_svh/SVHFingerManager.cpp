@@ -134,13 +134,13 @@ bool SVHFingerManager::connect(const std::string &dev_name)
       for (size_t i = 0; i < eSVH_DIMENSION; ++i)
       {
         // request controller feedback
-        m_controller->requestControllerFeedback(static_cast<SVHCHANNEL>(i));
+        m_controller->requestControllerFeedback(static_cast<SVHChannel>(i));
 
         // set position settings
-        m_controller->setPositionSettings(static_cast<SVHCHANNEL>(i), default_position_settings[i]);
+        m_controller->setPositionSettings(static_cast<SVHChannel>(i), default_position_settings[i]);
 
         // set current settings
-        m_controller->setCurrentSettings(static_cast<SVHCHANNEL>(i), default_current_settings[i]);
+        m_controller->setCurrentSettings(static_cast<SVHChannel>(i), default_current_settings[i]);
       }
 
       // check for correct response from hardware controller
@@ -206,7 +206,7 @@ void SVHFingerManager::disconnect()
 }
 
 //! reset function for a single finger
-bool SVHFingerManager::resetChannel(const SVHCHANNEL &channel)
+bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 {
   if (m_connected)
   {
@@ -223,7 +223,7 @@ bool SVHFingerManager::resetChannel(const SVHCHANNEL &channel)
         bool reset_success = false;
         while (!reset_success && max_reset_counter > 0)
         {
-          SVHCHANNEL channel = static_cast<SVHCHANNEL>(m_reset_order[i]);
+          SVHChannel channel = static_cast<SVHChannel>(m_reset_order[i]);
           reset_success = resetChannel(channel);
           max_reset_counter--;
         }
@@ -378,8 +378,8 @@ bool SVHFingerManager::resetChannel(const SVHCHANNEL &channel)
   }
 }
 
-//! enables controller of channel
-bool SVHFingerManager::enableChannel(const SVHCHANNEL &channel)
+// enables controller of channel
+bool SVHFingerManager::enableChannel(const SVHChannel &channel)
 {
   if (isConnected() && isHomed(channel))
   {
@@ -388,7 +388,7 @@ bool SVHFingerManager::enableChannel(const SVHCHANNEL &channel)
       for (size_t i = 0; i < eSVH_DIMENSION; ++i)
       {
         // Just for safety, enable chanels in the same order as we have resetted them (otherwise developers might geht confused)
-        SVHCHANNEL real_channel = static_cast<SVHCHANNEL>(m_reset_order[i]);
+        SVHChannel real_channel = static_cast<SVHChannel>(m_reset_order[i]);
         if (!m_is_switched_off[real_channel])
         {
           // recursion to get the other updates corresponing with activation of a channel
@@ -427,13 +427,13 @@ bool SVHFingerManager::enableChannel(const SVHCHANNEL &channel)
   return false;
 }
 
-void SVHFingerManager::disableChannel(const SVHCHANNEL &channel)
+void SVHFingerManager::disableChannel(const SVHChannel &channel)
 {
   if (channel == eSVH_ALL)
   {
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
-      disableChannel(static_cast<SVHCHANNEL>(i));
+      disableChannel(static_cast<SVHChannel>(i));
     }
   }
   else
@@ -457,7 +457,7 @@ void SVHFingerManager::disableChannel(const SVHCHANNEL &channel)
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
       // Aggain only check channels that are not switched off. Switched off channels will always answer that they are enabled
-      all_disabled = all_disabled && (m_is_switched_off[channel] ||!isEnabled(static_cast<SVHCHANNEL>(i)));
+      all_disabled = all_disabled && (m_is_switched_off[channel] ||!isEnabled(static_cast<SVHChannel>(i)));
     }
     if (all_disabled)
     {
@@ -467,7 +467,7 @@ void SVHFingerManager::disableChannel(const SVHCHANNEL &channel)
   }
 }
 
-bool SVHFingerManager::requestControllerFeedback(const SVHCHANNEL &channel)
+bool SVHFingerManager::requestControllerFeedback(const SVHChannel &channel)
 {
   if (isConnected() && isHomed(channel) && isEnabled(channel))
   {
@@ -480,7 +480,7 @@ bool SVHFingerManager::requestControllerFeedback(const SVHCHANNEL &channel)
 }
 
 //! returns actual position value for given channel
-bool SVHFingerManager::getPosition(const SVHCHANNEL &channel, double &position)
+bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
 {
   SVHControllerFeedback controller_feedback;
   if ((channel >=0 && channel < eSVH_DIMENSION) && isHomed(channel) && m_controller->getControllerFeedback(channel, controller_feedback))
@@ -535,7 +535,7 @@ void SVHFingerManager::updateWebSocket()
     // NOTE: Although the call to getPosition and current cann fail due to multiple reason, the only one we would encounter with these calls is a
     // non-homed finger. So it is quite safe to assume that the finger is NOT homed if these calls fail and we can safe multiple acces to the homed variable
 
-    if (getPosition(static_cast<SVHCHANNEL>(i),position)) // && (getCurrent(i,current))
+    if (getPosition(static_cast<SVHChannel>(i),position)) // && (getCurrent(i,current))
     {
       m_ws_broadcaster->robot->setJointPosition(position,i);
       //m_ws_broadcaster>robot>setJpintCurrent(current,i); // will be implemented in future releases
@@ -558,7 +558,7 @@ void SVHFingerManager::updateWebSocket()
 
 
 // returns actual current value for given channel
-bool SVHFingerManager::getCurrent(const SVHCHANNEL &channel, double &current)
+bool SVHFingerManager::getCurrent(const SVHChannel &channel, double &current)
 {
   SVHControllerFeedback controller_feedback;
   if ((channel >=0 && channel < eSVH_DIMENSION) && isHomed(channel) && m_controller->getControllerFeedback(channel, controller_feedback))
@@ -573,7 +573,7 @@ bool SVHFingerManager::getCurrent(const SVHCHANNEL &channel, double &current)
   }
 }
 
-bool SVHFingerManager::getCurrentControllerParams(const SVHCHANNEL &channel, SVHCurrentSettings &current_settings)
+bool SVHFingerManager::getCurrentControllerParams(const SVHChannel &channel, SVHCurrentSettings &current_settings)
 {
   if (channel >=0 && channel < eSVH_DIMENSION)
   {
@@ -586,7 +586,7 @@ bool SVHFingerManager::getCurrentControllerParams(const SVHCHANNEL &channel, SVH
   }
 }
 
-bool SVHFingerManager::getPositionControllerParams(const SVHCHANNEL &channel, SVHPositionSettings &position_settings)
+bool SVHFingerManager::getPositionControllerParams(const SVHChannel &channel, SVHPositionSettings &position_settings)
 {
   if (channel >=0 && channel < eSVH_DIMENSION)
   {
@@ -613,7 +613,7 @@ bool SVHFingerManager::setAllTargetPositions(const std::vector<double>& position
       bool reject_command = false;
       for (size_t i = 0; i < eSVH_DIMENSION; ++i)
       {
-        SVHCHANNEL channel = static_cast<SVHCHANNEL>(i);
+        SVHChannel channel = static_cast<SVHChannel>(i);
 
         // enable all homed and disabled channels.. except its switched of
         if (!m_is_switched_off[channel] && isHomed(channel) && !isEnabled(channel))
@@ -657,7 +657,7 @@ bool SVHFingerManager::setAllTargetPositions(const std::vector<double>& position
   }
 }
 
-bool SVHFingerManager::setTargetPosition(const SVHCHANNEL &channel, double position, double current)
+bool SVHFingerManager::setTargetPosition(const SVHChannel &channel, double position, double current)
 {
   if (isConnected())
   {
@@ -714,7 +714,7 @@ bool SVHFingerManager::setTargetPosition(const SVHCHANNEL &channel, double posit
 }
 
 // overwrite current parameters
-bool SVHFingerManager::setCurrentControllerParams(const SVHCHANNEL &channel, const SVHCurrentSettings &current_settings)
+bool SVHFingerManager::setCurrentControllerParams(const SVHChannel &channel, const SVHCurrentSettings &current_settings)
 {
   if (channel >=0 && channel < eSVH_DIMENSION)
   {
@@ -728,7 +728,7 @@ bool SVHFingerManager::setCurrentControllerParams(const SVHCHANNEL &channel, con
 }
 
 // overwrite position parameters
-bool SVHFingerManager::setPositionControllerParams(const SVHCHANNEL &channel, const SVHPositionSettings &position_settings)
+bool SVHFingerManager::setPositionControllerParams(const SVHChannel &channel, const SVHPositionSettings &position_settings)
 {
   if (channel >=0 && channel < eSVH_DIMENSION)
   {
@@ -742,14 +742,14 @@ bool SVHFingerManager::setPositionControllerParams(const SVHCHANNEL &channel, co
 }
 
 // return enable flag
-bool SVHFingerManager::isEnabled(const SVHCHANNEL &channel)
+bool SVHFingerManager::isEnabled(const SVHChannel &channel)
 {
   if (channel==eSVH_ALL)
   {
     bool all_enabled = true;
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
-      all_enabled = all_enabled && isEnabled(static_cast<SVHCHANNEL>(i));
+      all_enabled = all_enabled && isEnabled(static_cast<SVHChannel>(i));
     }
 
     return all_enabled;
@@ -767,14 +767,14 @@ bool SVHFingerManager::isEnabled(const SVHCHANNEL &channel)
 }
 
 //! return homed flag
-bool SVHFingerManager::isHomed(const SVHCHANNEL &channel)
+bool SVHFingerManager::isHomed(const SVHChannel &channel)
 {
   if (channel == eSVH_ALL)
   {
     bool all_homed = true;
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
-      all_homed = all_homed && isHomed(static_cast<SVHCHANNEL>(i));
+      all_homed = all_homed && isHomed(static_cast<SVHChannel>(i));
     }
 
     return all_homed;
@@ -964,7 +964,7 @@ std::vector<SVHPositionSettings> SVHFingerManager::getPositionSettingsDefaultPar
 }
 
 // Converts joint positions of a specific channel from RAD to ticks
-int32_t SVHFingerManager::convertRad2Ticks(const SVHCHANNEL &channel, double position)
+int32_t SVHFingerManager::convertRad2Ticks(const SVHChannel &channel, double position)
 {
   int32_t target_position = static_cast<int32_t>(position / m_ticks2rad[channel]);
 
@@ -981,7 +981,7 @@ int32_t SVHFingerManager::convertRad2Ticks(const SVHCHANNEL &channel, double pos
 }
 
 // Check bounds of target positions
-bool SVHFingerManager::isInsideBounds(const SVHCHANNEL &channel, const int32_t &target_position)
+bool SVHFingerManager::isInsideBounds(const SVHChannel &channel, const int32_t &target_position)
 {
   // Switched off channels will always be reported as inside bounds
   return (m_is_switched_off[channel] || ((target_position >= m_position_min[channel]) && (target_position <= m_position_max[channel])));

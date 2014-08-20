@@ -83,21 +83,21 @@ public:
   //! \param channel
   //! \return
   //!
-  bool resetChannel(const SVHCHANNEL &channel);
+  bool resetChannel(const SVHChannel &channel);
 
   //!
   //! \brief enable controller of channel
   //! \param channel
   //! \return
   //!
-  bool enableChannel(const SVHCHANNEL &channel);
+  bool enableChannel(const SVHChannel &channel);
 
   //!
   //! \brief disable controller of channel
   //! \param channel
   //! \return
   //!
-  void disableChannel(const SVHCHANNEL &channel);
+  void disableChannel(const SVHChannel &channel);
 
   //!
   //! \brief sends request controller feedback packet for all channels
@@ -110,7 +110,7 @@ public:
   //! \param channel
   //! \return
   //!
-  bool requestControllerFeedback(const SVHCHANNEL &channel);
+  bool requestControllerFeedback(const SVHChannel &channel);
 
   //!
   //! \brief returns position value of channel
@@ -118,7 +118,7 @@ public:
   //! \param position
   //! \return bool
   //!
-  bool getPosition(const SVHCHANNEL &channel, double &position);
+  bool getPosition(const SVHChannel &channel, double &position);
 
   //!
   //! \brief returns current value of channel
@@ -126,7 +126,7 @@ public:
   //! \param current
   //! \return bool
   //!
-  bool getCurrent(const SVHCHANNEL &channel, double &current);
+  bool getCurrent(const SVHChannel &channel, double &current);
 
   //!
   //! \brief returns actual current controller settings of channel
@@ -134,7 +134,7 @@ public:
   //! \param current_settings
   //! \return
   //!
-  bool getCurrentControllerParams(const SVHCHANNEL &channel, SVHCurrentSettings &current_settings);
+  bool getCurrentControllerParams(const SVHChannel &channel, SVHCurrentSettings &current_settings);
 
   //!
   //! \brief returns actual position controller settings of channel
@@ -142,7 +142,7 @@ public:
   //! \param position_settings
   //! \return
   //!
-  bool getPositionControllerParams(const SVHCHANNEL &channel, SVHPositionSettings &position_settings);
+  bool getPositionControllerParams(const SVHChannel &channel, SVHPositionSettings &position_settings);
 
   //!
   //! \brief set all target positions at once
@@ -158,7 +158,7 @@ public:
   //! \param current
   //! \return
   //!
-  bool setTargetPosition(const SVHCHANNEL &channel, double position, double current);
+  bool setTargetPosition(const SVHChannel &channel, double position, double current);
 
   //!
   //! \brief overwrite current parameters
@@ -166,7 +166,7 @@ public:
   //! \param current_settings
   //! \return
   //!
-  bool setCurrentControllerParams(const SVHCHANNEL &channel, const SVHCurrentSettings &current_settings);
+  bool setCurrentControllerParams(const SVHChannel &channel, const SVHCurrentSettings &current_settings);
 
   //!
   //! \brief overwrite position parameters
@@ -174,21 +174,21 @@ public:
   //! \param position_settings
   //! \return
   //!
-  bool setPositionControllerParams(const SVHCHANNEL &channel, const SVHPositionSettings &position_settings);
+  bool setPositionControllerParams(const SVHChannel &channel, const SVHPositionSettings &position_settings);
 
   //!
   //! \brief returns true, if current channel has been enabled
   //! \param channel
   //! \return
   //!
-  bool isEnabled(const SVHCHANNEL &channel);
+  bool isEnabled(const SVHChannel &channel);
 
   //!
   //! \brief returns true, if current channel has been resetted
   //! \param channel
   //! \return
   //!
-  bool isHomed(const SVHCHANNEL &channel);
+  bool isHomed(const SVHChannel &channel);
 
   /*!
    * \brief setMovementState Updates the movement state of the overll hand indicating the overall status
@@ -281,7 +281,7 @@ private:
   MovementState m_movement_state;
 
   //! \brief vector storing the reset order of the channels
-  std::vector<SVHCHANNEL> m_reset_order;
+  std::vector<SVHChannel> m_reset_order;
 
   /*!
     * \brief Vector containing factors for the currents at reset.
@@ -304,7 +304,7 @@ private:
   //! \param position
   //! \return
   //!
-  int32_t convertRad2Ticks(const SVHCHANNEL &channel, double position);
+  int32_t convertRad2Ticks(const SVHChannel &channel, double position);
 
   //!
   //! \brief Check bounds of target positions
@@ -312,7 +312,7 @@ private:
   //! \param target_position
   //! \return
   //!
-  bool isInsideBounds(const SVHCHANNEL &channel, const int32_t &target_position);
+  bool isInsideBounds(const SVHChannel &channel, const int32_t &target_position);
 
   //!
   //! \brief readParametersFromConfigFile

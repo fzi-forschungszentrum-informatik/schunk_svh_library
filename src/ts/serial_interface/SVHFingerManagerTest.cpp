@@ -27,7 +27,7 @@ int main(int argc, const char* argv[])
   SVHFingerManager finger_manager;
   if (finger_manager.connect(serial_device_name))
   {
-    SVHCHANNEL test_channel = eSVH_ALL;
+    SVHChannel test_channel = eSVH_ALL;
 
     std::cout << "connected" << std::endl;
 

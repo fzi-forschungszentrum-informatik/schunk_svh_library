@@ -66,7 +66,7 @@ int main(int argc, const char* argv[])
   // initialize all channels
   for (size_t i = 0; i < eSVH_DIMENSION; ++i)
   {
-    SVHCHANNEL channel = SVHCHANNEL(i);
+    SVHChannel channel = SVHChannel(i);
 
     // request controller feedback
     std::cout << "sending request controller feedback" << std::endl;

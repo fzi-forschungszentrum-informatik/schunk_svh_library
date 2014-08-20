@@ -55,7 +55,7 @@ enum{
   eSVH_PINKY,
   eSVH_FINGER_SPREAD,
   eSVH_DIMENSION //9
-} typedef SVHCHANNEL;
+} typedef SVHChannel;
 
 
 /*!
@@ -91,7 +91,7 @@ public:
    * \param channel Motorchanel to set the target for
    * \param position Target position for the channel given in encoder Ticks
    */
-  void setControllerTarget(const SVHCHANNEL& channel, const int32_t &position);
+  void setControllerTarget(const SVHChannel& channel, const int32_t &position);
 
   /*!
    * \brief Setting new position controller target for all fingers
@@ -105,13 +105,13 @@ public:
    *  \brief Enable one or all motor channels
    *  \param channel Motor to activate
    */
-  void enableChannel(const SVHCHANNEL& channel);
+  void enableChannel(const SVHChannel& channel);
 
   /*!
    *  \brief Disable one or all motor channels
    *  \param channel Motor to deactivate
    */
-  void disableChannel(const SVHCHANNEL& channel);
+  void disableChannel(const SVHChannel& channel);
 
   //! Request current controller state (mainly usefull for debug purposes)
   void requestControllerState();
@@ -120,33 +120,33 @@ public:
    *  \brief request feedback (position and current) to a specific channel
    *  \param channel Motorchannel the feedback should be provided for
    */
-  void requestControllerFeedback(const SVHCHANNEL& channel);
+  void requestControllerFeedback(const SVHChannel& channel);
 
   /*!
    * \brief request the settings of the position controller for a specific channel
    * \param channel Motor to request the settings for
    */
-  void requestPositionSettings(const SVHCHANNEL& channel);
+  void requestPositionSettings(const SVHChannel& channel);
 
   /*!
    * \brief activate a new set of position controller settings for a specific channel
    * \param channel Motor the new position controller settings will be applied to
    * \param position_settings new settings of the position controller
    */
-  void setPositionSettings(const SVHCHANNEL& channel,const SVHPositionSettings& position_settings);
+  void setPositionSettings(const SVHChannel& channel,const SVHPositionSettings& position_settings);
 
   /*!
    * \brief request the settings of the current controller for a specific channel
    * \param channel Motor to request the settings for
    */
-  void requestCurrentSettings(const SVHCHANNEL& channel);
+  void requestCurrentSettings(const SVHChannel& channel);
 
   /*!
    * \brief activate a new set of current controller settings for a specific channel
    * \param channel Motor the new current controller settings will be applied to
    * \param current_settings new settings of the current controller
    */
-  void setCurrentSettings(const SVHCHANNEL& channel,const SVHCurrentSettings& current_settings);
+  void setCurrentSettings(const SVHChannel& channel,const SVHCurrentSettings& current_settings);
 
   /*!
    * \brief read out the mutipliers for the encoders from the hardware
@@ -183,7 +183,7 @@ public:
    * specifically been requested by using the getControllerFeedback() function
    *
    */
-   bool getControllerFeedback(const SVHCHANNEL &channel,SVHControllerFeedback& controller_feedback);
+   bool getControllerFeedback(const SVHChannel &channel,SVHControllerFeedback& controller_feedback);
 
    /*!
     * \brief request the latest stored positionsettings from the controller
@@ -191,7 +191,7 @@ public:
     * \param position_settings position settings to be returned
     * \return true if the request was succesfull false otherwise
     */
-   bool getPositionSettings(const SVHCHANNEL &channel,SVHPositionSettings& position_settings);
+   bool getPositionSettings(const SVHChannel &channel,SVHPositionSettings& position_settings);
 
    /*!
     * \brief request the latest stored currentsettings from the controller
@@ -199,7 +199,7 @@ public:
     * \param position_settings current settings to be returned
     * \return true if the request was succesfull false otherwise
     */
-   bool getCurrentSettings(const SVHCHANNEL &channel,SVHCurrentSettings& current_settings);
+   bool getCurrentSettings(const SVHChannel &channel,SVHCurrentSettings& current_settings);
 
    /*!
     * \brief get the latest stored Firmware information from the controller (NOT THE HARDWARE)
@@ -229,7 +229,7 @@ public:
     * \param channel to check
     * \return True if an enable has been send to the hardware
     */
-   bool isEnabled(const SVHCHANNEL &channel);
+   bool isEnabled(const SVHChannel &channel);
 
    //! Description values to get the corresponding string value to a channel enum
    static const char * m_channel_description[];

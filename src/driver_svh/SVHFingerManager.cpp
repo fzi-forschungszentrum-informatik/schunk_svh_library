@@ -234,7 +234,7 @@ bool SVHFingerManager::resetChannel(const SVHCHANNEL &channel)
         reset_all_success = reset_all_success && reset_success;
       }
 
-      // TODO: Set better movement state at this point
+      setMovementState(eST_RESETTED);
 
       return reset_all_success;
     }
@@ -246,14 +246,6 @@ bool SVHFingerManager::resetChannel(const SVHCHANNEL &channel)
       {
         LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
         m_controller->setPositionSettings(channel, getPositionSettingsDefaultResetParameters()[channel]);
-
-        // DEBUG -> Use different Thumb current controller settings. This is just a quick workaround to use different PID Values and will be fixed soon
-//        if (channel == eSVH_THUMB_OPPOSITION)
-//        {
-//           SVHCurrentSettings cur_set_thumb          = {-400.0f, 400.0f, 0.405f, 4e-6f, -400.0f, 400.0f, 0.850f, 85.0f, -500.0f, 500.0f};
-//           m_controller->setCurrentSettings(channel,cur_set_thumb);
-//        }
-        // TODO: DEBUG REMOVE ME
 
         // reset homed flag
         m_is_homed[channel] = false;
@@ -353,13 +345,6 @@ bool SVHFingerManager::resetChannel(const SVHCHANNEL &channel)
 
         LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
         m_controller->setPositionSettings(channel, getPositionSettingsDefaultParameters()[channel]);
-
-        // TODO DEBUG Quick fix for debugging PID parameters of the controllers this will be fixed soon
-//        if (channel == eSVH_THUMB_OPPOSITION)
-//        {
-//           m_controller->setCurrentSettings(channel,getCurrentSettingsDefaultParameters()[channel]);
-//        }
-        // TODO: DEBUG REMOVE ME
       }
       else
       {
@@ -423,13 +408,13 @@ bool SVHFingerManager::enableChannel(const SVHCHANNEL &channel)
         m_controller->enableChannel(channel);
       }
 
-    #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
       m_ws_broadcaster->robot->setJointEnabled(true,channel);
       if (!m_ws_broadcaster->sendState())
       {
         //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
       }
-    #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
       setMovementState(eST_PARTIALLY_ENABLED);
       if (isEnabled(eSVH_ALL))
@@ -482,17 +467,6 @@ void SVHFingerManager::disableChannel(const SVHCHANNEL &channel)
   }
 }
 
-bool SVHFingerManager::requestControllerFeedbackAllChannels()
-{
-  if (isConnected())
-  {
-    m_controller->requestControllerFeedbackAllChannels();
-    return true;
-  }
-
-  return false;
-}
-
 bool SVHFingerManager::requestControllerFeedback(const SVHCHANNEL &channel)
 {
   if (isConnected() && isHomed(channel) && isEnabled(channel))
@@ -530,14 +504,6 @@ bool SVHFingerManager::getPosition(const SVHCHANNEL &channel, double &position)
     }
 
     position = static_cast<double>(cleared_position_ticks * m_ticks2rad[channel]);
-
-     // DEBUG for PID Controllers -> this will be removed in future releases
-//    if (channel == eSVH_THUMB_OPPOSITION && !(controller_feedback == debug_feedback))
-//    {
-//      debug_feedback = controller_feedback;
-//      std::cout << "Thumb Oppositon Feedback Ticks: " << controller_feedback.position << " cleared: " <<cleared_position_ticks << " Rad: " << position << "curr: " << controller_feedback.current << std::endl;
-//      //m_controller->requestControllerState();
-//    }
 
     // Safety overwrite: If controller drives to a negative position (should not happen but might in case the soft stops are placed badly)
     // we cannot get out because inputs smaller than 0 will be ignored
@@ -591,7 +557,7 @@ void SVHFingerManager::updateWebSocket()
 
 
 
-//! returns actual current value for given channel
+// returns actual current value for given channel
 bool SVHFingerManager::getCurrent(const SVHCHANNEL &channel, double &current)
 {
   SVHControllerFeedback controller_feedback;
@@ -633,7 +599,7 @@ bool SVHFingerManager::getPositionControllerParams(const SVHCHANNEL &channel, SV
   }
 }
 
-//! set all target positions at once
+// set all target positions at once
 bool SVHFingerManager::setAllTargetPositions(const std::vector<double>& positions)
 {
   if (isConnected())
@@ -747,7 +713,7 @@ bool SVHFingerManager::setTargetPosition(const SVHCHANNEL &channel, double posit
   }
 }
 
-//! overwrite current parameters
+// overwrite current parameters
 bool SVHFingerManager::setCurrentControllerParams(const SVHCHANNEL &channel, const SVHCurrentSettings &current_settings)
 {
   if (channel >=0 && channel < eSVH_DIMENSION)
@@ -761,7 +727,7 @@ bool SVHFingerManager::setCurrentControllerParams(const SVHCHANNEL &channel, con
   }
 }
 
-//! overwrite position parameters
+// overwrite position parameters
 bool SVHFingerManager::setPositionControllerParams(const SVHCHANNEL &channel, const SVHPositionSettings &position_settings)
 {
   if (channel >=0 && channel < eSVH_DIMENSION)
@@ -775,7 +741,7 @@ bool SVHFingerManager::setPositionControllerParams(const SVHCHANNEL &channel, co
   }
 }
 
-//! return enable flag
+// return enable flag
 bool SVHFingerManager::isEnabled(const SVHCHANNEL &channel)
 {
   if (channel==eSVH_ALL)
@@ -783,7 +749,7 @@ bool SVHFingerManager::isEnabled(const SVHCHANNEL &channel)
     bool all_enabled = true;
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
-      all_enabled = all_enabled && m_controller->isEnabled(static_cast<SVHCHANNEL>(i));
+      all_enabled = all_enabled && isEnabled(static_cast<SVHCHANNEL>(i));
     }
 
     return all_enabled;
@@ -808,7 +774,7 @@ bool SVHFingerManager::isHomed(const SVHCHANNEL &channel)
     bool all_homed = true;
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
-      all_homed = all_homed && m_is_homed[i];
+      all_homed = all_homed && isHomed(static_cast<SVHCHANNEL>(i));
     }
 
     return all_homed;

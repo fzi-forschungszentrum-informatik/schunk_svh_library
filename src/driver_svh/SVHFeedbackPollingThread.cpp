@@ -36,7 +36,7 @@ void SVHFeedbackPollingThread::run()
     {
       if (m_finger_manager->isConnected())
       {
-        m_finger_manager->requestControllerFeedbackAllChannels();
+        m_finger_manager->requestControllerFeedback(eSVH_ALL);
 
         // This would inform a websocket server about new states, disregard that.
         #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_

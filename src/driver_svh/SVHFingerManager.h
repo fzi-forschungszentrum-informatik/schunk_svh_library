@@ -45,6 +45,7 @@ public:
   {
     eST_DEACTIVATED,
     eST_RESETTING,
+    eST_RESETTED,
     eST_ENABLED,
     eST_PARTIALLY_ENABLED,
     eST_FAULT,
@@ -192,7 +193,7 @@ public:
   /*!
    * \brief setMovementState Updates the movement state of the overll hand indicating the overall status
    * \param state current movement state
-   * \note this is only used for monitoring purposes at the moment
+   * \note this is only used for monitoring purposes at the moment, driverwise there is no need to call it but it is used by web frontends
    */
   void setMovementState(const MovementState &state);
 

@@ -36,27 +36,27 @@ const uint8_t PACKET_HEADER1 = 0x4C;    //!< Header sync byte 1
 const uint8_t PACKET_HEADER2 = 0xAA;    //!< Header sync byte 2
 
 // adress constants for commands
-const uint8_t SVH_GET_CONTROL_FEEDBACK = 0x00;     //!< Request the position and current of a channel to be sent
-const uint8_t SVH_SET_CONTROL_COMMAND = 0x01;      //!< Sets the Target position of a channel
-const uint8_t SVH_GET_CONTROL_FEEDBACK_ALL = 0x02; //!< Requests the positions and currents of ALL channels
-const uint8_t SVH_SET_CONTROL_COMMAND_ALL = 0x03;  //!< Sends the target position to ALL the channels
-const uint8_t SVH_GET_POSITION_SETTINGS = 0x04;    //!< Requests the active settings of the position controller
-const uint8_t SVH_SET_POSITION_SETTINGS = 0x05;    //!< Sets new settings for the position controller
-const uint8_t SVH_GET_CURRENT_SETTINGS = 0x06;     //!< Requests the active settings of the current controllel
-const uint8_t SVH_SET_CURRENT_SETTINGS = 0x07;     //!< Sets new settings for the current controller
-const uint8_t SVH_GET_CONTROLLER_STATE = 0x08;     //!< Requests the state of the controller (active,faults,enabled channels)
-const uint8_t SVH_SET_CONTROLLER_STATE = 0x09;     //!< Sets new controller states (enable channels, clear faults)
-const uint8_t SVH_GET_ENCODER_VALUES = 0x0A;       //!< Request the current encoder scalings
-const uint8_t SVH_SET_ENCODER_VALUES = 0x0B;       //!< Set new encoder scalings
-const uint8_t SVH_GET_FIRMWARE_INFO = 0x0C;        //!< Request the firmware info to be transmitted
+const uint8_t SVH_GET_CONTROL_FEEDBACK      = 0x00; //!< Request the position and current of a channel to be sent
+const uint8_t SVH_SET_CONTROL_COMMAND       = 0x01; //!< Sets the target position of a channel
+const uint8_t SVH_GET_CONTROL_FEEDBACK_ALL  = 0x02; //!< Requests the positions and currents of ALL channels
+const uint8_t SVH_SET_CONTROL_COMMAND_ALL   = 0x03; //!< Sends the target position to ALL the channels
+const uint8_t SVH_GET_POSITION_SETTINGS     = 0x04; //!< Requests the active settings of the position controller
+const uint8_t SVH_SET_POSITION_SETTINGS     = 0x05; //!< Sets new settings for the position controller
+const uint8_t SVH_GET_CURRENT_SETTINGS      = 0x06; //!< Requests the active settings of the current controller
+const uint8_t SVH_SET_CURRENT_SETTINGS      = 0x07; //!< Sets new settings for the current controller
+const uint8_t SVH_GET_CONTROLLER_STATE      = 0x08; //!< Requests the state of the controller (active,faults,enabled channels)
+const uint8_t SVH_SET_CONTROLLER_STATE      = 0x09; //!< Sets new controller states (enable channels, clear faults)
+const uint8_t SVH_GET_ENCODER_VALUES        = 0x0A; //!< Request the current encoder scalings
+const uint8_t SVH_SET_ENCODER_VALUES        = 0x0B; //!< Set new encoder scalings
+const uint8_t SVH_GET_FIRMWARE_INFO         = 0x0C; //!< Request the firmware info to be transmitted
 
 /*!
  * \brief The SerialPacket holds the (non generated) header and data of one message to the SVH-Hardware
  */
 struct SVHSerialPacket
 {
-  //! \brief Continiously incremented counter per package
-  //! \note Continous counter is currently not used by this software, the hw will just copy the send counter back to the response
+  //! \brief Continuosly incremented counter per package
+  //! \note Continuous counter is currently not used by this software, the hw will just copy the send counter back to the response
   uint8_t index;
   //! Adress denotes the actual function of the package
   uint8_t address;
@@ -65,7 +65,7 @@ struct SVHSerialPacket
 
   /*!
    * \brief SVHSerialPacket contains the send and received data in raw format (bytewise)
-   * \param data_length initial size to set the data length to. NOTE: To Deserialize a packet this value HAS TO BE SET!
+   * \param data_length initial size to set the data length to. NOTE: To deserialize a packet this value HAS TO BE SET!
    */
   SVHSerialPacket(size_t _data_length=0,uint8_t _address = SVH_GET_CONTROL_FEEDBACK):
     address(_address),

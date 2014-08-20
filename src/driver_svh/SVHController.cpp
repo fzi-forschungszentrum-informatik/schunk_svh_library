@@ -99,13 +99,13 @@ void SVHController::disconnect()
   m_serial_interface->close();
 }
 
-void SVHController::setControllerTarget(const SVHCHANNEL& channel, const u_int32_t& position)
+void SVHController::setControllerTarget(const SVHCHANNEL& channel, const uint32_t& position)
 {
   // TODO Opt: Sanity checks for position
   if (channel != eSVH_ALL)
   {
     // The channel is encoded in the index byte
-    SVHSerialPacket serial_packet(0,SVH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
+    SVHSerialPacket serial_packet(0,SVH_SET_CONTROL_COMMAND|static_cast<uint8_t>(channel << 4));
     SVHControlCommand control_command(position);
     // Note the 40 byte ArrayBuilder initialization -> this is needed to get a zero padding in the serialpacket. Otherwise it would be shorter
     ArrayBuilder ab(40);
@@ -302,31 +302,29 @@ void SVHController::requestControllerFeedback(const SVHCHANNEL& channel)
 {
   if ((channel != eSVH_ALL) && (channel >=0 && channel < eSVH_DIMENSION))
   {
-    SVHSerialPacket serial_packet(40,SVH_GET_CONTROL_FEEDBACK|static_cast<u_int8_t>(channel << 4));
+    SVHSerialPacket serial_packet(40,SVH_GET_CONTROL_FEEDBACK|static_cast<uint8_t>(channel << 4));
     m_serial_interface ->sendPacket(serial_packet);
 
     LOGGING_DEBUG_C(DriverSVH, SVHController, "Controller feedback was requested for channel: "<< channel << endl);
 
   }
+  else if (channel == eSVH_ALL)
+  {
+    SVHSerialPacket serial_packet(40,SVH_GET_CONTROL_FEEDBACK_ALL);
+    m_serial_interface ->sendPacket(serial_packet);
+
+    LOGGING_DEBUG_C(DriverSVH, SVHController, "Controller feedback was requested for all channels " << endl);
+  }
   else
   {
     LOGGING_WARNING_C(DriverSVH, SVHController, "Controller feedback was requestet for unknown channel: "<< channel << "- ignoring request"<< endl);
   }
-
-}
-
-void SVHController::requestControllerFeedbackAllChannels()
-{
-   SVHSerialPacket serial_packet(40,SVH_GET_CONTROL_FEEDBACK_ALL);
-   m_serial_interface ->sendPacket(serial_packet);
-
-   LOGGING_DEBUG_C(DriverSVH, SVHController, "Controller feedback was requested for all channels " << endl);
 }
 
 
 void SVHController::requestPositionSettings(const SVHCHANNEL& channel)
 {
-  SVHSerialPacket serial_packet((SVH_GET_POSITION_SETTINGS| static_cast<u_int8_t>(channel << 4)),40);
+  SVHSerialPacket serial_packet((SVH_GET_POSITION_SETTINGS| static_cast<uint8_t>(channel << 4)),40);
   m_serial_interface ->sendPacket(serial_packet);
 }
 
@@ -335,7 +333,7 @@ void SVHController::setPositionSettings(const SVHCHANNEL& channel,const SVHPosit
 {
   if ((channel != eSVH_ALL) && (channel >=0 && channel < eSVH_DIMENSION))
   {
-    SVHSerialPacket serial_packet(0,SVH_SET_POSITION_SETTINGS|static_cast<u_int8_t>(channel << 4));
+    SVHSerialPacket serial_packet(0,SVH_SET_POSITION_SETTINGS|static_cast<uint8_t>(channel << 4));
     ArrayBuilder ab;
     ab << position_settings;
     serial_packet.data = ab.array;
@@ -356,16 +354,15 @@ void SVHController::setPositionSettings(const SVHCHANNEL& channel,const SVHPosit
 
 void SVHController::requestCurrentSettings(const SVHCHANNEL& channel)
 {
-  if (channel != eSVH_ALL)
+  if ((channel != eSVH_ALL) && (channel >=0 && channel < eSVH_DIMENSION))
   {
-    SVHSerialPacket serial_packet(40,(SVH_GET_CURRENT_SETTINGS|static_cast<u_int8_t>(channel << 4)));
+    SVHSerialPacket serial_packet(40,(SVH_GET_CURRENT_SETTINGS|static_cast<uint8_t>(channel << 4)));
     m_serial_interface ->sendPacket(serial_packet);
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "Get Current Settings can only be requested with a specific channel, ALL was selected " << endl);
+    LOGGING_WARNING_C(DriverSVH, SVHController, "Get Current Settings can only be requested with a specific channel, ALL or unknown channel:" << channel << "was selected " << endl);
   }
-
 }
 
 
@@ -373,7 +370,7 @@ void SVHController::setCurrentSettings(const SVHCHANNEL& channel,const SVHCurren
 {
   if ((channel != eSVH_ALL) && (channel >=0 && channel < eSVH_DIMENSION))
   {
-    SVHSerialPacket serial_packet(0,SVH_SET_CURRENT_SETTINGS|static_cast<u_int8_t>(channel << 4));
+    SVHSerialPacket serial_packet(0,SVH_SET_CURRENT_SETTINGS|static_cast<uint8_t>(channel << 4));
     ArrayBuilder ab;
     ab << current_settings;
     serial_packet.data = ab.array;
@@ -422,7 +419,7 @@ void SVHController::requestFirmwareInfo()
 void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsigned int packet_count)
 {
   // Extract Channel
-  u_int8_t channel = (packet.address >> 4 ) & 0x0F;
+  uint8_t channel = (packet.address >> 4 ) & 0x0F;
   // Prepare Data for conversion
   ArrayBuilder ab;
   ab.appendWithoutConversion(packet.data);
@@ -513,7 +510,7 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
 
 bool SVHController::getControllerFeedback(const SVHCHANNEL &channel,SVHControllerFeedback& controller_feedback)
 {
-  if(channel >= 0 && static_cast<u_int8_t>(channel) < m_controller_feedback.size())
+  if(channel >= 0 && static_cast<uint8_t>(channel) < m_controller_feedback.size())
   {
     controller_feedback = m_controller_feedback[channel];
     return true;
@@ -532,7 +529,7 @@ void SVHController::getControllerFeedbackAllChannels(SVHControllerFeedbackAllCha
 
 bool SVHController::getPositionSettings(const SVHCHANNEL &channel, SVHPositionSettings &position_settings)
 {
-  if(channel >= 0 && static_cast<u_int8_t>(channel) < m_position_settings.size())
+  if(channel >= 0 && static_cast<uint8_t>(channel) < m_position_settings.size())
   {
     position_settings = m_position_settings[channel];
     return true;
@@ -546,7 +543,7 @@ bool SVHController::getPositionSettings(const SVHCHANNEL &channel, SVHPositionSe
 
 bool SVHController::getCurrentSettings(const SVHCHANNEL &channel, SVHCurrentSettings &current_settings)
 {
-  if(channel >= 0 && static_cast<u_int8_t>(channel) < m_current_settings.size())
+  if(channel >= 0 && static_cast<uint8_t>(channel) < m_current_settings.size())
   {
     current_settings = m_current_settings[channel];
     return true;

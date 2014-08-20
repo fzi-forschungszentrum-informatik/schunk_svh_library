@@ -27,7 +27,7 @@ void receivedPacketCallback(const SVHSerialPacket& packet, unsigned int packet_c
   std::cout << "Received new packet with number " << packet_count << std::endl;
 
   // Extract Channel
-  u_int8_t channel = (packet.address >> 4 ) & 0x0F;
+  uint8_t channel = (packet.address >> 4 ) & 0x0F;
   // Prepare Data for conversion
   ArrayBuilder ab;
   ab.appendWithoutConversion(packet.data);

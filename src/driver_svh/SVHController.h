@@ -16,7 +16,8 @@
  * and holds all the data objects that can be queried externally.
  * The controller should not be queried by outside calls directly as it asumes
  * the calls to be non maleformed or contain out of bounds acces as this is handled
- * by the finger manager. Also note that the calls on this level should be made
+ * by the finger manager.Only minimal safeguards are in place.
+ * Also note that the calls on this level should be made
  * channel wise. The iteration of channels is done in the finger controller.
  *
  * Request and Get principle: As the communication with the hand had some issues with the bandwith
@@ -41,7 +42,7 @@
 
 namespace driver_svh {
 
-//! Channel indicates which motor to use in command calls. WARNING: DO NOT CHANGE THE ORDER OF THESE
+//! Channel indicates which motor to use in command calls. WARNING: DO NOT CHANGE THE ORDER OF THESE as it represents the hardware mapping
 enum{
   eSVH_ALL = -1,   // this should be used with care as not all functions support it yet
   eSVH_THUMB_FLEXION = 0,
@@ -71,14 +72,13 @@ public:
   SVHController();
 
   /*! SCHUNK five finger hand destructor
-   *  Destructor, Disable the serial device and shut down hand as far
-   *  as possible
+   *  Destructor, disable the serial device and shut down hand as far as possible
    */
   ~SVHController();
 
   /*!
-   * \brief open serial device connection
-   * \param dev_name system handle (filename in linux) to the device
+   * \brief Open serial device connection
+   * \param dev_name System handle (filename in linux) to the device
    * \return true if connect was successfull
    */
   bool connect(const std::string &dev_name);
@@ -87,15 +87,15 @@ public:
   void disconnect();
 
   /*!
-   * \brief set new position target for finger index
+   * \brief Set new position target for finger index
    * \param channel Motorchanel to set the target for
    * \param position Target position for the channel given in encoder Ticks
    */
-  void setControllerTarget(const SVHCHANNEL& channel, const u_int32_t& position);
+  void setControllerTarget(const SVHCHANNEL& channel, const uint32_t& position);
 
   /*!
-   * \brief setting new position controller target for all fingers
-   * \param positions target positions for all fingers, Only the first nine values will be evaluated
+   * \brief Setting new position controller target for all fingers
+   * \param positions Target positions for all fingers, Only the first nine values will be evaluated
    */
   void setControllerTargetAllChannels(const std::vector<int32_t>& positions);
 
@@ -113,7 +113,7 @@ public:
    */
   void disableChannel(const SVHCHANNEL& channel);
 
-  //! Request Current controller state (mainly usefull for debug purposes)
+  //! Request current controller state (mainly usefull for debug purposes)
   void requestControllerState();
 
   /*!
@@ -121,12 +121,6 @@ public:
    *  \param channel Motorchannel the feedback should be provided for
    */
   void requestControllerFeedback(const SVHCHANNEL& channel);
-
-  /*!
-   * \brief request feedback for ALL channels
-   */
-  // TODO: This function should be included in the regular requestControllerFeedback with all channels
-  void requestControllerFeedbackAllChannels();
 
   /*!
    * \brief request the settings of the position controller for a specific channel
@@ -270,7 +264,7 @@ private:
   SVHSerialInterface * m_serial_interface;
 
   //! Bitmask to tell which fingers are enabled
-  u_int16_t m_enable_mask;
+  uint16_t m_enable_mask;
 
   //! store how many packages where actually received. Updated every time the receivepacket callback is called
   unsigned int m_received_package_count;

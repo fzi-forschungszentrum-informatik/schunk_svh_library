@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
   SVHController controller;
   ArrayBuilder packet;
   SVHCHANNEL channel = eSVH_INDEX_FINGER_DISTAL;
-  SVHSerialPacket test_serial_packet(64,SVH_SET_CONTROL_COMMAND|static_cast<u_int8_t>(channel << 4));
+  SVHSerialPacket test_serial_packet(64,SVH_SET_CONTROL_COMMAND|static_cast<uint8_t>(channel << 4));
   SVHControllerFeedback test_controller_feedback(23,42);
   // Conversion
   payload << test_controller_feedback;
@@ -317,14 +317,14 @@ BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
 //  {
 //    std::cout << "Requesting feedback for channel : "<< i << " ........." << std::endl;
 //    // request controller feedback
-//    SVHSerialPacket serial_packet1(40,SVH_GET_CONTROL_FEEDBACK|static_cast<u_int8_t>(static_cast<SVHCHANNEL>(i) << 4));
+//    SVHSerialPacket serial_packet1(40,SVH_GET_CONTROL_FEEDBACK|static_cast<uint8_t>(static_cast<SVHCHANNEL>(i) << 4));
 //    serial_interface.printPacketOnConsole(serial_packet1);
 
 
 //    std::cout << "Transmitting position settings for channel : "<< i << " ........." << std::endl;
 
 //    // set position settings
-//    SVHSerialPacket serial_packet2(0,SVH_SET_POSITION_SETTINGS|static_cast<u_int8_t>(static_cast<SVHCHANNEL>(i) << 4));
+//    SVHSerialPacket serial_packet2(0,SVH_SET_POSITION_SETTINGS|static_cast<uint8_t>(static_cast<SVHCHANNEL>(i) << 4));
 //    ArrayBuilder ab2;
 //    ab2 << default_position_settings[i];
 //    serial_packet2.data = ab2.array;
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
 //    std::cout << "Transmitting current settings for channel : "<< i << " ........." << std::endl;
 
 //    // set current settings
-//    SVHSerialPacket serial_packet3(0,SVH_SET_CURRENT_SETTINGS|static_cast<u_int8_t>(static_cast<SVHCHANNEL>(i) << 4));
+//    SVHSerialPacket serial_packet3(0,SVH_SET_CURRENT_SETTINGS|static_cast<uint8_t>(static_cast<SVHCHANNEL>(i) << 4));
 //    ArrayBuilder ab3;
 //    ab3 << default_current_settings[i];
 //    serial_packet3.data = ab3.array;

@@ -147,7 +147,7 @@ bool SVHReceiveThread::receiveData()
       if (m_serial_device->Read(&length, sizeof(uint16_t)))
       {
         m_ab.appendWithoutConversion(length);
-        m_length = m_ab.readBack<u_int16_t>();
+        m_length = m_ab.readBack<uint16_t>();
         m_received_state = eRS_DATA;
       }
       break;

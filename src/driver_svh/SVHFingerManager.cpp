@@ -14,10 +14,9 @@
  * This file contains the Finger Manager
  * that is managing the Schunk five finger hand on a high level.
  * The fingermanager is responsible to filter all calls and only make
- * allowed calls to the controller. The fingermanager is also responsible
+ * allowed calls to the controller. The fingermanager is responsible
  * for storing any kind of configuration (like current controller settings).
  * The fingermanager is also responsible to poll the controller for continious data (if wanted)
- *
  *
  */
 //----------------------------------------------------------------------
@@ -78,11 +77,14 @@ SVHFingerManager::SVHFingerManager(const bool &autostart, const std::vector<bool
     }
   }
 
-
-  #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-  m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
-  m_ws_broadcaster->robot->setInputToRadFactor(1);
-  #endif
+  // TODO: The WS BROADCASTER IS KIND OF ANNOYING WHEN STARTET BUT NOT ACTIVE.. MAKE THIS BETTER
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  //m_ws_broadcaster =boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
+  if (m_ws_broadcaster)
+  {
+    //m_ws_broadcaster->robot->setInputToRadFactor(1);
+  }
+#endif
 
   // Try First Connect and Reset of all Fingers if autostart is enabled
   if (autostart && connect(dev_name))
@@ -354,13 +356,16 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
 
       m_is_homed[channel] = true;
-      #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      if (m_ws_broadcaster)
+      {
         m_ws_broadcaster->robot->setJointHomed(true,channel);
         if (!m_ws_broadcaster->sendState());
         {
           //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
         }
-      #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      }
+#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
       LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully homed channel " << channel << endl);
 
@@ -410,10 +415,13 @@ bool SVHFingerManager::enableChannel(const SVHChannel &channel)
       }
 
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-      m_ws_broadcaster->robot->setJointEnabled(true,channel);
-      if (!m_ws_broadcaster->sendState())
+      if (m_ws_broadcaster)
       {
-        //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
+        m_ws_broadcaster->robot->setJointEnabled(true,channel);
+        if (!m_ws_broadcaster->sendState())
+        {
+          //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
+        }
       }
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
@@ -444,13 +452,16 @@ void SVHFingerManager::disableChannel(const SVHChannel &channel)
       m_controller->disableChannel(channel);
     }
 
-  #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+    if (m_ws_broadcaster)
+    {
       m_ws_broadcaster->robot->setJointEnabled(false,channel);
       if (!m_ws_broadcaster->sendState())
       {
         //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
       }
-  #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+    }
+#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
     setMovementState(eST_PARTIALLY_ENABLED);
 
@@ -470,7 +481,7 @@ void SVHFingerManager::disableChannel(const SVHChannel &channel)
 
 bool SVHFingerManager::requestControllerFeedback(const SVHChannel &channel)
 {
-  if (isConnected() && isHomed(channel) && isEnabled(channel))
+  if (isConnected() )//&& isHomed(channel) && isEnabled(channel))
   {
     m_controller->requestControllerFeedback(channel);
     return true;
@@ -480,7 +491,7 @@ bool SVHFingerManager::requestControllerFeedback(const SVHChannel &channel)
   return false;
 }
 
-//! returns actual position value for given channel
+// returns actual position value for given channel
 bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
 {
   SVHControllerFeedback controller_feedback;
@@ -529,26 +540,29 @@ bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
 void SVHFingerManager::updateWebSocket()
 {
-  double position;
-  //double current // will be implemented in future releases
-  for (size_t i = 0; i < eSVH_DIMENSION; ++i)
+  if (m_ws_broadcaster)
   {
-    // NOTE: Although the call to getPosition and current cann fail due to multiple reason, the only one we would encounter with these calls is a
-    // non-homed finger. So it is quite safe to assume that the finger is NOT homed if these calls fail and we can safe multiple acces to the homed variable
+    double position;
+    //double current // will be implemented in future releases
+    for (size_t i = 0; i < eSVH_DIMENSION; ++i)
+    {
+      // NOTE: Although the call to getPosition and current cann fail due to multiple reason, the only one we would encounter with these calls is a
+      // non-homed finger. So it is quite safe to assume that the finger is NOT homed if these calls fail and we can safe multiple acces to the homed variable
 
-    if (getPosition(static_cast<SVHChannel>(i),position)) // && (getCurrent(i,current))
-    {
-      m_ws_broadcaster->robot->setJointPosition(position,i);
-      //m_ws_broadcaster>robot>setJpintCurrent(current,i); // will be implemented in future releases
-    }
-    else
-    {
-      m_ws_broadcaster->robot->setJointHomed(false,i);
-    }
+      if (isHomed(static_cast<SVHChannel>(i)) && getPosition(static_cast<SVHChannel>(i),position)) // && (getCurrent(i,current))
+      {
+        m_ws_broadcaster->robot->setJointPosition(position,i);
+        //m_ws_broadcaster>robot>setJointCurrent(current,i); // will be implemented in future releases
+      }
+      else
+      {
+        m_ws_broadcaster->robot->setJointHomed(false,i);
+      }
 
-    if (!m_ws_broadcaster->sendState())
-    {
-      //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
+      if (!m_ws_broadcaster->sendState())
+      {
+        //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
+      }
     }
   }
 }
@@ -751,20 +765,31 @@ bool SVHFingerManager::isEnabled(const SVHChannel &channel)
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
       all_enabled = all_enabled && isEnabled(static_cast<SVHChannel>(i));
+      if (!isEnabled(static_cast<SVHChannel>(i)))
+      {
+        LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "All finger enabled check failed: Channel: " << channel << " : " << SVHController::m_channel_description[i] << " is not enabled" << endl);
+      }
     }
 
     return all_enabled;
   }
-
-  // Switched off Channels will aways be reported as enabled to simulate everything is fine. Others need to ask the controller
-  // if the channel is realy switched on
-  // Note: i can see that based on the names this might lead to a little confusion... sorry about that but there are only limited number of
-  // words for not active ;) enabled refers to the actual state of the position and current controllers. So enabled
-  // means enabled on a hardware level. Switched off is a logical decission in this case. The user has specified this
-  // particular channel not to be used (due to hardware issues) and therefore the driver (aka the finger manager) will act
-  // AS IF the channel was enabled but is in fact switched off by the user. If you have a better variable name or a better
-  // idea how to handle that you are welcome to change it. (GH 2014-05-26)
-  return (m_is_switched_off[channel] || m_controller->isEnabled(channel));
+  else if (channel >=0 && channel < eSVH_DIMENSION)
+  {
+    // Switched off Channels will aways be reported as enabled to simulate everything is fine. Others need to ask the controller
+    // if the channel is realy switched on
+    // Note: i can see that based on the names this might lead to a little confusion... sorry about that but there are only limited number of
+    // words for not active ;) enabled refers to the actual state of the position and current controllers. So enabled
+    // means enabled on a hardware level. Switched off is a logical decission in this case. The user has specified this
+    // particular channel not to be used (due to hardware issues) and therefore the driver (aka the finger manager) will act
+    // AS IF the channel was enabled but is in fact switched off by the user. If you have a better variable name or a better
+    // idea how to handle that you are welcome to change it. (GH 2014-05-26)
+    return (m_is_switched_off[channel] || m_controller->isEnabled(channel));
+  }
+  else
+  {
+    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "isEnabled was requested for UNKNOWN Channel: " << channel << endl);
+    return false;
+  }
 }
 
 //! return homed flag
@@ -776,25 +801,40 @@ bool SVHFingerManager::isHomed(const SVHChannel &channel)
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
       all_homed = all_homed && isHomed(static_cast<SVHChannel>(i));
+      if (!isHomed(static_cast<SVHChannel>(i)))
+      {
+        LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "All finger homed check failed: Channel: " << i << " : " << SVHController::m_channel_description[i] << " is not homed" << endl);
+      }
     }
 
     return all_homed;
   }
-  // Channels that are switched off will always be reported as homed to simulate everything is fine. Others have to check
-  return (m_is_switched_off[channel] || m_is_homed[channel]);
+  else if (channel >=0 && channel < eSVH_DIMENSION)
+  {
+    // Channels that are switched off will always be reported as homed to simulate everything is fine. Others have to check
+    return (m_is_switched_off[channel] || m_is_homed[channel]);
+  }
+  else //should not happen but better be save than sorry
+  {
+    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "isHomed was requested for UNKNOWN Channel: " << channel << endl);
+    return false;
+  }
 }
 
 void SVHFingerManager::setMovementState(const SVHFingerManager::MovementState &state)
 {
   m_movement_state = state;
 
-  #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  if (m_ws_broadcaster)
+  {
     m_ws_broadcaster->robot->setMovementState(state);
     if (!m_ws_broadcaster->sendState())
     {
       //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
     }
-  #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  }
+#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
 
 }

@@ -29,6 +29,7 @@
 #include <driver_svh/SVHSerialPacket.h>
 
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 using icl_core::TimeSpan;
 using icl_core::thread::PeriodicThread;
@@ -52,7 +53,7 @@ public:
    * \param device handle of the serial device
    * \param received_callback function to call uppon finished packet
    */
-  SVHReceiveThread(const TimeSpan& period, Serial* device,
+  SVHReceiveThread(const TimeSpan& period, boost::shared_ptr<Serial> device,
                     ReceivedPacketCallback const & received_callback);
 
   //! Default DTOR
@@ -67,7 +68,7 @@ public:
 private:
 
   //! pointer to serial device object
-  Serial* m_serial_device;
+  boost::shared_ptr<Serial> m_serial_device;
 
   //! enum for receive packet state machine states
   enum

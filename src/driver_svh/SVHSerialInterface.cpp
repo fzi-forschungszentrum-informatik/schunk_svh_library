@@ -29,8 +29,6 @@ namespace driver_svh {
 
 SVHSerialInterface::SVHSerialInterface(ReceivedPacketCallback const & received_packet_callback) :
   m_connected(false),
-  m_serial_device(NULL),
-  m_receive_thread(NULL),
   m_received_packet_callback(received_packet_callback),
   m_packets_transmitted(0)
 {
@@ -38,7 +36,7 @@ SVHSerialInterface::SVHSerialInterface(ReceivedPacketCallback const & received_p
 
 SVHSerialInterface::~SVHSerialInterface()
 {
-  close();
+  //close();
 }
 
 bool SVHSerialInterface::connect(const std::string &dev_name)
@@ -47,9 +45,9 @@ bool SVHSerialInterface::connect(const std::string &dev_name)
   close();
 
   // create serial device
-  m_serial_device = new Serial(dev_name.c_str(), SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8));
+  m_serial_device.reset(new Serial(dev_name.c_str(), SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8)));
 
-  if (m_serial_device != NULL)
+  if (m_serial_device)
   {
     // open serial device
     if (!m_serial_device->Open())
@@ -65,9 +63,9 @@ bool SVHSerialInterface::connect(const std::string &dev_name)
   }
 
   // create receive thread
-  m_receive_thread = new SVHReceiveThread(TimeSpan(0, 500000), m_serial_device, m_received_packet_callback);
+  m_receive_thread.reset(new SVHReceiveThread(TimeSpan(0, 500000), m_serial_device, m_received_packet_callback));
 
-  if (m_receive_thread != NULL)
+  if (m_receive_thread)
   {
     // start receive thread
     if (!m_receive_thread->start())
@@ -93,24 +91,23 @@ void SVHSerialInterface::close()
   m_connected = false;
 
   // cancel and delete receive packet thread
-  if (m_receive_thread != NULL)
+  if (m_receive_thread)
   {
     // wait until thread has stopped
     m_receive_thread->stop();
     m_receive_thread->join();
 
-    delete m_receive_thread;
-    m_receive_thread = NULL;
+    m_receive_thread.reset();
+
     LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device receive thread was terminated." << endl);
   }
 
   // close and delete serial device handler
-  if (m_serial_device != NULL)
+  if (m_serial_device)
   {
     m_serial_device->Close();
 
-    delete m_serial_device;
-    m_serial_device = NULL;
+    m_serial_device.reset();
     LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device handle was closed and terminated." << endl);
   }
 }

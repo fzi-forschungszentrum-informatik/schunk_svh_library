@@ -23,12 +23,11 @@
 
 // Windows declarations
 #include <driver_svh/ImportExport.h>
-// Packet definition
+
 #include <driver_svh/SVHSerialPacket.h>
-// Receiving end (polling thread as there is no event mechanism)
 #include <driver_svh/SVHReceiveThread.h>
-// Hardware interface
 #include <icl_comm_serial/Serial.h>
+#include <boost/shared_ptr.hpp>
 using icl_comm::serial::Serial;
 
 namespace driver_svh {
@@ -96,13 +95,13 @@ private:
   bool m_connected;
 
   //! pointer to serial interface object
-  Serial *m_serial_device;
+  boost::shared_ptr<Serial> m_serial_device;
 
   //! cecksum calculation
   void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SVHSerialPacket& packet);
 
   //! thread for receiving serial packets
-  SVHReceiveThread *m_receive_thread;
+  boost::shared_ptr<SVHReceiveThread> m_receive_thread;
 
   //! Callback function for received packets
   ReceivedPacketCallback m_received_packet_callback;

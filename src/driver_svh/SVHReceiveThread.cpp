@@ -25,7 +25,7 @@ using icl_comm::ArrayBuilder;
 
 namespace driver_svh {
 
-SVHReceiveThread::SVHReceiveThread(const TimeSpan& period, Serial *device,
+SVHReceiveThread::SVHReceiveThread(const TimeSpan& period, boost::shared_ptr<Serial> device,
                                      ReceivedPacketCallback const & received_callback)
   : PeriodicThread("SVHReceiveThread", period),
     m_serial_device(device),
@@ -41,7 +41,7 @@ void SVHReceiveThread::run()
 {
   while (execute())
   {
-    if (m_serial_device != NULL)
+    if (m_serial_device)// != NULL)
     {
       if (m_serial_device->IsOpen())
       {

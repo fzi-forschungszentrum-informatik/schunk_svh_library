@@ -24,11 +24,23 @@
 #include <driver_svh/SVHController.h>
 #include <driver_svh/SVHFeedbackPollingThread.h>
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-// Schunk Diagnostics addon
-#include <icl_comm_websocket/WsBroadcaster.h>
 #include <boost/shared_ptr.hpp>
+
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#include <icl_comm_websocket/WsBroadcaster.h>
+#else
+// Forward Deklaration of the WsBroadcaster
+// This is not needed for normal driver operation
+// but might be added later. To keep the interface the same
+// a forward declaration becomes necessary
+namespace icl_comm{
+namespace websocket{
+  class WsBroadcaster;
+}}// NS end
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
+
+
 
 namespace driver_svh {
 
@@ -231,9 +243,8 @@ public:
 
 private:
 
-    #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-    boost::shared_ptr<icl_comm::websocket::WsBroadcaster> m_ws_broadcaster;
-   #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  //! \brief Websocket handle for updating diagnostic backend (OPTIONAL)
+  boost::shared_ptr<icl_comm::websocket::WsBroadcaster> m_ws_broadcaster;
 
   //! \brief pointer to svh controller
   SVHController *m_controller;

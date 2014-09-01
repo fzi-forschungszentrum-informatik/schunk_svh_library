@@ -82,7 +82,7 @@ SVHFingerManager::SVHFingerManager(const bool &autostart, const std::vector<bool
   //m_ws_broadcaster =boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
   if (m_ws_broadcaster)
   {
-    //m_ws_broadcaster->robot->setInputToRadFactor(1);
+    m_ws_broadcaster->robot->setInputToRadFactor(1);
   }
 #endif
 
@@ -547,7 +547,7 @@ void SVHFingerManager::updateWebSocket()
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
       // NOTE: Although the call to getPosition and current cann fail due to multiple reason, the only one we would encounter with these calls is a
-      // non-homed finger. So it is quite safe to assume that the finger is NOT homed if these calls fail and we can safe multiple acces to the homed variable
+      // non-homed finger. So it is quite safe to assume that the finger is NOT homed if these calls fail and we can do without multiple acces to the homed variable
 
       if (isHomed(static_cast<SVHChannel>(i)) && getPosition(static_cast<SVHChannel>(i),position)) // && (getCurrent(i,current))
       {

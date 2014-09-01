@@ -33,16 +33,25 @@ ICMAKER_LOCAL_CPPDEFINES(-DDRIVER_SVH_EXPORT_SYMBOLS)
 ICMAKER_GLOBAL_CPPDEFINES(-D_IC_BUILDER_DRIVER_SVH_)
 ICMAKER_INCLUDE_DIRECTORIES(${DRIVER_SVH_INCLUDE_DIRS})
 
-ICMAKER_INTERNAL_DEPENDENCIES(
-  icl_core
+#non exported deps
+ICMAKER_DEPENDENCIES(
   icl_core_logging
   icl_core_config
+)
+
+#Exported deps
+ICMAKER_DEPENDENCIES(EXPORT
+  icl_core
   icl_core_thread
   icl_comm
   icl_comm_serial
-
-  icl_comm_websocket # OPTIONAL
 )
+
+# Websockets are a later expansion that is not considered at the moment but prepared for
+ICMAKER_DEPENDENCIES(OPTIONAL EXPORT
+ icl_comm_websocket
+)
+
 
 ICMAKER_BUILD_LIBRARY()
 ICMAKER_INSTALL_HEADERS(${icmaker_target})

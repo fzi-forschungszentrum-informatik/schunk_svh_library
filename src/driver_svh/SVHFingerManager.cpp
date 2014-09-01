@@ -29,16 +29,16 @@ namespace driver_svh {
 
 SVHFingerManager::SVHFingerManager(const bool &autostart, const std::vector<bool> &disable_mask, const std::string &dev_name) :
   m_controller(new SVHController()),
-  m_feedback_thread(NULL),
+  m_feedback_thread(),
   m_connected(false),
   m_homing_timeout(10),
   m_home_settings(0),
   m_ticks2rad(0),
-  m_position_min(std::vector<int32_t>(eSVH_DIMENSION, 0)),
-  m_position_max(std::vector<int32_t>(eSVH_DIMENSION, 0)),
-  m_position_home(std::vector<int32_t>(eSVH_DIMENSION, 0)),
-  m_is_homed(std::vector<bool>(eSVH_DIMENSION, false)),
-  m_is_switched_off(std::vector<bool>(eSVH_DIMENSION,false)),
+  m_position_min(eSVH_DIMENSION, 0),
+  m_position_max(eSVH_DIMENSION, 0),
+  m_position_home(eSVH_DIMENSION, 0),
+  m_is_homed(eSVH_DIMENSION, false),
+  m_is_switched_off(eSVH_DIMENSION,false),
   m_movement_state(eST_DEACTIVATED)
 {
   // load home position default parameters

@@ -23,6 +23,8 @@
 #include <driver_svh/ImportExport.h>
 #include <driver_svh/SVHController.h>
 #include <driver_svh/SVHFeedbackPollingThread.h>
+#include <driver_svh/SVHPositionSettings.h>
+#include <driver_svh/SVHCurrentSettings.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -217,13 +219,20 @@ public:
   // These 3 functions could be private but where made public for printing and debug purposes. As there is no harm to it it should not be a problem
 
   //! \brief get default parameters for position settings DURING RESET
-  std::vector<SVHPositionSettings> getPositionSettingsDefaultResetParameters();
+//  std::vector<SVHPositionSettings> getPositionSettingsDefaultResetParameters();
 
   //! \brief get default parameters for current settings
-  std::vector<SVHCurrentSettings> getCurrentSettingsDefaultParameters();
+  std::vector<SVHCurrentSettings> getCurrentSettings();
 
   //! \brief get default parameters for position settings
-  std::vector<SVHPositionSettings> getPositionSettingsDefaultParameters();
+  //! \parm reset true if the Positions settins are to be used during reset (reduced speed)
+  std::vector<SVHPositionSettings> getPositionSettings(const bool& reset = false);
+
+  //!
+  //! \brief setResetSpeed Set the speed percentage during reset
+  //! \param speed percent of the normal speed used during reset Allowed values 0.0-1.0
+  //!
+  void setResetSpeed(const float& speed);
 
 
 
@@ -254,6 +263,9 @@ private:
 
   //! \brief holds the connected state
   bool m_connected;
+
+  //! Helper variable to check if feedback was printed (will be replaced by a better solution in the future)
+  bool m_connection_feedback_given;
 
   //! \brief vector storing reset flags for each finger
   int8_t m_homing_timeout;
@@ -291,6 +303,19 @@ private:
   //! Overall movement State to indicate what the hand is doing at the moment
   MovementState m_movement_state;
 
+  //! Factor for determining the finger speed during reset. Only 0.0-1.0 is allowed
+  float m_reset_speed_factor;
+
+  //! vector of current controller parameters for each finger (as given by external config)
+  std::vector<SVHCurrentSettings> m_current_settings;
+  //! Information about the validity of externaly given values for the current settings (easier to use this way)
+  std::vector<bool> m_current_settings_given;
+
+  //! vector of position controller parameters for each finger (as given by external config)
+  std::vector<SVHPositionSettings> m_position_settings;
+  //! Information about the validity of externaly given values for the position settings (easier to use this way)
+  std::vector<bool> m_position_settings_given;
+
   //! \brief vector storing the reset order of the channels
   std::vector<SVHChannel> m_reset_order;
 
@@ -301,8 +326,6 @@ private:
     * Beware. Setting this value very high might result in damage to the motors during reset.
     */
   std::vector<double> m_reset_current_factor;
-
-
 
   //! \brief set default parameters for home position
   void setHomePositionDefaultParameters();

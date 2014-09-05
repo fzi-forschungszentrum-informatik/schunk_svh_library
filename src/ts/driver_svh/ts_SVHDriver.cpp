@@ -297,11 +297,11 @@ BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
 
 //  // load default position settings before the fingers are resetted
 //  std::vector<SVHPositionSettings> default_position_settings
-//      = finger_manager.getPositionSettingsDefaultResetParameters();
+//      = finger_manager.getPositionSettings(true);
 
 //  // load default current settings
 //  std::vector<SVHCurrentSettings> default_current_settings
-//      = finger_manager.getCurrentSettingsDefaultParameters();
+//      = finger_manager.getCurrentSettings();
 
 
 //  controller_state.pwm_fault = 0x001F;

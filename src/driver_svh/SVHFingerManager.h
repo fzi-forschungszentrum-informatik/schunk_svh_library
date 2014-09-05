@@ -70,7 +70,7 @@ public:
    * \param autostart if set to true, the driver will immediately connect to the hardware and try to reset all fingers
    * \param dev_name the dev to use for autostart. Default is /dev/ttyUSB0
    */
-  SVHFingerManager(const std::vector<bool> &disable_mask = std::vector<bool>(9,false), const std::string &dev_name = "/dev/ttyUSB0");
+  SVHFingerManager(const std::vector<bool> &disable_mask = std::vector<bool>(9,false), const std::string &dev_name = "/dev/ttyUSB0", const uint32_t &reset_timeout = 5);
 
   virtual ~SVHFingerManager();
 
@@ -231,6 +231,11 @@ public:
   //!
   void setResetSpeed(const float& speed);
 
+  //!
+  //! \brief setResetTimeout Helper function to set the timout durind rest of fingers
+  //! \param resetTimeout timeout in Seconds. Values smaler than 0 will be interpreted as 0
+  //!
+  void setResetTimeout(const int& resetTimeout);
 
 
   #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
@@ -302,6 +307,9 @@ private:
 
   //! Factor for determining the finger speed during reset. Only 0.0-1.0 is allowed
   float m_reset_speed_factor;
+
+  //! Time in seconds after which the a reset is aborted if no change in current is observable
+  uint32_t m_reset_timeout;
 
   //! vector of current controller parameters for each finger (as given by external config)
   std::vector<SVHCurrentSettings> m_current_settings;

@@ -27,7 +27,7 @@
 
 namespace driver_svh {
 
-SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const std::string &dev_name) :
+SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const std::string &dev_name, const uint32_t &reset_timeout) :
   m_controller(new SVHController()),
   m_feedback_thread(),
   m_connected(false),
@@ -42,6 +42,7 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_is_switched_off(eSVH_DIMENSION,false),
   m_movement_state(eST_DEACTIVATED),
   m_reset_speed_factor(0.2),
+  m_reset_timeout(reset_timeout),
   m_current_settings(eSVH_DIMENSION),
   m_current_settings_given(eSVH_DIMENSION,false),
   m_position_settings(eSVH_DIMENSION),
@@ -83,7 +84,6 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
     }
   }
 
-  // TODO: The WS BROADCASTER IS KIND OF ANNOYING WHEN STARTET BUT NOT ACTIVE.. MAKE THIS BETTER
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
   //m_ws_broadcaster =boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
   if (m_ws_broadcaster)
@@ -168,7 +168,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
         LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
 
         // check for timeout
-        if ((icl_core::TimeStamp::now() - start_time).tsSec() > 5.0)  //TODO: Use parameter
+        if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_reset_timeout)
         {
           timeout = true;
           LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection timeout! Could not connect to SCHUNK five finger hand." << endl
@@ -1058,6 +1058,11 @@ bool SVHFingerManager::isInsideBounds(const SVHChannel &channel, const int32_t &
 void SVHFingerManager::requestControllerState()
 {
   m_controller->requestControllerState();
+}
+
+void SVHFingerManager::setResetTimeout(const int& resetTimeout)
+{
+  m_reset_timeout = (resetTimeout>0)?resetTimeout:0;
 }
 
 }

@@ -70,7 +70,7 @@ public:
    * \param autostart if set to true, the driver will immediately connect to the hardware and try to reset all fingers
    * \param dev_name the dev to use for autostart. Default is /dev/ttyUSB0
    */
-  SVHFingerManager(const bool &autostart = false, const std::vector<bool> &disable_mask = std::vector<bool>(9,false), const std::string &dev_name = "/dev/ttyUSB0");
+  SVHFingerManager(const std::vector<bool> &disable_mask = std::vector<bool>(9,false), const std::string &dev_name = "/dev/ttyUSB0");
 
   virtual ~SVHFingerManager();
 
@@ -216,10 +216,7 @@ public:
   void requestControllerState();
 
 
-  // These 3 functions could be private but where made public for printing and debug purposes. As there is no harm to it it should not be a problem
-
-  //! \brief get default parameters for position settings DURING RESET
-//  std::vector<SVHPositionSettings> getPositionSettingsDefaultResetParameters();
+  // These 2 functions could be private but where made public for printing and debug purposes. As there is no harm to it it should not be a problem
 
   //! \brief get default parameters for current settings
   std::vector<SVHCurrentSettings> getCurrentSettings();
@@ -347,12 +344,6 @@ private:
   //! \return
   //!
   bool isInsideBounds(const SVHChannel &channel, const int32_t &target_position);
-
-  //!
-  //! \brief readParametersFromConfigFile
-  //! \return
-  //!
-  bool readParametersFromConfigFile();
 
 
   // DEBUG

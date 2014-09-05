@@ -27,7 +27,7 @@
 
 namespace driver_svh {
 
-SVHFingerManager::SVHFingerManager(const bool &autostart, const std::vector<bool> &disable_mask, const std::string &dev_name) :
+SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const std::string &dev_name) :
   m_controller(new SVHController()),
   m_feedback_thread(),
   m_connected(false),
@@ -92,12 +92,12 @@ SVHFingerManager::SVHFingerManager(const bool &autostart, const std::vector<bool
   }
 #endif
 
-  // Try First Connect and Reset of all Fingers if autostart is enabled
-  if (autostart && connect(dev_name))
-  {
-    resetChannel(eSVH_ALL);
-    LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Driver Autostart succesfull! Input can now be sent. Have a safe and productive day" << endl);
-  }
+//  // Try First Connect and Reset of all Fingers if autostart is enabled
+//  if (autostart && connect(dev_name))
+//  {
+//    resetChannel(eSVH_ALL);
+//    LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Driver Autostart succesfull! Input can now be sent. Have a safe and productive day" << endl);
+//  }
 
 }
 
@@ -873,8 +873,6 @@ void SVHFingerManager::setMovementState(const SVHFingerManager::MovementState &s
     }
   }
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
-
-
 }
 
 void SVHFingerManager::setHomePositionDefaultParameters()
@@ -946,38 +944,8 @@ std::vector<SVHCurrentSettings> SVHFingerManager::getCurrentSettings()
   current_settings[eSVH_PINKY]                  = m_current_settings_given[eSVH_PINKY]                  ? m_current_settings[eSVH_PINKY]                  :cur_set_distal_joint;       // pinky
   current_settings[eSVH_FINGER_SPREAD]          = m_current_settings_given[eSVH_FINGER_SPREAD]          ? m_current_settings[eSVH_FINGER_SPREAD]          :cur_set_finger_spread;      // finger spread
 
-  // JUST DEBUG:
-  for (size_t i = 0; i < eSVH_DIMENSION; ++i)
-  {
-    LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Using " << (m_current_settings_given[i] ? "User set" : "Default") << " current settings for channel " << i << endl);
-  }
-
   return current_settings;
 }
-
-
-//std::vector<SVHPositionSettings> SVHFingerManager::getPositionSettingsDefaultResetParameters()
-//{
-//  std::vector<SVHPositionSettings> default_position_settings(eSVH_DIMENSION);
-
-//  //Wmin Wmax DWMax Ky Dt IMin Imax KP KI KD
-//  SVHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  10.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
-//  SVHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f, 15.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
-//  SVHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
-
-
-//  default_position_settings[0] = pos_set_thumb;   // thumb flexion
-//  default_position_settings[1] = pos_set_thumb;   // thumb opposition
-//  default_position_settings[2] = pos_set_finger;  // index finger distal joint
-//  default_position_settings[3] = pos_set_finger;  // index finger proximal joint
-//  default_position_settings[4] = pos_set_finger;  // middle finger distal joint
-//  default_position_settings[5] = pos_set_finger;  // middle finger proximal joint
-//  default_position_settings[6] = pos_set_finger;  // ring finger
-//  default_position_settings[7] = pos_set_finger;  // pinky
-//  default_position_settings[8] = pos_set_spread;  // finger spread
-
-//  return default_position_settings;
-//}
 
 
 //!
@@ -1014,8 +982,6 @@ std::vector<SVHPositionSettings> SVHFingerManager::getPositionSettings(const boo
 //    SVHPositionSettings pos_set_finger_pinky =           {-1.0e6f, 1.0e6f,  90.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 //    SVHPositionSettings pos_set_spread =                 {-1.0e6f, 1.0e6f,  50.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 
-
-
   // All Fingers with a speed that will close the complete range of the finger in 1 Seconds    (except the thumb that wikll take 4)
   SVHPositionSettings pos_set_thumb_flexion            (-1.0e6f, 1.0e6f,  65.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f);
   SVHPositionSettings pos_set_thumb_opposition         (-1.0e6f, 1.0e6f,  50.0e3f, 1.00f, 1e-3f, -4000.0f, 4000.0f, 0.05f, 0.1f, 0.0f);
@@ -1039,13 +1005,6 @@ std::vector<SVHPositionSettings> SVHFingerManager::getPositionSettings(const boo
   position_settings[eSVH_RING_FINGER]             = m_position_settings_given[eSVH_RING_FINGER] ? m_position_settings[eSVH_RING_FINGER] :pos_set_finger_ring;  // ring finger
   position_settings[eSVH_PINKY]                   = m_position_settings_given[eSVH_PINKY] ? m_position_settings[eSVH_PINKY] :pos_set_finger_pinky;  // pinky
   position_settings[eSVH_FINGER_SPREAD]           = m_position_settings_given[eSVH_FINGER_SPREAD]  ? m_position_settings[eSVH_FINGER_SPREAD] :pos_set_spread;  // finger spread
-
-  // JUST DEBUG:
-  for (size_t i = 0; i < eSVH_DIMENSION; ++i)
-  {
-    LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Using " << (m_position_settings_given[i] ? "User set" : "Default") << " Position settings for channel " << i << ((reset)?"which are slowed down due to reset":"") << endl);
-  }
-
 
   // Modify the reset speed in case these position settings are meant to be used during the reset
   if (reset)
@@ -1099,85 +1058,6 @@ bool SVHFingerManager::isInsideBounds(const SVHChannel &channel, const int32_t &
 void SVHFingerManager::requestControllerState()
 {
   m_controller->requestControllerState();
-}
-
-bool SVHFingerManager::readParametersFromConfigFile()
-{
-  // THIS FUNCTIONALITY IS UNTESTED and will be included in a later release
-
-//  bool read_successful = false;
-
-//  // load position settings from config file
-//  std::vector<SVHPositionSettings> position_config_list;
-//  read_successful =
-//    icc::get(CONFIG_VALUES(
-//               CONFIG_LIST(
-//                 SVHPositionSettings, "/SVH/PositionSettings",
-//                 MEMBER_MAPPING(
-//                   SVHPositionSettings,
-//                   MEMBER_VALUE_1("WMin", SVHPositionSettings, wmn)
-//                   MEMBER_VALUE_1("WMax", SVHPositionSettings, wmx)
-//                   MEMBER_VALUE_1("DWMax", SVHPositionSettings, dwmx)
-//                   MEMBER_VALUE_1("KY", SVHPositionSettings, ky)
-//                   MEMBER_VALUE_1("DT", SVHPositionSettings, dt)
-//                   MEMBER_VALUE_1("IMin", SVHPositionSettings, imn)
-//                   MEMBER_VALUE_1("IMax", SVHPositionSettings, imx)
-//                   MEMBER_VALUE_1("KP", SVHPositionSettings, kp)
-//                   MEMBER_VALUE_1("KI", SVHPositionSettings, ki)
-//                   MEMBER_VALUE_1("KD", SVHPositionSettings, kd)),
-//                 std::back_inserter(position_config_list))),
-//             DriverSVH::instance());
-
-//  // set controller position settings
-//  if (read_successful)
-//  {
-//    for (size_t i = 0; i < position_config_list.size(); i++)
-//    {
-//      m_controller->setPositionSettings(i, position_config_list[i]);
-
-//      LOGGING_ERROR_C(DriverSVH, SVHController, "new position settings recieved: " << endl <<
-//                      "WMin = " << position_config_list[i].wmn << endl);
-//    }
-//  }
-//  else
-//  {
-//    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not load position settings from config file" << endl);
-//  }
-
-//  // load current settings from config file
-//  std::vector<SVHCurrentSettings> current_config_list;
-//  read_successful =
-//    icc::get(CONFIG_VALUES(
-//               CONFIG_LIST(
-//                 SVHCurrentSettings, "/SVH/CurrentSettings",
-//                 MEMBER_MAPPING(
-//                   SVHCurrentSettings,
-//                   MEMBER_VALUE_1("WMin", SVHCurrentSettings, wmn)
-//                   MEMBER_VALUE_1("WMax", SVHCurrentSettings, wmx)
-//                   MEMBER_VALUE_1("KY", SVHCurrentSettings, ky)
-//                   MEMBER_VALUE_1("DT", SVHCurrentSettings, dt)
-//                   MEMBER_VALUE_1("IMin", SVHCurrentSettings, imn)
-//                   MEMBER_VALUE_1("IMax", SVHCurrentSettings, imx)
-//                   MEMBER_VALUE_1("KP", SVHCurrentSettings, kp)
-//                   MEMBER_VALUE_1("KI", SVHCurrentSettings, ki)
-//                   MEMBER_VALUE_1("UMin", SVHCurrentSettings, umn)
-//                   MEMBER_VALUE_1("UMax", SVHCurrentSettings, umx)),
-//                 std::back_inserter(current_config_list))),
-//             icl_core::logging::Nirwana::instance());
-
-//  // set current position settings
-//  if (read_successful)
-//  {
-//    for (size_t i = 0; i < current_config_list.size(); i++)
-//    {
-//      m_controller->setCurrentSettings(i, current_config_list[i]);
-//    }
-//  }
-//  else
-//  {
-//    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not load current settings from config file" << endl);
-//  }
-  return true;
 }
 
 }

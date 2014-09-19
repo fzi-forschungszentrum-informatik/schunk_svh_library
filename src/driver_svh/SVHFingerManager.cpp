@@ -63,19 +63,6 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_reset_order[7] = eSVH_RING_FINGER;
   m_reset_order[8] = eSVH_PINKY;
 
-  // TODO: MOVE THIS to a better place
-  // Order is determined by the channel enum
-  m_reset_current_factor.resize(eSVH_DIMENSION);
-  m_reset_current_factor[eSVH_THUMB_FLEXION]=          0.75;
-  m_reset_current_factor[eSVH_THUMB_OPPOSITION]=       0.75;
-  m_reset_current_factor[eSVH_INDEX_FINGER_DISTAL]=    0.75;
-  m_reset_current_factor[eSVH_INDEX_FINGER_PROXIMAL]=  0.75;
-  m_reset_current_factor[eSVH_MIDDLE_FINGER_DISTAL]=   0.75;
-  m_reset_current_factor[eSVH_MIDDLE_FINGER_PROXIMAL]= 0.75;
-  m_reset_current_factor[eSVH_RING_FINGER]=            0.75;
-  m_reset_current_factor[eSVH_PINKY]=                  0.75;
-  m_reset_current_factor[eSVH_FINGER_SPREAD]=          0.75;
-
   for (size_t i = 0; i < eSVH_DIMENSION; ++i)
   {
     m_is_switched_off[i] = disable_mask[i];
@@ -283,7 +270,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           position = static_cast<int32_t>(pos_set.wmn);
         }
 
-        LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Driving channel " << channel << " to hardstop. Detection thresholds: Current MIN: "<< m_reset_current_factor[channel] * cur_set.wmn << "mA MAX: "<< m_reset_current_factor[channel] * cur_set.wmx <<"mA" << endl);
+        LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Driving channel " << channel << " to hardstop. Detection thresholds: Current MIN: "<< home.resetCurrentFactor * cur_set.wmn << "mA MAX: "<< home.resetCurrentFactor * cur_set.wmx <<"mA" << endl);
 
         m_controller->setControllerTarget(channel, position);
         m_controller->enableChannel(channel);
@@ -300,7 +287,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           //m_controller->requestControllerFeedback(channel);
           m_controller->getControllerFeedback(channel, control_feedback);
 
-          if ((m_reset_current_factor[channel] * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= m_reset_current_factor[channel] * cur_set.wmx))
+          if ((home.resetCurrentFactor * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= home.resetCurrentFactor * cur_set.wmx))
           {
             hit_count++;
           }
@@ -900,15 +887,15 @@ void SVHFingerManager::setDefaultHomeSettings()
 
   // All values are based on the hardware description for maximum tics and maximum allowable range of movements
   // direction, minimum offset, maximum offset, idle position, range in rad
-  m_home_settings[eSVH_THUMB_FLEXION]          =  SVHHomeSettings(+1, -175.0e3f,  -5.0e3f, -15.0e3f, 0.97);    // thumb flexion
-  m_home_settings[eSVH_THUMB_OPPOSITION]       =  SVHHomeSettings(+1, -105.0e3f,  -5.0e3f, -15.0e3f, 0.99); // thumb opposition
-  m_home_settings[eSVH_INDEX_FINGER_DISTAL]    =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 1.33);    // index finger distal joint
-  m_home_settings[eSVH_INDEX_FINGER_PROXIMAL]  =  SVHHomeSettings(-1,    2.0e3f,  42.0e3f,   8.0e3f, 0.8);  // index finger proximal joint
-  m_home_settings[eSVH_MIDDLE_FINGER_DISTAL]   =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 1.33);    // middle finger distal joint
-  m_home_settings[eSVH_MIDDLE_FINGER_PROXIMAL] =  SVHHomeSettings(-1,    2.0e3f,  42.0e3f,   8.0e3f, 0.8);  // middle finger proximal joint
-  m_home_settings[eSVH_RING_FINGER]            =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 0.98);    // ring finger
-  m_home_settings[eSVH_PINKY]                  =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 0.98);    // pinky
-  m_home_settings[eSVH_FINGER_SPREAD]          =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -25.0e3f,0.58);    // finger spread
+  m_home_settings[eSVH_THUMB_FLEXION]          =  SVHHomeSettings(+1, -175.0e3f,  -5.0e3f, -15.0e3f, 0.97, 0.75);    // thumb flexion
+  m_home_settings[eSVH_THUMB_OPPOSITION]       =  SVHHomeSettings(+1, -105.0e3f,  -5.0e3f, -15.0e3f, 0.99, 0.75); // thumb opposition
+  m_home_settings[eSVH_INDEX_FINGER_DISTAL]    =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 1.33, 0.75);    // index finger distal joint
+  m_home_settings[eSVH_INDEX_FINGER_PROXIMAL]  =  SVHHomeSettings(-1,    2.0e3f,  42.0e3f,   8.0e3f, 0.8, 0.75);  // index finger proximal joint
+  m_home_settings[eSVH_MIDDLE_FINGER_DISTAL]   =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 1.33, 0.75);    // middle finger distal joint
+  m_home_settings[eSVH_MIDDLE_FINGER_PROXIMAL] =  SVHHomeSettings(-1,    2.0e3f,  42.0e3f,   8.0e3f, 0.8, 0.75);  // middle finger proximal joint
+  m_home_settings[eSVH_RING_FINGER]            =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 0.98, 0.75);    // ring finger
+  m_home_settings[eSVH_PINKY]                  =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 0.98, 0.75);    // pinky
+  m_home_settings[eSVH_FINGER_SPREAD]          =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -25.0e3f,0.58, 0.75);    // finger spread
 
   // NOTE / TODO
   // Currently we map the Range in rad, which is given as the range between to hard stops to the range between to soft stops. By this we of course loose

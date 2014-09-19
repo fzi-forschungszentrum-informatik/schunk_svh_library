@@ -153,7 +153,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
                           << "Send packages = " << send_count << ", received packages = " << received_count << endl);
 
         }
-        LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
+        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
 
         // check for timeout
         if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_reset_timeout)
@@ -322,7 +322,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.minimumOffset);
         m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.maximumOffset);
         m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.idlePosition);
-        LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Channel " << channel << " min pos = " << m_position_min[channel]
+        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Setting soft stops for Channel " << channel << " min pos = " << m_position_min[channel]
                         << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel] << endl);
 
         position = static_cast<int32_t>(control_feedback.position + home.idlePosition);
@@ -520,8 +520,9 @@ bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
       position = 0.0;
     }
 
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Channel " << channel << ": position_ticks = " << controller_feedback.position
-                    << " | cleared_position_ticks = " << cleared_position_ticks << " | position rad = " << position << endl);
+    // DISABLED as the output was realy spamming everything else :)
+    //LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Channel " << channel << ": position_ticks = " << controller_feedback.position
+    //                << " | cleared_position_ticks = " << cleared_position_ticks << " | position rad = " << position << endl);
     return true;
   }
   else

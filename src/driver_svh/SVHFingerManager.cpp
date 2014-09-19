@@ -27,7 +27,7 @@
 
 namespace driver_svh {
 
-SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const std::string &dev_name, const uint32_t &reset_timeout) :
+SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const uint32_t &reset_timeout) :
   m_controller(new SVHController()),
   m_feedback_thread(),
   m_connected(false),

@@ -100,10 +100,13 @@ bool SVHController::connect(const std::string &dev_name)
 void SVHController::disconnect()
 {
   LOGGING_TRACE_C(DriverSVH, SVHController, "Disconnect called, disabling all channels and closing interface..."<< endl);
-  // Disable all channels
-  disableChannel(eSVH_ALL);
+  if (m_serial_interface != NULL && m_serial_interface->isConnected())
+  {
+    // Disable all channels
+    disableChannel(eSVH_ALL);
 
-  m_serial_interface->close();
+    m_serial_interface->close();
+  }
   LOGGING_TRACE_C(DriverSVH, SVHController, "Disconnect finished"<< endl);
 }
 
@@ -510,9 +513,8 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
     case SVH_GET_FIRMWARE_INFO:
         //std::cout << "Recieved: Firmware Settings RAW Data: " << ab; // for really intensive debugging
         ab >> m_firmware_info;
-        std::cout << "Received Firmware intepreted data: "<< m_firmware_info << std::endl;
-        LOGGING_INFO_C(DriverSVH, SVHController, "Received a firmware packet" << endl);
-        LOGGING_INFO_C(DriverSVH, SVHController, m_firmware_info.svh  << " " << m_firmware_info.version_major << "." << m_firmware_info.version_minor << " : " << m_firmware_info.text << endl);
+        LOGGING_INFO(DriverSVH, "Hardware is using the following Firmware: " );
+        LOGGING_INFO(DriverSVH, m_firmware_info.svh  << " Version: " << m_firmware_info.version_major << "." << m_firmware_info.version_minor << " : " << m_firmware_info.text << endl);
       break;
     default:
         LOGGING_ERROR_C(DriverSVH, SVHController, "Received a Packet with unknown address: "<< (packet.address & 0x0F) << " - ignoring packet" << endl);

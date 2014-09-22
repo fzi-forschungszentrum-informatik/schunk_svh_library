@@ -64,7 +64,7 @@ inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHFirmw
 {
   // Stream operator can not handle arrays (due to missing size information) to make things easy we just copy the data around. Feel free to do something else
   std::vector<uint8_t> text(48);
-  std::vector<uint8_t> svh(5);
+  std::vector<uint8_t> svh(4);
 
   ab >> svh
      >> data.version_major

@@ -91,7 +91,10 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
 
 SVHFingerManager::~SVHFingerManager()
 {
-  disconnect();
+  if (m_connected)
+  {
+    disconnect();
+  }
 
   if (m_controller != NULL)
   {
@@ -168,6 +171,8 @@ bool SVHFingerManager::connect(const std::string &dev_name)
 
       if (m_connected)
       {
+        // Request firmware information once at the beginning
+        getFirmwareInfo();
         // start feedback polling thread
         if (m_feedback_thread != NULL)
         {
@@ -185,6 +190,7 @@ void SVHFingerManager::disconnect()
   m_connected = false;
   m_connection_feedback_given = false;
 
+  // Disable Polling
   if (m_feedback_thread != NULL)
   {
     // wait until thread has stopped
@@ -195,9 +201,9 @@ void SVHFingerManager::disconnect()
     m_feedback_thread = NULL;
   }
 
+  // Tell the Controller to terminate the rest
   if (m_controller != NULL)
   {
-    m_controller->disableChannel(eSVH_ALL);
     m_controller->disconnect();
   }
 }
@@ -1064,6 +1070,32 @@ void SVHFingerManager::requestControllerState()
 void SVHFingerManager::setResetTimeout(const int& resetTimeout)
 {
   m_reset_timeout = (resetTimeout>0)?resetTimeout:0;
+}
+
+SVHFirmwareInfo SVHFingerManager::getFirmwareInfo()
+{
+  // As the firmware info takes longer we need to disable the polling during the request of the firmware informatio
+  if (m_feedback_thread != NULL)
+  {
+    // wait until thread has stopped
+    m_feedback_thread->stop();
+    m_feedback_thread->join();
+  }
+
+  // Tell the hardware to get the newest firmware information
+  m_controller->requestFirmwareInfo();
+  // Just wait a tiny amount
+  icl_core::os::usleep(100);
+
+  // Start the feedback process aggain
+  if (m_feedback_thread != NULL)
+  {
+    // wait until thread has stopped
+    m_feedback_thread->start();
+  }
+
+  // Note that the Firmware will also be printed to the console by the controller. So in case you just want to know it no further action is required
+  return m_controller->getFirmwareInfo();
 }
 
 }

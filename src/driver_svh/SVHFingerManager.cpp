@@ -79,14 +79,6 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
     m_ws_broadcaster->robot->setInputToRadFactor(1);
   }
 #endif
-
-//  // Try First Connect and Reset of all Fingers if autostart is enabled
-//  if (autostart && connect(dev_name))
-//  {
-//    resetChannel(eSVH_ALL);
-//    LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Driver Autostart succesfull! Input can now be sent. Have a safe and productive day" << endl);
-//  }
-
 }
 
 SVHFingerManager::~SVHFingerManager()
@@ -105,6 +97,8 @@ SVHFingerManager::~SVHFingerManager()
 
 bool SVHFingerManager::connect(const std::string &dev_name)
 {
+   LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to connect to the Hardware..." << endl);
+
   if (m_connected)
   {
     disconnect();
@@ -132,7 +126,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
       // initialize all channels
       for (size_t i = 0; i < eSVH_DIMENSION; ++i)
       {
-        // request controller feedback
+        // request controller feedback to have a valid starting point
         m_controller->requestControllerFeedback(static_cast<SVHChannel>(i));
 
         // Actually set the new position settings
@@ -174,6 +168,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
         // Request firmware information once at the beginning
         getFirmwareInfo();
         // start feedback polling thread
+        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is starting the fedback polling thread" << endl);
         if (m_feedback_thread != NULL)
         {
           m_feedback_thread->start();
@@ -187,6 +182,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
 
 void SVHFingerManager::disconnect()
 {
+  LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to discoconnect to the Hardware..." << endl);
   m_connected = false;
   m_connection_feedback_given = false;
 
@@ -199,6 +195,7 @@ void SVHFingerManager::disconnect()
 
     delete m_feedback_thread;
     m_feedback_thread = NULL;
+    LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Feedback thread terminated" << endl);
   }
 
   // Tell the Controller to terminate the rest
@@ -231,7 +228,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           max_reset_counter--;
         }
 
-        LOGGING_INFO_C(DriverSVH, resetChannel, "Channel " << m_reset_order[i] << " reset success = " << reset_success << endl);
+        LOGGING_DEBUG_C(DriverSVH, resetChannel, "Channel " << m_reset_order[i] << " reset success = " << reset_success << endl);
 
         // set all reset flag
         reset_all_success = reset_all_success && reset_success;
@@ -247,8 +244,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
       if (!m_is_switched_off[channel])
       {
-        LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
-
+        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
 
         m_controller->setPositionSettings(channel, getDefaultPositionSettings(true)[channel]);
 
@@ -328,7 +324,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.minimumOffset);
         m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.maximumOffset);
         m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.idlePosition);
-        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Setting soft stops for Channel " << channel << " min pos = " << m_position_min[channel]
+        LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Setting soft stops for Channel " << channel << " min pos = " << m_position_min[channel]
                         << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel] << endl);
 
         position = static_cast<int32_t>(control_feedback.position + home.idlePosition);
@@ -348,7 +344,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         }
         m_controller->disableChannel(eSVH_ALL);
 
-        LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
+        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
         m_controller->setPositionSettings(channel, getDefaultPositionSettings(false)[channel]);
       }
       else
@@ -375,7 +371,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
     }
     else
     {
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Channel " << channel << " is out side of bounds!" << endl);
+      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Channel " << channel << " is out of bounds!" << endl);
       return false;
     }
   }
@@ -483,13 +479,13 @@ void SVHFingerManager::disableChannel(const SVHChannel &channel)
 
 bool SVHFingerManager::requestControllerFeedback(const SVHChannel &channel)
 {
-  if (isConnected() )//&& isHomed(channel) && isEnabled(channel))
+  if (isConnected())
   {
     m_controller->requestControllerFeedback(channel);
     return true;
   }
 
-  LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Channel " << channel << " is not homed or is not enabled!" << endl);
+  LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Feedback for channel " << channel << " could not be requested. FM is not connected to HW." << endl);
   return false;
 }
 
@@ -662,7 +658,7 @@ bool SVHFingerManager::setTargetPosition(const SVHChannel &channel, double posit
       if (m_is_switched_off[channel])
       {
         // Switched off channels  behave transparent so we return a true value while we ignore the input
-        LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Target position for channel " << channel << " was ignored as it is switched off by the user"<< endl);
+        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Target position for channel " << channel << " was ignored as it is switched off by the user"<< endl);
         return true;
       }
 
@@ -671,7 +667,8 @@ bool SVHFingerManager::setTargetPosition(const SVHChannel &channel, double posit
       {
         int32_t target_position = convertRad2Ticks(channel, position);
 
-        LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Target position for channel " << channel << " = " << target_position << endl);
+        //Disabled as the output will spam everything
+        //LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Target position for channel " << channel << " = " << target_position << endl);
 
         // check for bounds
         if (isInsideBounds(channel, target_position))
@@ -704,6 +701,7 @@ bool SVHFingerManager::setTargetPosition(const SVHChannel &channel, double posit
   }
   else
   {
+    // Give the Warning about no Connection exactly once! Otherwise this will immediately spam the log
     if (!m_connection_feedback_given)
     {
       LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not set target position for channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
@@ -750,7 +748,6 @@ bool SVHFingerManager::isEnabled(const SVHChannel &channel)
   }
 }
 
-//! return homed flag
 bool SVHFingerManager::isHomed(const SVHChannel &channel)
 {
   if (channel == eSVH_ALL)
@@ -877,7 +874,11 @@ bool SVHFingerManager::setHomeSettings(const SVHChannel &channel, const driver_s
   {
     // First of save the values
     m_home_settings[channel] = home_settings;
-    LOGGING_TRACE_C(DriverSVH,SVHFingerManager, "Channel " << channel << " setting new homing settings." << endl);
+    LOGGING_TRACE_C(DriverSVH,SVHFingerManager, "Channel " << channel << " setting new homing settings : ");
+    LOGGING_TRACE_C(DriverSVH,SVHFingerManager, "Direction " << home_settings.direction << " " << "Min offset " << home_settings.minimumOffset << " "
+                                             << "Max offset "<< home_settings.maximumOffset << " " << "idle pos "  << home_settings.idlePosition  << " "
+                                             << "Range Rad " << home_settings.rangeRad << " " << "Reset Curr Factor " << home_settings.resetCurrentFactor << " " << endl
+                    );
     return true;
   }
   else
@@ -903,14 +904,6 @@ void SVHFingerManager::setDefaultHomeSettings()
   m_home_settings[eSVH_RING_FINGER]            =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 0.98, 0.75);    // ring finger
   m_home_settings[eSVH_PINKY]                  =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 0.98, 0.75);    // pinky
   m_home_settings[eSVH_FINGER_SPREAD]          =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -25.0e3f,0.58, 0.75);    // finger spread
-
-  // NOTE / TODO
-  // Currently we map the Range in rad, which is given as the range between to hard stops to the range between to soft stops. By this we of course loose
-  // the ability to move to propoer positons... which might be very important
-  // Option 1: We use the hard stop to hard stop range, without any more conversions. Meaning if the HS range is 0.9 we might be able to move from 0.1 to 0.8 because of the soft stops
-  // Option 2: (preferred) We use the hard stop to hard stop range, but subtract the soft stopds, resulting in that we can always go to 0. But we might never reach more than 0,7 because all of the soft limits is cut of later on
-  // Option 3: Everything stays at it is
-  // NOTE2: Thats not completely correct as we are using the whole tick range that was given.. however we need to investigate this further...
 
   m_ticks2rad.resize(eSVH_DIMENSION, 0.0);
   for (size_t i = 0; i < eSVH_DIMENSION; ++i)
@@ -1025,7 +1018,6 @@ std::vector<SVHPositionSettings> SVHFingerManager::getDefaultPositionSettings(co
   return position_settings;
 }
 
-// TODO: Move this into the Home settings!
 void driver_svh::SVHFingerManager::setResetSpeed(const float &speed)
 {
   if ((speed>= 0.0) && (speed <= 1.0))

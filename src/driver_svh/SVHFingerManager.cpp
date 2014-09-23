@@ -888,13 +888,12 @@ bool SVHFingerManager::setHomeSettings(const SVHChannel &channel, const driver_s
   }
 }
 
-
 void SVHFingerManager::setDefaultHomeSettings()
 {
   // homing parameters are important for software end stops
 
   // All values are based on the hardware description for maximum tics and maximum allowable range of movements
-  // direction, minimum offset, maximum offset, idle position, range in rad
+  // direction, minimum offset, maximum offset, idle position, range in rad, resetcurrent(factor)
   m_home_settings[eSVH_THUMB_FLEXION]          =  SVHHomeSettings(+1, -175.0e3f,  -5.0e3f, -15.0e3f, 0.97, 0.75);    // thumb flexion
   m_home_settings[eSVH_THUMB_OPPOSITION]       =  SVHHomeSettings(+1, -105.0e3f,  -5.0e3f, -15.0e3f, 0.99, 0.75); // thumb opposition
   m_home_settings[eSVH_INDEX_FINGER_DISTAL]    =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 1.33, 0.75);    // index finger distal joint
@@ -903,7 +902,7 @@ void SVHFingerManager::setDefaultHomeSettings()
   m_home_settings[eSVH_MIDDLE_FINGER_PROXIMAL] =  SVHHomeSettings(-1,    2.0e3f,  42.0e3f,   8.0e3f, 0.8, 0.75);  // middle finger proximal joint
   m_home_settings[eSVH_RING_FINGER]            =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 0.98, 0.75);    // ring finger
   m_home_settings[eSVH_PINKY]                  =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 0.98, 0.75);    // pinky
-  m_home_settings[eSVH_FINGER_SPREAD]          =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -25.0e3f,0.58, 0.75);    // finger spread
+  m_home_settings[eSVH_FINGER_SPREAD]          =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -25.0e3f,0.58, 0.4);    // finger spread
 
   m_ticks2rad.resize(eSVH_DIMENSION, 0.0);
   for (size_t i = 0; i < eSVH_DIMENSION; ++i)
@@ -913,6 +912,8 @@ void SVHFingerManager::setDefaultHomeSettings()
   }
 
 }
+
+
 
 std::vector<SVHCurrentSettings> SVHFingerManager::getDefaultCurrentSettings()
 {
@@ -928,11 +929,11 @@ std::vector<SVHCurrentSettings> SVHFingerManager::getDefaultCurrentSettings()
   //SVHCurrentSettings cur_set_finger_spread    = {-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f};  // Backup values that are based on  MeCoVis suggestions
 
   // curr min, Curr max,ky(error output scaling),dt(time base),imn (integral windup min), imx (integral windup max), kp,ki,umn,umx (output limter)
-  SVHCurrentSettings cur_set_thumb(-400.0f, 400.0f, 0.405f, 4e-6f, -500.0f, 500.0f, 0.6f, 0.4f, -400.0f, 400.0f); // Much Smoother values that produce nice motions and are actually reasonabl
-  SVHCurrentSettings cur_set_thumb_opposition(-400.0f, 400.0f, 0.405f, 4e-6f, -500.0f, 500.0f, 0.6f, 0.4f, -400.0f, 400.0f); // Much Smoother values that produce nice motions and are actually reasonable
-  SVHCurrentSettings cur_set_distal_joint(-300.0f, 300.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.85f, 2.0f, -300.0f, 300.0f); // Much Smoother values that produce nice motions and are actually reasonable
-  SVHCurrentSettings cur_set_proximal_joint(-350.0f, 350.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.85f, 2.0f, -350.0f, 350.0f); // Much Smoother values that produce nice motions and are actually reasonable
-  SVHCurrentSettings cur_set_finger_spread(-200.0f, 200.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -400.0f, 400.0f); // Somewhat better values based on the MeCoVis software
+  SVHCurrentSettings cur_set_thumb(-500.0f, 500.0f, 0.405f, 4e-6f, -500.0f, 500.0f, 0.6f, 10.0f, -255.0f, 255.0f); // Much Smoother values that produce nice motions and are actually reasonabl
+  SVHCurrentSettings cur_set_thumb_opposition(-500.0f, 500.0f, 0.405f, 4e-6f, -500.0f, 500.0f, 0.6f, 10.0f, -255.0f, 255.0f); // Much Smoother values that produce nice motions and are actually reasonable
+  SVHCurrentSettings cur_set_distal_joint(-300.0f, 300.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.3f, 10.0f, -255.0f, 255.0f); // Much Smoother values that produce nice motions and are actually reasonable
+  SVHCurrentSettings cur_set_proximal_joint(-350.0f, 350.0f, 0.405f, 4e-6f, -350.0f, 350.0f, 0.5f, 10.0f, -255.0f, 255.0f); // Much Smoother values that produce nice motions and are actually reasonable
+  SVHCurrentSettings cur_set_finger_spread(-300.0f, 300.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.70f, 60.0f, -255.0f, 255.0f); // Somewhat better values based on the MeCoVis software
 
 
   current_settings[eSVH_THUMB_FLEXION]          = m_current_settings_given[eSVH_THUMB_FLEXION]          ? m_current_settings[eSVH_THUMB_FLEXION]          :cur_set_thumb;              // thumb flexion
@@ -947,7 +948,6 @@ std::vector<SVHCurrentSettings> SVHFingerManager::getDefaultCurrentSettings()
 
   return current_settings;
 }
-
 
 //!
 //! \brief returns parameters for position settings either the default ones or parameters that have been set from outside

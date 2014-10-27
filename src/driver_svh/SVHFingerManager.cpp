@@ -73,7 +73,7 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   }
 
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-  //m_ws_broadcaster =boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
+  m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
   if (m_ws_broadcaster)
   {
     m_ws_broadcaster->robot->setInputToRadFactor(1);
@@ -213,7 +213,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
     // reset all channels
     if (channel == eSVH_ALL)
     {
-      setMovementState(eST_RESETTING);
 
       bool reset_all_success = true;
       for (size_t i = 0; i < eSVH_DIMENSION; ++i)
@@ -234,12 +233,22 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         reset_all_success = reset_all_success && reset_success;
       }
 
-      setMovementState(eST_RESETTED);
+      if (reset_all_success)
+      {
+        setMovementState(eST_RESETTED);
+      }
+      else
+      {
+        setMovementState(eST_DEACTIVATED);
+      }
 
       return reset_all_success;
     }
     else if (channel > eSVH_ALL && eSVH_ALL < eSVH_DIMENSION)
     {
+      // Tell the websockets
+      MovementState last_movement_state = m_movement_state;
+      setMovementState(eST_RESETTING);
       LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Start homing channel " << channel << endl);
 
       if (!m_is_switched_off[channel])
@@ -354,6 +363,23 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
 
       m_is_homed[channel] = true;
+
+      // Check if this reset has trigger the reset of all the Fingers
+      bool reset_all_success = true;
+      for (size_t i = 0; i < eSVH_DIMENSION; ++i)
+      {
+        reset_all_success == reset_all_success && m_is_homed[channel];
+      }
+
+      if (reset_all_success)
+      {
+        setMovementState(eST_RESETTED);
+      }
+      else
+      {
+        setMovementState(last_movement_state);
+      }
+
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
       if (m_ws_broadcaster)
       {

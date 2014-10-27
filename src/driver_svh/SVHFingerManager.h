@@ -261,7 +261,7 @@ public:
 
   #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
   /*!
-   * \brief updateWebSocket Will gathe the current state of the hand and send it out via websocket
+   * \brief updateWebSocket Will gather the current state of the hand and send it out via websocket
    * \note this function will NOT update everything as it would be to much overhead to ask every single time if a finger is enabled or not. Things
    *       that happen only sometimes will be updated in the corresponding functions (enable, diable, reset and so on)
    *       this function is meant to be used for the periodically changing states

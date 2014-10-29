@@ -249,6 +249,16 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
       // Tell the websockets
       MovementState last_movement_state = m_movement_state;
       setMovementState(eST_RESETTING);
+
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      if (m_ws_broadcaster)
+      {
+        m_ws_broadcaster->robot->setJointEnabled(false,channel);
+        m_ws_broadcaster->robot->setJointHomed(false,channel);
+      }
+#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
+
       LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Start homing channel " << channel << endl);
 
       if (!m_is_switched_off[channel])
@@ -384,10 +394,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setJointHomed(true,channel);
-        if (!m_ws_broadcaster->sendState());
-        {
-          //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
-        }
       }
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
@@ -442,10 +448,6 @@ bool SVHFingerManager::enableChannel(const SVHChannel &channel)
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setJointEnabled(true,channel);
-        if (!m_ws_broadcaster->sendState())
-        {
-          //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
-        }
       }
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
@@ -480,10 +482,6 @@ void SVHFingerManager::disableChannel(const SVHChannel &channel)
     if (m_ws_broadcaster)
     {
       m_ws_broadcaster->robot->setJointEnabled(false,channel);
-      if (!m_ws_broadcaster->sendState())
-      {
-        //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
-      }
     }
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
@@ -584,6 +582,7 @@ void SVHFingerManager::updateWebSocket()
         m_ws_broadcaster->robot->setJointHomed(false,i);
       }
 
+      // Only place we actually need to call the sendstate as this function is periodically called by the feedback polling thread
       if (!m_ws_broadcaster->sendState())
       {
         //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
@@ -810,10 +809,6 @@ void SVHFingerManager::setMovementState(const SVHFingerManager::MovementState &s
   if (m_ws_broadcaster)
   {
     m_ws_broadcaster->robot->setMovementState(state);
-    if (!m_ws_broadcaster->sendState())
-    {
-      //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
-    }
   }
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 }

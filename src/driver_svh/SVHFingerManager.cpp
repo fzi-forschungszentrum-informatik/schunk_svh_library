@@ -48,6 +48,16 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_position_settings_given(eSVH_DIMENSION,false),
   m_home_settings(eSVH_DIMENSION)
 {
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+   // Set some initial connection related hints that are always true at the beginning
+    if (m_ws_broadcaster)
+    {
+      m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);
+      m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+    }
+#endif
+
+
   // load home position default parameters
   setDefaultHomeSettings();
 
@@ -69,6 +79,13 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
     if (m_is_switched_off[i])
     {
       LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Joint: " << m_controller->m_channel_description[i] << " was disabled as per user request. It will not do anything!" << endl);
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      if (m_ws_broadcaster)
+      {
+        m_ws_broadcaster->robot->setHint(eHT_CHANNEL_SWITCHED_OF);
+        m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+      }
+#endif
     }
   }
 
@@ -98,6 +115,14 @@ SVHFingerManager::~SVHFingerManager()
 bool SVHFingerManager::connect(const std::string &dev_name)
 {
    LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to connect to the Hardware..." << endl);
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+   // As soon as connect is called the hint about not calling connect is void :)
+    if (m_ws_broadcaster)
+    {
+      m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
+      m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+    }
+#endif
 
   if (m_connected)
   {
@@ -158,6 +183,14 @@ bool SVHFingerManager::connect(const std::string &dev_name)
           timeout = true;
           LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection timeout! Could not connect to SCHUNK five finger hand." << endl
                           << "Send packages = " << send_count << ", received packages = " << received_count << endl);
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+          if (m_ws_broadcaster)
+          {
+            m_ws_broadcaster->robot->setHint(eHT_CONNECTION_FAILED);
+            m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+          }
+#endif
+
         }
 
         icl_core::os::usleep(50000);
@@ -165,6 +198,21 @@ bool SVHFingerManager::connect(const std::string &dev_name)
 
       if (m_connected)
       {
+
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
+        if (m_ws_broadcaster)
+        {
+          // Intitial connection, any failures regarding the connection must be gone so we can safely clear them all
+          m_ws_broadcaster->robot->clearHint(eHT_CONNECTION_FAILED);
+          m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
+          m_ws_broadcaster->robot->clearHint(eHT_DEVICE_NOT_FOUND);
+          // Next up, resetting, so give a hint for that
+          m_ws_broadcaster->robot->setHint(eHT_NOT_RESETTED);
+          m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+        }
+#endif
+
         // Request firmware information once at the beginning
         getFirmwareInfo();
         // start feedback polling thread
@@ -174,6 +222,17 @@ bool SVHFingerManager::connect(const std::string &dev_name)
           m_feedback_thread->start();
         }
       }
+    }
+    else
+    {
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      if (m_ws_broadcaster)
+      {
+        m_ws_broadcaster->robot->setHint(eHT_DEVICE_NOT_FOUND);
+        m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+      }
+#endif
+
     }
   }
 
@@ -203,6 +262,17 @@ void SVHFingerManager::disconnect()
   {
     m_controller->disconnect();
   }
+
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+    // Connection hint is always true when no connection is established :)
+    if (m_ws_broadcaster)
+    {
+      m_ws_broadcaster->robot->clearAllHints();
+      m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);
+      m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+    }
+#endif
+
 }
 
 //! reset function for a single finger
@@ -233,14 +303,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         reset_all_success = reset_all_success && reset_success;
       }
 
-      if (reset_all_success)
-      {
-        setMovementState(eST_RESETTED);
-      }
-      else
-      {
-        setMovementState(eST_DEACTIVATED);
-      }
 
       return reset_all_success;
     }
@@ -322,6 +384,14 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           {
             m_controller->disableChannel(eSVH_ALL);
             LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Timeout: Aborted finding home position for channel " << channel << endl);
+            // Timeout could mean serious hardware issues or just plain wrong settings
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
+            if (m_ws_broadcaster)
+            {
+              m_ws_broadcaster->robot->setHint(eHT_RESET_FAILED);
+            }
+#endif
             return false;
           }
 
@@ -368,6 +438,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
       }
       else
       {
+
          LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Channel " << channel << "switched of by user, homing is set to finished" << endl);
       }
 
@@ -384,6 +455,14 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
       if (reset_all_success)
       {
         setMovementState(eST_RESETTED);
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+        // In case we still told the user that this was an issue, it is clearly resolved now.
+        if (m_ws_broadcaster)
+        {
+          m_ws_broadcaster->robot->clearHint(eHT_RESET_FAILED);
+          m_ws_broadcaster->robot->clearHint(eHT_NOT_RESETTED);
+        }
+#endif
       }
       else
       {
@@ -582,7 +661,7 @@ void SVHFingerManager::updateWebSocket()
         m_ws_broadcaster->robot->setJointHomed(false,i);
       }
 
-      // Only place we actually need to call the sendstate as this function is periodically called by the feedback polling thread
+      // One of the few places we actually need to call the sendstate as this function is periodically called by the feedback polling thread
       if (!m_ws_broadcaster->sendState())
       {
         //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
@@ -839,22 +918,78 @@ bool SVHFingerManager::getPositionSettings(const SVHChannel &channel, SVHPositio
   }
 }
 
+bool SVHFingerManager::currentSettingsAreSafe(const SVHChannel &channel,const SVHCurrentSettings &current_settings)
+{
+  bool settingsAreSafe = true;
+
+  // Yeah i would also love to use static arrays here or other fancier things but c++98 is no fun dealing with these things
+  // so i just wrote down the "dumb" approach, its just to veryfy absolute values anyhow
+  switch (channel)
+  {
+    case eSVH_THUMB_FLEXION:
+      settingsAreSafe = (current_settings.wmn >= -1800.0) &&
+                        (current_settings.wmx <=  1800.0);
+    break;
+  case eSVH_THUMB_OPPOSITION:
+
+    settingsAreSafe = (current_settings.wmn >= -1800.0) &&
+                      (current_settings.wmx <=  1800.0);
+    break;
+  case eSVH_INDEX_FINGER_DISTAL:
+  case eSVH_MIDDLE_FINGER_DISTAL:
+  case eSVH_RING_FINGER:
+  case eSVH_PINKY:
+
+    settingsAreSafe = (current_settings.wmn >= -650.0) &&
+                      (current_settings.wmx <=  650.0);
+    break;
+  case eSVH_INDEX_FINGER_PROXIMAL:
+  case eSVH_MIDDLE_FINGER_PROXIMAL:
+
+    settingsAreSafe = (current_settings.wmn >= -1100.0) &&
+                      (current_settings.wmx <=  1100.0);
+    break;
+  case eSVH_FINGER_SPREAD:
+    settingsAreSafe = (current_settings.wmn >= -1000.0) &&
+                      (current_settings.wmx <=  1000.0);
+    break;
+  default:
+     // no valid channel was given anyway, this will be disregarded by the controller
+     settingsAreSafe = true;
+    break;
+  }
+
+  return settingsAreSafe;
+}
+
 // overwrite current parameters
 bool SVHFingerManager::setCurrentSettings(const SVHChannel &channel, const SVHCurrentSettings &current_settings)
 {
 
   if (channel >=0 && channel < eSVH_DIMENSION)
   {
-    // First of save the values
-    m_current_settings[channel] = current_settings;
-    m_current_settings_given[channel] = true;
-
-    // In case the Hardware is connected, update the values
-    if (isConnected())
+    // For now we will only evaluate this and print out warnings, however if you care to do these things.. go right ahead...
+    if (!currentSettingsAreSafe(channel,current_settings))
     {
-        m_controller->setCurrentSettings(channel, current_settings);
+       LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "WARNING!!! Current Controller Params for channel " << channel << " are dangerous! THIS MIGHT DAMAGE YOUR HARDWARE!!!" << endl);
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      if (m_ws_broadcaster)
+      {
+        m_ws_broadcaster->robot->setHint(eHT_DANGEROUS_CURRENTS);
+      }
+#endif
     }
-    return true;
+
+      // First of save the values
+      m_current_settings[channel] = current_settings;
+      m_current_settings_given[channel] = true;
+
+      // In case the Hardware is connected, update the values
+      if (isConnected())
+      {
+          m_controller->setCurrentSettings(channel, current_settings);
+      }
+      return true;
   }
   else
   {

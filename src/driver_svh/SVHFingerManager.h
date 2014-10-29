@@ -67,6 +67,21 @@ public:
     eST_DIMENSION
   };
 
+  /*!
+   * \brief The Hints enum provides mapping to hints that can be sent to the web-diagnostic interface
+   */
+  enum Hints
+  {
+    eHT_DEVICE_NOT_FOUND,   /* ttyUSBx could not be found */
+    eHT_CONNECTION_FAILED,  /* ttyUSB could be opened but communication failed */
+    eHT_NOT_RESETTED,       /* the fingers of the hand are not resetted */
+    eHT_NOT_CONNECTED,      /* simply never called connect */
+    eHT_RESET_FAILED,       /* timeout during reset -> this is a serious failure */
+    eHT_CHANNEL_SWITCHED_OF,/* Not realy a problem, however a hint worth noting */
+    eHT_DANGEROUS_CURRENTS, /* Current Values are set to dangerous levels */
+    eHT_DIMENSION           /* dummy entry indicating the size, not used as status */
+  };
+
   /*! Constructs a finger manager for the SCHUNK five finger hand.
    * \param autostart if set to true, the driver will immediately connect to the hardware and try to reset all fingers
    * \param dev_name the dev to use for autostart. Default is /dev/ttyUSB0
@@ -359,6 +374,14 @@ private:
   //! \return
   //!
   bool isInsideBounds(const SVHChannel &channel, const int32_t &target_position);
+
+  /*!
+   * \brief currentSettingsAreSafe helper function to check for the most important values of the current settings
+   * \param channel the channel the settings are meant for
+   * \param current_settings the settings to evaluate
+   * \return true if they are "reasonable safe". Only the most vile settings will be rejected!
+   */
+  bool currentSettingsAreSafe(const SVHChannel &channel,const SVHCurrentSettings &current_settings);
 
 
   // DEBUG

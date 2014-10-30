@@ -49,12 +49,13 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_home_settings(eSVH_DIMENSION)
 {
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-   // Set some initial connection related hints that are always true at the beginning
-    if (m_ws_broadcaster)
-    {
-      m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);
-      m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
-    }
+  m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
+  if (m_ws_broadcaster)
+  {
+    m_ws_broadcaster->robot->setInputToRadFactor(1);
+    m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);
+    m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+  }
 #endif
 
 
@@ -89,13 +90,7 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
     }
   }
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-  m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
-  if (m_ws_broadcaster)
-  {
-    m_ws_broadcaster->robot->setInputToRadFactor(1);
-  }
-#endif
+
 }
 
 SVHFingerManager::~SVHFingerManager()

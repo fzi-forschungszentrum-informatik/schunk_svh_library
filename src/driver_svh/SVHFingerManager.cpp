@@ -25,6 +25,8 @@
 
 #include <icl_core/TimeStamp.h>
 
+#include <boost/bind/bind.hpp>
+
 namespace driver_svh {
 
 SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const uint32_t &reset_timeout) :
@@ -52,6 +54,9 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
   if (m_ws_broadcaster)
   {
+    // Register a custom handler for received JSON Messages
+    m_ws_broadcaster->registerHintCallback(boost::bind(&SVHFingerManager::receivedHintMessage,this,_1));
+
     m_ws_broadcaster->robot->setInputToRadFactor(1);
     m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);
     m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
@@ -633,6 +638,15 @@ bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
 }
 
 
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+void SVHFingerManager::receivedHintMessage(const int &hint)
+{
+  std::cout << "FM:Received a Hint" << hint << std::endl;
+
+}
+
+
+#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
 void SVHFingerManager::updateWebSocket()

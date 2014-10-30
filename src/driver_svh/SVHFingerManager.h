@@ -29,6 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
 #include <icl_comm_websocket/WsBroadcaster.h>
 #else
@@ -282,6 +283,13 @@ public:
    *       this function is meant to be used for the periodically changing states
    */
   void updateWebSocket();
+
+  /*!
+   * \brief receivedHintMessage Parser for received Hint commands (via callback from the broadcaster)
+   * \param int the HintCommand received from the websocket
+   */
+  void receivedHintMessage(const int &hint);
+
   #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
 // ----------------------------------------------------------------------

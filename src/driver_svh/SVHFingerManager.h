@@ -356,6 +356,11 @@ private:
   //! Vector of home settings for each finger (as given by external config)
   std::vector<SVHHomeSettings> m_home_settings;
 
+  /*!
+   * \brief m_serial_device Device handle of the device to use, is overwritten if connect is called with an argument
+   */
+  std::string m_serial_device;
+
   //! \brief vector storing the reset order of the channels
   std::vector<SVHChannel> m_reset_order;
 
@@ -390,7 +395,6 @@ private:
    * \return true if they are "reasonable safe". Only the most vile settings will be rejected!
    */
   bool currentSettingsAreSafe(const SVHChannel &channel,const SVHCurrentSettings &current_settings);
-
 
   // DEBUG
   SVHControllerFeedback debug_feedback;

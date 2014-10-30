@@ -48,7 +48,8 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_current_settings_given(eSVH_DIMENSION,false),
   m_position_settings(eSVH_DIMENSION),
   m_position_settings_given(eSVH_DIMENSION,false),
-  m_home_settings(eSVH_DIMENSION)
+  m_home_settings(eSVH_DIMENSION),
+  m_serial_device("/dev/ttyUSB0")
 {
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
   m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
@@ -116,6 +117,7 @@ SVHFingerManager::~SVHFingerManager()
 bool SVHFingerManager::connect(const std::string &dev_name)
 {
    LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to connect to the Hardware..." << endl);
+
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
    // As soon as connect is called the hint about not calling connect is void :)
     if (m_ws_broadcaster)
@@ -124,6 +126,10 @@ bool SVHFingerManager::connect(const std::string &dev_name)
       m_ws_broadcaster->sendHints(); // Needs to be called if not done by the feedback polling thread
     }
 #endif
+
+  // Save device handle for next use
+  m_serial_device = dev_name;
+
 
   if (m_connected)
   {
@@ -644,11 +650,39 @@ bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
 void SVHFingerManager::receivedHintMessage(const int &hint)
 {
-  std::cout << "FM:Received a Hint" << hint << std::endl;
-
+  LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Received a special command to clear error :" << hint << endl);
+  switch (hint)
+  {
+  case eHT_DEVICE_NOT_FOUND:
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "No specific action associated with command" << hint << endl);
+    break;
+  case eHT_CONNECTION_FAILED:
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Retrying connection with device handle: " << m_serial_device << endl);
+    connect(m_serial_device);
+    break;
+  case eHT_NOT_RESETTED:
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Resetting ALL fingers " << endl);
+    resetChannel(eSVH_ALL);
+    break;
+  case eHT_NOT_CONNECTED:
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Retrying connection with device handle: " << m_serial_device << endl);
+    connect(m_serial_device);
+    break;
+  case eHT_RESET_FAILED:
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Resetting ALL fingers " << endl);
+    resetChannel(eSVH_ALL);
+    break;
+  case eHT_CHANNEL_SWITCHED_OF:
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "No specific action associated with command" << hint << endl);
+    break;
+  case eHT_DANGEROUS_CURRENTS:
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "No specific action associated with command" << hint << endl);
+    break;
+  default:
+    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Special error clearing command " << hint << " could not be mapped. No action is taken please contact support if this happens." << endl);
+    break;
+  }
 }
-
-
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
 
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_

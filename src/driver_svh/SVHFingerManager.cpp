@@ -59,7 +59,8 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
 
     m_ws_broadcaster->robot->setInputToRadFactor(1);
     m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);
-    m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+    m_ws_broadcaster->sendHints(); // Needs to be called if not done by the feedback polling thread
+    m_ws_broadcaster->sendState(); // Initial send in case someone is waiting for it
   }
 #endif
 
@@ -89,7 +90,7 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setHint(eHT_CHANNEL_SWITCHED_OF);
-        m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+        m_ws_broadcaster->sendHints(); // Needs to be called if not done by the feedback polling thread
       }
 #endif
     }
@@ -120,7 +121,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
     if (m_ws_broadcaster)
     {
       m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
-      m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+      m_ws_broadcaster->sendHints(); // Needs to be called if not done by the feedback polling thread
     }
 #endif
 
@@ -187,7 +188,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
           if (m_ws_broadcaster)
           {
             m_ws_broadcaster->robot->setHint(eHT_CONNECTION_FAILED);
-            m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+            m_ws_broadcaster->sendHints(); // Needs to be called if not done by the feedback polling thread
           }
 #endif
 
@@ -209,7 +210,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
           m_ws_broadcaster->robot->clearHint(eHT_DEVICE_NOT_FOUND);
           // Next up, resetting, so give a hint for that
           m_ws_broadcaster->robot->setHint(eHT_NOT_RESETTED);
-          m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+          m_ws_broadcaster->sendHints(); // Needs to be called if not done by the feedback polling thread
         }
 #endif
 
@@ -229,7 +230,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setHint(eHT_DEVICE_NOT_FOUND);
-        m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+        m_ws_broadcaster->sendHints(); // Needs to be called if not done by the feedback polling thread
       }
 #endif
 
@@ -269,7 +270,7 @@ void SVHFingerManager::disconnect()
     {
       m_ws_broadcaster->robot->clearAllHints();
       m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);
-      m_ws_broadcaster->sendState(); // Needs to be called if not done by the feedback polling thread
+      m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
     }
 #endif
 
@@ -390,6 +391,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             if (m_ws_broadcaster)
             {
               m_ws_broadcaster->robot->setHint(eHT_RESET_FAILED);
+              m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
             }
 #endif
             return false;
@@ -461,6 +463,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         {
           m_ws_broadcaster->robot->clearHint(eHT_RESET_FAILED);
           m_ws_broadcaster->robot->clearHint(eHT_NOT_RESETTED);
+          m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
         }
 #endif
       }
@@ -985,6 +988,7 @@ bool SVHFingerManager::setCurrentSettings(const SVHChannel &channel, const SVHCu
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setHint(eHT_DANGEROUS_CURRENTS);
+        m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
       }
 #endif
     }

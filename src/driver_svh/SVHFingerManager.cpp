@@ -664,7 +664,8 @@ void SVHFingerManager::receivedHintMessage(const int &hint)
   switch (hint)
   {
   case eHT_DEVICE_NOT_FOUND:
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "No specific action associated with command" << hint << endl);
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Retrying connection with device handle: " << m_serial_device << endl);
+    connect(m_serial_device);
     break;
   case eHT_CONNECTION_FAILED:
     LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Retrying connection with device handle: " << m_serial_device << endl);

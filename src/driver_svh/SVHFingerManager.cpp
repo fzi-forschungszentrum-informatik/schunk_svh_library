@@ -119,10 +119,12 @@ bool SVHFingerManager::connect(const std::string &dev_name)
    LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to connect to the Hardware..." << endl);
 
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-   // As soon as connect is called the hint about not calling connect is void :)
+   // Reset the connection specific hints and give it a go aggain.
     if (m_ws_broadcaster)
     {
       m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
+      m_ws_broadcaster->robot->clearHint(eHT_DEVICE_NOT_FOUND);
+      m_ws_broadcaster->robot->clearHint(eHT_CONNECTION_FAILED);
       m_ws_broadcaster->sendHints(); // Hints are updated Manually
     }
 #endif

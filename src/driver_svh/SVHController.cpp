@@ -79,8 +79,9 @@ bool SVHController::connect(const std::string &dev_name)
   LOGGING_DEBUG_C(DriverSVH, SVHController, "Connect was called, starting the serial interface..." << endl);
   if (m_serial_interface != NULL)
   {
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "Connect finished succesfully" << endl);
-    return m_serial_interface->connect(dev_name);
+    bool success = m_serial_interface->connect(dev_name);
+    LOGGING_DEBUG_C(DriverSVH, SVHController, "Connect finished " << ((success)?"succesfully":"with an error") << endl);
+    return success ;
   }
   else
   {

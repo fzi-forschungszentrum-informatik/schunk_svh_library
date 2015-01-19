@@ -241,7 +241,7 @@ bool SVHFingerManager::connect(const std::string &dev_name)
         m_ws_broadcaster->sendHints(); // Hints are updated Manually
       }
 #endif
-
+      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection FAILED! Device could NOT be opened" << endl);
     }
   }
 

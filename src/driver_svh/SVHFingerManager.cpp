@@ -1095,6 +1095,11 @@ bool SVHFingerManager::setHomeSettings(const SVHChannel &channel, const driver_s
                                              << "Max offset "<< home_settings.maximumOffset << " " << "idle pos "  << home_settings.idlePosition  << " "
                                              << "Range Rad " << home_settings.rangeRad << " " << "Reset Curr Factor " << home_settings.resetCurrentFactor << " " << endl
                     );
+
+    // Update the conversion factor for this finger:
+    float range_ticks = m_home_settings[channel].maximumOffset - m_home_settings[channel].minimumOffset;
+    m_ticks2rad[i] = m_home_settings[channel].rangeRad / range_ticks * (-m_home_settings[channel].direction);
+
     return true;
   }
   else

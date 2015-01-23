@@ -52,7 +52,7 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_serial_device("/dev/ttyUSB0")
 {
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-  m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH,"/tmp/ws_broadcaster"));
+  m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH));
   if (m_ws_broadcaster)
   {
     // Register a custom handler for received JSON Messages

@@ -373,12 +373,20 @@ private:
   std::vector<double> m_reset_current_factor;
 
   //!
-  //! \brief Converts joint positions of a specific channel from RAD to ticks
-  //! \param channel
-  //! \param position
-  //! \return
+  //! \brief Converts joint positions of a specific channel from RAD to ticks factoring in the offset of the channels
+  //! \param channel Channel to Convert for (each one has different offset)
+  //! \param position The desired position given in RAD
+  //! \return The tick value corresponing to the RAD input
   //!
-  int32_t convertRad2Ticks(const SVHChannel &channel, double position);
+  int32_t convertRad2Ticks(const SVHChannel &channel,const double &position);
+
+  //!
+  //! \brief Converts joint positions of a specific channel from ticks to RAD factoring in the offset of the channels
+  //! \param channel Channel to Convert for (each one has different offset)
+  //! \param ticks The current position in ticks
+  //! \return the RAD Value corresponding to the tick value of a given channel
+  //!
+  double convertTicks2Rad(const SVHChannel &channel, const int32_t &ticks);
 
   //!
   //! \brief Check bounds of target positions

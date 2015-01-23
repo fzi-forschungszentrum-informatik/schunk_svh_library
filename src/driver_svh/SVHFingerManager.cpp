@@ -626,18 +626,19 @@ bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
       return true;
     }
 
-    int32_t cleared_position_ticks = controller_feedback.position;
+    //int32_t cleared_position_ticks = controller_feedback.position;
+    position = convertTicks2Rad(channel,controller_feedback.position);
 
-    if (m_home_settings[channel].direction > 0)
-    {
-      cleared_position_ticks -= m_position_max[channel];
-    }
-    else
-    {
-      cleared_position_ticks -= m_position_min[channel];
-    }
+//    if (m_home_settings[channel].direction > 0)
+//    {
+//      cleared_position_ticks -= m_position_max[channel];
+//    }
+//    else
+//    {
+//      cleared_position_ticks -= m_position_min[channel];
+//    }
 
-    position = static_cast<double>(cleared_position_ticks * m_ticks2rad[channel]);
+//    position = static_cast<double>(cleared_position_ticks * m_ticks2rad[channel]);
 
     // Safety overwrite: If controller drives to a negative position (should not happen but might in case the soft stops are placed badly)
     // we cannot get out because inputs smaller than 0 will be ignored
@@ -779,6 +780,7 @@ bool SVHFingerManager::setAllTargetPositions(const std::vector<double>& position
         if (!m_is_switched_off[channel] && !isInsideBounds(channel, target_positions[channel]))
         {
           reject_command = true;
+
         }
       }
 
@@ -1252,7 +1254,7 @@ void driver_svh::SVHFingerManager::setResetSpeed(const float &speed)
 }
 
 // Converts joint positions of a specific channel from RAD to ticks
-int32_t SVHFingerManager::convertRad2Ticks(const SVHChannel &channel, double position)
+int32_t SVHFingerManager::convertRad2Ticks(const SVHChannel &channel,const double &position)
 {
   int32_t target_position = static_cast<int32_t>(position / m_ticks2rad[channel]);
 
@@ -1268,11 +1270,37 @@ int32_t SVHFingerManager::convertRad2Ticks(const SVHChannel &channel, double pos
   return target_position;
 }
 
+// Converts Joint ticks of a specific channel back to RAD removing its offset in the process
+double SVHFingerManager::convertTicks2Rad(const SVHChannel &channel, const int32_t &ticks)
+{
+    int32_t cleared_position_ticks;
+
+    if (m_home_settings[channel].direction > 0)
+    {
+      cleared_position_ticks = ticks - m_position_max[channel];
+    }
+    else
+    {
+      cleared_position_ticks = ticks - m_position_min[channel];
+    }
+
+    return static_cast<double>(cleared_position_ticks * m_ticks2rad[channel]);
+}
+
 // Check bounds of target positions
 bool SVHFingerManager::isInsideBounds(const SVHChannel &channel, const int32_t &target_position)
 {
+
   // Switched off channels will always be reported as inside bounds
-  return (m_is_switched_off[channel] || ((target_position >= m_position_min[channel]) && (target_position <= m_position_max[channel])));
+  if (m_is_switched_off[channel] || ((target_position >= m_position_min[channel]) && (target_position <= m_position_max[channel])))
+  {
+      return true;
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Channel" << channel << " : " << SVHController::m_channel_description[channel]  << " Target: " << target_position << "(" << convertTicks2Rad(channel,target_position) << "rad)" << " is out of bounds! [" << m_position_min[channel] << "/" << m_position_max[channel] << "]"  << endl);
+    return false;
+  }
 }
 
 void SVHFingerManager::requestControllerState()

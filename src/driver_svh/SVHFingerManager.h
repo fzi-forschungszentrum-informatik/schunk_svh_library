@@ -94,9 +94,10 @@ public:
  /*!
   *  \brief Open connection to SCHUNK five finger hand. Wait until expected return packages are received.
   *  \param dev_name file handle of the serial device e.g. "/dev/ttyUSB0"
+  *  \param _retry_count The number of times a connection is tried to be established if at least one package was received
   * \return true if connection was succesful
   */
-  bool connect(const std::string &dev_name = "/dev/ttyUSB0");
+  bool connect(const std::string &dev_name = "/dev/ttyUSB0",const unsigned int &_retry_count = 3);
 
   //!
   //! \brief disconnect SCHUNK five finger hand

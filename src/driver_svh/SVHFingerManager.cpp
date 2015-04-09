@@ -175,10 +175,12 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
               // check for correct response from hardware controller
               icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
               bool timeout = false;
+              unsigned int received_count = 0;
+              unsigned int send_count = 0;
               while (!timeout && !m_connected)
               {
-                  unsigned int send_count = m_controller->getSentPackageCount();
-                  unsigned int received_count = m_controller->getReceivedPackageCount();
+                  send_count = m_controller->getSentPackageCount();
+                  received_count = m_controller->getReceivedPackageCount();
                   if (send_count == received_count)
                   {
                       m_connected = true;
@@ -187,17 +189,6 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
 
                   }
                   LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
-
-                  // Try Aggain, but ONLY if we at least got one package back, otherwise its futile
-                  if (received_count > 0 && retry_count >= 0)
-                  {
-                      --retry_count;
-                  }
-                  else
-                  {
-                      retry_count = 0;
-                  }
-
 
                   // check for timeout
                   if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_reset_timeout)
@@ -215,6 +206,18 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
 
                   }
                   icl_core::os::usleep(50000);
+              }
+
+              // Try Aggain, but ONLY if we at least got one package back, otherwise its futile
+              if (received_count > 0 && retry_count >= 0)
+              {
+                  retry_count--;
+                  LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Retrying, count: " << retry_count << endl);
+              }
+              else
+              {
+                  retry_count = 0;
+                  LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Not Retrying anymore."<< endl);
               }
 
           // Keep trying to reconnect several times because the brainbox often makes problems

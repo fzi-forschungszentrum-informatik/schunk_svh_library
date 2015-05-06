@@ -208,20 +208,28 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
                   icl_core::os::usleep(50000);
               }
 
-              // Try Aggain, but ONLY if we at least got one package back, otherwise its futile
-              if (received_count > 0 && retry_count >= 0)
+              // Try Aggain, but ONLY if we at least got one package back, otherwise its futil
+              if (!m_connected)
               {
-                  retry_count--;
-                  LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Retrying, count: " << retry_count << endl);
+                if (received_count > 0 && retry_count >= 0)
+                {
+                    retry_count--;
+                    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Retrying, count: " << retry_count << endl);
+                }
+                else
+                {
+                    retry_count = 0;
+                    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Not Retrying anymore."<< endl);
+                }
               }
-              else
-              {
-                  retry_count = 0;
-                  LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Not Retrying anymore."<< endl);
-              }
-
           // Keep trying to reconnect several times because the brainbox often makes problems
           } while (!m_connected && retry_count > 0);
+
+
+           if (!m_connected && retry_count<= 0)
+           {
+             LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "A Stable connection could NOT be made, however some packages where received. Please check the hardware!" << endl);
+           }
 
 
           if (m_connected)

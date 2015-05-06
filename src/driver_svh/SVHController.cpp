@@ -582,6 +582,7 @@ SVHFirmwareInfo SVHController::getFirmwareInfo()
 void SVHController::resetPackageCounts()
 {
   m_received_package_count = 0;
+  // The serial interface also keeps track about these counts
   m_serial_interface->resetTransmitPackageCount();
   LOGGING_TRACE_C(DriverSVH, SVHController, "Received package count resetted" << endl);
 }

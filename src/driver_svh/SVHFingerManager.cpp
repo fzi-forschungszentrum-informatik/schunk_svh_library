@@ -409,6 +409,9 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
         // initialize timeout
         icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
+        icl_core::TimeStamp start_time_log = icl_core::TimeStamp::now();
+        // Debug helper to just notify about fresh stales
+        bool stale_notification_sent = false;
 
         for (size_t hit_count = 0; hit_count < 10; )
         {
@@ -416,16 +419,22 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           //m_controller->requestControllerFeedback(channel);
           m_controller->getControllerFeedback(channel, control_feedback);
 
-          // DEBUG REMOVE THIS IN PRODUCTION
-//          LOGGING_INFO_C(DriverSVH, SVHFingerManager,"Channel "<< channel << ":" << m_controller->m_channel_description[channel] << "current: " << control_feedback.current << endl);
+          // Quite extensive Current output!
+          if ((icl_core::TimeStamp::now() - start_time_log).milliSeconds() > 100)
+          {
+            LOGGING_INFO_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
+            start_time_log = icl_core::TimeStamp::now();
+          }
 
           if ((home.resetCurrentFactor * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= home.resetCurrentFactor * cur_set.wmx))
           {
             hit_count++;
+            LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count increased: " << hit_count << endl);
           }
           else if (hit_count > 0)
           {
             hit_count--;
+            LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count Decreased: " << hit_count << endl);
           }
 
           // check for time out: Abort, if position does not change after homing timeout.
@@ -449,6 +458,19 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           if (control_feedback.position != control_feedback_previous.position)
           {
             start_time = icl_core::TimeStamp::now();
+            if (stale_notification_sent)
+            {
+             LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale resolved, continuing detection" << endl);
+             stale_notification_sent = false;
+            }
+          }
+          else
+          {
+            if (!stale_notification_sent)
+            {
+             LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale detected. Starting Timeout" << endl);
+             stale_notification_sent = true;
+            }
           }
 
           // save previous control feedback
@@ -658,17 +680,6 @@ bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
 
     //int32_t cleared_position_ticks = controller_feedback.position;
     position = convertTicks2Rad(channel,controller_feedback.position);
-
-//    if (m_home_settings[channel].direction > 0)
-//    {
-//      cleared_position_ticks -= m_position_max[channel];
-//    }
-//    else
-//    {
-//      cleared_position_ticks -= m_position_min[channel];
-//    }
-
-//    position = static_cast<double>(cleared_position_ticks * m_ticks2rad[channel]);
 
     // Safety overwrite: If controller drives to a negative position (should not happen but might in case the soft stops are placed badly)
     // we cannot get out because inputs smaller than 0 will be ignored

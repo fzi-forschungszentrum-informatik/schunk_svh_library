@@ -1169,7 +1169,10 @@ void SVHFingerManager::setDefaultHomeSettings()
   // All values are based on the hardware description for maximum tics and maximum allowable range of movements
   // direction, minimum offset, maximum offset, idle position, range in rad, resetcurrent(factor)
   m_home_settings[eSVH_THUMB_FLEXION]          =  SVHHomeSettings(+1, -175.0e3f,  -5.0e3f, -15.0e3f, 0.97, 0.75);    // thumb flexion
-  m_home_settings[eSVH_THUMB_OPPOSITION]       =  SVHHomeSettings(+1, -105.0e3f,  -5.0e3f, -15.0e3f, 0.99, 0.75); // thumb opposition
+  // Conservative value
+  //m_home_settings[eSVH_THUMB_OPPOSITION]       =  SVHHomeSettings(+1, -105.0e3f,  -5.0e3f, -15.0e3f, 0.99, 0.75); // thumb opposition
+  // Value using the complete movemment range
+  m_home_settings[eSVH_THUMB_OPPOSITION]       =  SVHHomeSettings(+1, -150.0e3f,  -5.0e3f, -15.0e3f, 0.99, 0.75); // thumb opposition
   m_home_settings[eSVH_INDEX_FINGER_DISTAL]    =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 1.33, 0.75);    // index finger distal joint
   m_home_settings[eSVH_INDEX_FINGER_PROXIMAL]  =  SVHHomeSettings(-1,    2.0e3f,  42.0e3f,   8.0e3f, 0.8, 0.75);  // index finger proximal joint
   m_home_settings[eSVH_MIDDLE_FINGER_DISTAL]   =  SVHHomeSettings(+1,  -47.0e3f,  -2.0e3f,  -8.0e3f, 1.33, 0.75);    // middle finger distal joint

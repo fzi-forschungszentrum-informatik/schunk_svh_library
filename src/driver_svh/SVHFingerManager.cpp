@@ -430,7 +430,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           m_controller->getControllerFeedback(channel, control_feedback);
 
           // Quite extensive Current output!
-          if ((icl_core::TimeStamp::now() - start_time_log).milliSeconds() > 100)
+          if ((icl_core::TimeStamp::now() - start_time_log).milliSeconds() > 250)
           {
             LOGGING_INFO_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
             start_time_log = icl_core::TimeStamp::now();

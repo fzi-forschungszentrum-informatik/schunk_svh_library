@@ -125,6 +125,9 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
 {
   if (m_serial_device != NULL)
   {
+    // For alignment: Always 64Byte data, padded with zeros
+    packet.data.resize(64,0);
+  
     uint8_t check_sum1 = 0;
     uint8_t check_sum2 = 0;
 

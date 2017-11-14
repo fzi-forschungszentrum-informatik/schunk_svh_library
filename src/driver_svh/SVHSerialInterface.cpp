@@ -158,7 +158,7 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
 
       // Small delay -> THIS SHOULD NOT BE NECESSARY as the communication speed should be handable by the HW. However, it will die if this sleep is
       // not used and this may also depend on your computer speed -> This issue might stem also from the hardware and will hopefully be fixed soon.
-      icl_core::os::usleep(8000);
+      //icl_core::os::usleep(8000);
 
     }
     else

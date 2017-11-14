@@ -379,6 +379,8 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
       LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Start homing channel " << channel << endl);
 
+      m_controller->resetPackageCounts();
+
       if (!m_is_switched_off[channel])
       {
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
@@ -485,6 +487,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
           // save previous control feedback
           control_feedback_previous = control_feedback;
+          icl_core::os::usleep(8000);
         }
 
         LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Hit counter of " << channel << " reached." << endl);
@@ -513,8 +516,9 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             break;
           }
         }
+        m_controller->resetPackageCounts();
         m_controller->disableChannel(eSVH_ALL);
-
+        icl_core::os::usleep(8000);
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
         m_controller->setPositionSettings(channel, getDefaultPositionSettings(false)[channel]);
       }
@@ -558,8 +562,11 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         m_ws_broadcaster->robot->setJointHomed(true,channel);
       }
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      unsigned send_count = m_controller->getSentPackageCount();
+      unsigned received_count = m_controller->getReceivedPackageCount();
 
-      LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully homed channel " << channel << endl);
+      LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully homed channel " << channel << endl
+                                               << "Send packages = " << send_count << ", received packages = " << received_count << endl);
 
       return true;
     }

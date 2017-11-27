@@ -31,6 +31,8 @@
 #include "driver_svh/Logging.h"
 
 #include <icl_comm/ByteOrderConversion.h>
+#include <boost/bind/bind.hpp>
+
 
 using icl_core::TimeSpan;
 using icl_comm::serial::SerialFlags;
@@ -73,7 +75,7 @@ bool SVHSerialInterface::connect(const std::string &dev_name)
   }
 
   // create receive thread
-  m_receive_thread.reset(new SVHReceiveThread(TimeSpan(0, 500000), m_serial_device, m_received_packet_callback));
+  m_receive_thread.reset(new SVHReceiveThread(TimeSpan(0, 500000), m_serial_device, boost::bind(&SVHSerialInterface::receivedPacketCallback,this,_1,_2)));
 
   if (m_receive_thread)
   {
@@ -158,7 +160,15 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
 
       // Small delay -> THIS SHOULD NOT BE NECESSARY as the communication speed should be handable by the HW. However, it will die if this sleep is
       // not used and this may also depend on your computer speed -> This issue might stem also from the hardware and will hopefully be fixed soon.
-      //icl_core::os::usleep(8000);
+      //icl_core::os::usleep(9000);
+      icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
+      bool timeout = false;
+      while(!timeout && last_index!=packet.index){
+        if ((icl_core::TimeStamp::now() - start_time).tsSec() > 1)
+        {
+            timeout = true;
+        }
+      }
 
     }
     else
@@ -206,6 +216,12 @@ void SVHSerialInterface::printPacketOnConsole(SVHSerialPacket &packet)
   std::cout << send_array << std::endl;
 
   m_dummy_packets_printed++;
+}
+
+void SVHSerialInterface::receivedPacketCallback(const SVHSerialPacket &packet, unsigned int packet_count)
+{
+  last_index=packet.index;
+  m_received_packet_callback(packet,packet_count);
 }
 
 }

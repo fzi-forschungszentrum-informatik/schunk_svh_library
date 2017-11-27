@@ -140,7 +140,7 @@ void SVHController::setControllerTarget(const SVHChannel& channel, const int32_t
     m_serial_interface ->sendPacket(serial_packet);
 
     // Debug Disabled as it is way to noisy
-    //LOGGING_TRACE_C(DriverSVH, SVHController, "Control command was given for channel: "<< channel << "Driving motor to position: "<< position << endl);
+    LOGGING_TRACE_C(DriverSVH, SVHController, "Control command was given for channel: "<< channel << "Driving motor to position: "<< position << endl);
   }
   else
   {
@@ -160,7 +160,7 @@ void SVHController::setControllerTargetAllChannels(const std::vector<int32_t> &p
    m_serial_interface ->sendPacket(serial_packet);
 
    // Debug Disabled as it is way to noisy
-   //LOGGING_TRACE_C(DriverSVH, SVHController, "Control command was given for all channels: Driving motors to positions: "<< positions[0] << " , " << positions[1] << " , " << positions[2] << " , " << positions[3] << " , " << positions[4] << " , " << positions[5] << " , " << positions[6] << " , " << positions[7] << " , " << positions[8] << " , " << endl);
+   LOGGING_TRACE_C(DriverSVH, SVHController, "Control command was given for all channels: Driving motors to positions: "<< positions[0] << " , " << positions[1] << " , " << positions[2] << " , " << positions[3] << " , " << positions[4] << " , " << positions[5] << " , " << positions[6] << " , " << positions[7] << " , " << positions[8] << " , " << endl);
   }
   // We could theoretically allow fewer channels but this leaves some questions. Are the given channels in right order?
   // was it realy intented to just give fewer positions? What to do witht the ones that did not get anything?
@@ -331,7 +331,7 @@ void SVHController::requestControllerFeedback(const SVHChannel& channel)
     m_serial_interface ->sendPacket(serial_packet);
 
     // Disabled as it spams the output to much
-    //LOGGING_TRACE_C(DriverSVH, SVHController, "Controller feedback was requested for channel: "<< channel << endl);
+    LOGGING_TRACE_C(DriverSVH, SVHController, "Controller feedback was requested for channel: "<< channel << endl);
 
   }
   else if (channel == eSVH_ALL)
@@ -340,7 +340,7 @@ void SVHController::requestControllerFeedback(const SVHChannel& channel)
     m_serial_interface ->sendPacket(serial_packet);
 
     // Disabled as it spams the output to much
-    //LOGGING_TRACE_C(DriverSVH, SVHController, "Controller feedback was requested for all channels " << endl);
+    LOGGING_TRACE_C(DriverSVH, SVHController, "Controller feedback was requested for all channels " << endl);
   }
   else
   {
@@ -479,7 +479,7 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
         //std::cout << "Recieved: Controllerfeedback RAW Data: " << ab;
         ab >> m_controller_feedback[channel];
         // Disabled as this is spamming the output to much
-        //LOGGING_TRACE_C(DriverSVH, SVHController, "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current << endl);
+        LOGGING_TRACE_C(DriverSVH, SVHController, "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current << endl);
       }
       else
       {
@@ -493,7 +493,7 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
       ab >> feedback_all;
       m_controller_feedback = feedback_all.feedbacks;
       // Disabled as this is spannimg the output to much
-      //LOGGING_TRACE_C(DriverSVH, SVHController, "Received a Control Feedback/Control Command packet for channel all channels "<<  endl);
+      LOGGING_TRACE_C(DriverSVH, SVHController, "Received a Control Feedback/Control Command packet for channel all channels "<<  endl);
       break;
     case SVH_GET_POSITION_SETTINGS:
     case SVH_SET_POSITION_SETTINGS:

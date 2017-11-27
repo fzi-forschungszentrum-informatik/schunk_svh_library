@@ -103,6 +103,8 @@ private:
 
   //! length of received serial data
   uint16_t m_length;
+  uint16_t m_checksum1;
+  uint16_t m_checksum2;
 
   //! length of received serial data
   std::vector<uint8_t> m_data;
@@ -112,6 +114,9 @@ private:
 
   //! packets counter
   unsigned int m_packets_received;
+
+  unsigned int m_skipped_bytes;
+  std::vector<uint8_t> m_skipped_bytes_str;
 
   //! state machine processing received data
   bool receiveData();

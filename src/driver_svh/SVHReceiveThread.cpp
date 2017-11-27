@@ -29,7 +29,7 @@
 //----------------------------------------------------------------------
 #include <driver_svh/SVHReceiveThread.h>
 #include <driver_svh/Logging.h>
-
+#include <sstream>
 
 using icl_comm::ArrayBuilder;
 
@@ -44,6 +44,7 @@ SVHReceiveThread::SVHReceiveThread(const TimeSpan& period, boost::shared_ptr<Ser
     m_data(0, 0),
     m_ab(0),
     m_packets_received(0),
+    m_skipped_bytes(0),
     m_received_callback(received_callback)
 {}
 
@@ -94,6 +95,11 @@ bool SVHReceiveThread::receiveData()
         {
           m_received_state = eRS_HEADER2;
         }
+        else
+        {
+          m_skipped_bytes++;
+          m_skipped_bytes_str.push_back(data_byte);
+        }
       }
       break;
     }
@@ -112,11 +118,16 @@ bool SVHReceiveThread::receiveData()
           case PACKET_HEADER1:
           {
             m_received_state = eRS_HEADER2;
+            m_skipped_bytes++;
+            m_skipped_bytes_str.push_back(data_byte);
             break;
           }
           default:
           {
             m_received_state = eRS_HEADER1;
+            m_skipped_bytes+=2;
+            m_skipped_bytes_str.push_back(PACKET_HEADER1);
+            m_skipped_bytes_str.push_back(data_byte);
             break;
           }
         }
@@ -182,6 +193,8 @@ bool SVHReceiveThread::receiveData()
       if (m_serial_device->Read(&checksum1, sizeof(uint8_t))
           && m_serial_device->Read(&checksum2, sizeof(uint8_t)))
       {
+        m_checksum1=checksum1;
+        m_checksum2=checksum2;
         // probe for correct checksum
         for (size_t i = 0; i < m_data.size(); ++i)
         {
@@ -196,6 +209,27 @@ bool SVHReceiveThread::receiveData()
         else
         {
           m_received_state = eRS_HEADER1;
+          //m_skipped_bytes+=m_length+8;
+          SVHSerialPacket received_packet(m_length);
+          m_ab >> received_packet;
+          std::ostringstream os1;
+          os1<<std::setw(2) << std::setfill('0') << std::hex;
+          for (size_t i = 0; i < m_skipped_bytes_str.size(); i++)
+          {
+            os1 << "0x" << static_cast<int>(m_skipped_bytes_str[i]) << " ";
+          }
+
+          if(m_skipped_bytes>0)LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Skipped "<<m_skipped_bytes<<" bytes: "<<os1.str() << endl);
+          LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Checksum error: "<< (int)checksum1<<","<<(int)checksum2<<"!=0, skipping "<<m_length+8<<"bytes, packet index:" << received_packet.index <<", address:"<<received_packet.address<<", size:"<<received_packet.data.size() << endl);
+          std::ostringstream os;
+          os<<received_packet << " Checksum: 0x" << std::hex << static_cast<int>(m_checksum1) << " 0x" << std::hex << static_cast<int>(m_checksum2) ;
+          LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Packet: "<< os.str() << endl);
+          m_skipped_bytes=0;
+          m_skipped_bytes_str.clear();
+          if (m_received_callback)
+          {
+            m_received_callback(received_packet, m_packets_received);
+          }
         }
       }
       else
@@ -212,6 +246,20 @@ bool SVHReceiveThread::receiveData()
       m_ab >> received_packet;
 
       m_packets_received++;
+      std::ostringstream os1;
+      os1<<std::setw(2) << std::setfill('0') << std::hex;
+      for (size_t i = 0; i < m_skipped_bytes_str.size(); i++)
+      {
+        os1 << "0x" << static_cast<int>(m_skipped_bytes_str[i]) << " ";
+      }
+
+      if(m_skipped_bytes>0)LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Skipped "<<m_skipped_bytes<<" bytes: "<<os1.str() << endl);
+      LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Received packet index:" << received_packet.index <<", address:"<<received_packet.address<<", size:"<<received_packet.data.size() << endl);
+      std::ostringstream os;
+      os<<received_packet << " Checksum: 0x" << std::hex << static_cast<int>(m_checksum1) << " 0x" << std::hex << static_cast<int>(m_checksum2) ;
+      LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Packet: "<< os.str() << endl);
+      m_skipped_bytes=0;
+      m_skipped_bytes_str.clear();
 
       // notify whoever is waiting for this
       if (m_received_callback)

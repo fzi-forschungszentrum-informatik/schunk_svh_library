@@ -160,15 +160,18 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
 
       // Small delay -> THIS SHOULD NOT BE NECESSARY as the communication speed should be handable by the HW. However, it will die if this sleep is
       // not used and this may also depend on your computer speed -> This issue might stem also from the hardware and will hopefully be fixed soon.
-      //icl_core::os::usleep(9000);
-      icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
+      // 782µs are needed to send 72bytes via a baudrate of 921600
+      icl_core::os::usleep(782);
+      // Instead you could wait for the response of the packet (or on of the previous n packets). This slows down the speed to the 2-way latency, which is platform dependent
+      /*icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
       bool timeout = false;
-      while(!timeout && last_index!=packet.index){
+      while(!timeout){
+        if(uint8_t(packet.index-last_index)<8)break;
         if ((icl_core::TimeStamp::now() - start_time).tsSec() > 1)
         {
             timeout = true;
         }
-      }
+      }//*/
 
     }
     else

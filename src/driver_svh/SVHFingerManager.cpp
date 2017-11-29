@@ -126,17 +126,17 @@ SVHFingerManager::~SVHFingerManager()
 
 bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_retry_count)
 {
-   LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to connect to the Hardware..." << endl);
+  LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to connect to the Hardware..." << endl);
 
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-   // Reset the connection specific hints and give it a go aggain.
-    if (m_ws_broadcaster)
-    {
-      m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
-      m_ws_broadcaster->robot->clearHint(eHT_DEVICE_NOT_FOUND);
-      m_ws_broadcaster->robot->clearHint(eHT_CONNECTION_FAILED);
-      m_ws_broadcaster->sendHints(); // Hints are updated Manually
-    }
+  // Reset the connection specific hints and give it a go aggain.
+  if (m_ws_broadcaster)
+  {
+    m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
+    m_ws_broadcaster->robot->clearHint(eHT_DEVICE_NOT_FOUND);
+    m_ws_broadcaster->robot->clearHint(eHT_CONNECTION_FAILED);
+    m_ws_broadcaster->sendHints(); // Hints are updated Manually
+  }
 #endif
 
   // Save device handle for next use
@@ -150,136 +150,136 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
 
   if (m_controller != NULL)
   {
-      if (m_controller->connect(dev_name))
-      {
-          unsigned int retry_count=_retry_count;
-          do {
-              // Reset the package counts (in case a previous attempt was made)
-              m_controller->resetPackageCounts();
+    if (m_controller->connect(dev_name))
+    {
+      unsigned int retry_count=_retry_count;
+      do {
+        // Reset the package counts (in case a previous attempt was made)
+        m_controller->resetPackageCounts();
 
-              // initialize feedback polling thread
-              m_feedback_thread = new SVHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
+        // initialize feedback polling thread
+        m_feedback_thread = new SVHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
 
-              // load default position settings before the fingers are resetted
-              std::vector<SVHPositionSettings> position_settings = getDefaultPositionSettings(true);
+        // load default position settings before the fingers are resetted
+        std::vector<SVHPositionSettings> position_settings = getDefaultPositionSettings(true);
 
-              // load default current settings
-              std::vector<SVHCurrentSettings> current_settings
-                      = getDefaultCurrentSettings();
+        // load default current settings
+        std::vector<SVHCurrentSettings> current_settings
+            = getDefaultCurrentSettings();
 
-              m_controller->disableChannel(eSVH_ALL);
+        m_controller->disableChannel(eSVH_ALL);
 
-              // initialize all channels
-              for (size_t i = 0; i < eSVH_DIMENSION; ++i)
-              {
-                  // request controller feedback to have a valid starting point
-                  m_controller->requestControllerFeedback(static_cast<SVHChannel>(i));
+        // initialize all channels
+        for (size_t i = 0; i < eSVH_DIMENSION; ++i)
+        {
+          // request controller feedback to have a valid starting point
+          m_controller->requestControllerFeedback(static_cast<SVHChannel>(i));
 
-                  // Actually set the new position settings
-                  m_controller->setPositionSettings(static_cast<SVHChannel>(i), position_settings[i]);
+          // Actually set the new position settings
+          m_controller->setPositionSettings(static_cast<SVHChannel>(i), position_settings[i]);
 
-                  // set current settings
-                  m_controller->setCurrentSettings(static_cast<SVHChannel>(i), current_settings[i]);
-              }
+          // set current settings
+          m_controller->setCurrentSettings(static_cast<SVHChannel>(i), current_settings[i]);
+        }
 
-              // check for correct response from hardware controller
-              icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
-              bool timeout = false;
-              unsigned int received_count = 0;
-              unsigned int send_count = 0;
-              while (!timeout && !m_connected)
-              {
-                  send_count = m_controller->getSentPackageCount();
-                  received_count = m_controller->getReceivedPackageCount();
-                  if (send_count == received_count)
-                  {
-                      m_connected = true;
-                      LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully established connection to SCHUNK five finger hand." << endl
-                                     << "Send packages = " << send_count << ", received packages = " << received_count << endl);
-
-                  }
-                  LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
-
-                  // check for timeout
-                  if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_reset_timeout)
-                  {
-                      timeout = true;
-                      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection timeout! Could not connect to SCHUNK five finger hand." << endl
-                                      << "Send packages = " << send_count << ", received packages = " << received_count << endl);
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-                      if (m_ws_broadcaster)
-                      {
-                          m_ws_broadcaster->robot->setHint(eHT_CONNECTION_FAILED);
-                          m_ws_broadcaster->sendHints(); //Hints are updated Manually
-                      }
-#endif
-
-                  }
-                  icl_core::os::usleep(50000);
-              }
-
-              // Try Aggain, but ONLY if we at least got one package back, otherwise its futil
-              if (!m_connected)
-              {
-                if (received_count > 0 && retry_count >= 0)
-                {
-                    retry_count--;
-                    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Retrying, count: " << retry_count << endl);
-                }
-                else
-                {
-                    retry_count = 0;
-                    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Not Retrying anymore."<< endl);
-                }
-              }
-          // Keep trying to reconnect several times because the brainbox often makes problems
-          } while (!m_connected && retry_count > 0);
-
-
-           if (!m_connected && retry_count<= 0)
-           {
-             LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "A Stable connection could NOT be made, however some packages where received. Please check the hardware!" << endl);
-           }
-
-
-          if (m_connected)
+        // check for correct response from hardware controller
+        icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
+        bool timeout = false;
+        unsigned int received_count = 0;
+        unsigned int send_count = 0;
+        while (!timeout && !m_connected)
+        {
+          send_count = m_controller->getSentPackageCount();
+          received_count = m_controller->getReceivedPackageCount();
+          if (send_count == received_count)
           {
+            m_connected = true;
+            LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully established connection to SCHUNK five finger hand." << endl
+                           << "Send packages = " << send_count << ", received packages = " << received_count << endl);
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-
-              if (m_ws_broadcaster)
-              {
-                  // Intitial connection, any failures regarding the connection must be gone so we can safely clear them all
-                  m_ws_broadcaster->robot->clearHint(eHT_CONNECTION_FAILED);
-                  m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
-                  m_ws_broadcaster->robot->clearHint(eHT_DEVICE_NOT_FOUND);
-                  // Next up, resetting, so give a hint for that
-                  m_ws_broadcaster->robot->setHint(eHT_NOT_RESETTED);
-                  m_ws_broadcaster->sendHints(); // Needs to be called if not done by the feedback polling thread
-              }
-#endif
-
-              // Request firmware information once at the beginning
-              getFirmwareInfo();
-              // start feedback polling thread
-              LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is starting the fedback polling thread" << endl);
-              if (m_feedback_thread != NULL)
-              {
-                  m_feedback_thread->start();
-              }
           }
-      }
-      else
-      {
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-          if (m_ws_broadcaster)
+          LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
+
+          // check for timeout
+          if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_reset_timeout)
           {
-              m_ws_broadcaster->robot->setHint(eHT_DEVICE_NOT_FOUND);
-              m_ws_broadcaster->sendHints(); // Hints are updated Manually
-          }
+            timeout = true;
+            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection timeout! Could not connect to SCHUNK five finger hand." << endl
+                            << "Send packages = " << send_count << ", received packages = " << received_count << endl);
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+            if (m_ws_broadcaster)
+            {
+              m_ws_broadcaster->robot->setHint(eHT_CONNECTION_FAILED);
+              m_ws_broadcaster->sendHints(); //Hints are updated Manually
+            }
 #endif
-          LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection FAILED! Device could NOT be opened" << endl);
+
+          }
+          icl_core::os::usleep(50000);
+        }
+
+        // Try Aggain, but ONLY if we at least got one package back, otherwise its futil
+        if (!m_connected)
+        {
+          if (received_count > 0 && retry_count >= 0)
+          {
+            retry_count--;
+            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Retrying, count: " << retry_count << endl);
+          }
+          else
+          {
+            retry_count = 0;
+            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Not Retrying anymore."<< endl);
+          }
+        }
+        // Keep trying to reconnect several times because the brainbox often makes problems
+      } while (!m_connected && retry_count > 0);
+
+
+      if (!m_connected && retry_count<= 0)
+      {
+        LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "A Stable connection could NOT be made, however some packages where received. Please check the hardware!" << endl);
       }
+
+
+      if (m_connected)
+      {
+
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+
+        if (m_ws_broadcaster)
+        {
+          // Intitial connection, any failures regarding the connection must be gone so we can safely clear them all
+          m_ws_broadcaster->robot->clearHint(eHT_CONNECTION_FAILED);
+          m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
+          m_ws_broadcaster->robot->clearHint(eHT_DEVICE_NOT_FOUND);
+          // Next up, resetting, so give a hint for that
+          m_ws_broadcaster->robot->setHint(eHT_NOT_RESETTED);
+          m_ws_broadcaster->sendHints(); // Needs to be called if not done by the feedback polling thread
+        }
+#endif
+
+        // Request firmware information once at the beginning
+        getFirmwareInfo();
+        // start feedback polling thread
+        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is starting the fedback polling thread" << endl);
+        if (m_feedback_thread != NULL)
+        {
+          m_feedback_thread->start();
+        }
+      }
+    }
+    else
+    {
+#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+      if (m_ws_broadcaster)
+      {
+        m_ws_broadcaster->robot->setHint(eHT_DEVICE_NOT_FOUND);
+        m_ws_broadcaster->sendHints(); // Hints are updated Manually
+      }
+#endif
+      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection FAILED! Device could NOT be opened" << endl);
+    }
   }
 
   return m_connected;

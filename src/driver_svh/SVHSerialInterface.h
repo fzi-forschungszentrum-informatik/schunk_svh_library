@@ -100,9 +100,12 @@ public:
   void printPacketOnConsole(SVHSerialPacket &packet);
 
 private:
+  void receivedPacketCallback(const SVHSerialPacket& packet, unsigned int packet_count);
 
   //! serial device connected state
   bool m_connected;
+
+  uint8_t last_index;
 
   //! pointer to serial interface object
   boost::shared_ptr<Serial> m_serial_device;

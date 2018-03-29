@@ -505,14 +505,27 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
         // go to idle position
         m_controller->enableChannel(channel);
+        // use the declared start_time variable for the homing timeout
+        start_time = icl_core::TimeStamp::now();
         while (true)
         {
           m_controller->setControllerTarget(channel, position);
           //m_controller->requestControllerFeedback(channel);
           m_controller->getControllerFeedback(channel, control_feedback);
 
+          LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Homing Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA, position ticks: " << control_feedback.position <<  endl);
+
           if (abs(position - control_feedback.position) < 1000)
           {
+            m_is_homed[channel] = true;
+            break;
+          }
+
+          // if the finger isn't reach the home position after m_homing_timeout there is an hardware error
+          if((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
+          {
+            m_is_homed[channel] = false;
+            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Channel " << channel << " home position is not reachable after " << m_homing_timeout << "s! There could be an hardware error!" << endl);
             break;
           }
         }

@@ -163,8 +163,8 @@ void SVHController::setControllerTargetAllChannels(const std::vector<int32_t> &p
    LOGGING_TRACE_C(DriverSVH, SVHController, "Control command was given for all channels: Driving motors to positions: "<< positions[0] << " , " << positions[1] << " , " << positions[2] << " , " << positions[3] << " , " << positions[4] << " , " << positions[5] << " , " << positions[6] << " , " << positions[7] << " , " << positions[8] << " , " << endl);
   }
   // We could theoretically allow fewer channels but this leaves some questions. Are the given channels in right order?
-  // was it realy intented to just give fewer positions? What to do witht the ones that did not get anything?
-  // Just disallowing it seems to be the most understandable decission.
+  // was it realy intented to just give fewer positions? What to do with the ones that did not get anything?
+  // Just disallowing it seems to be the most understandable decision.
   else
   {
     LOGGING_WARNING_C(DriverSVH, SVHController, "Control command was given for all channels but with to few points. Expected at least "<< eSVH_DIMENSION << " values but only got " << positions.size() << "use the individual setTarget function for this" << endl);

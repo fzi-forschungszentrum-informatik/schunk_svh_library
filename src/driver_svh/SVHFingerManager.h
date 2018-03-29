@@ -93,6 +93,17 @@ public:
     eHT_DIMENSION           /* dummy entry indicating the size, not used as status */
   };
 
+  struct diagnostic_state
+  {
+    bool diagnostic_encoder_state;
+    bool diagnostic_motor_state;
+    double diagnostic_current_maximum;
+    double diagnostic_current_minimum;
+    double diagnostic_position_maximum;
+    double diagnostic_position_minimum;
+    double diagnostic_deadlock;
+  };
+
   /*! Constructs a finger manager for the SCHUNK five finger hand.
    * \param autostart if set to true, the driver will immediately connect to the hardware and try to reset all fingers
    * \param dev_name the dev to use for autostart. Default is /dev/ttyUSB0
@@ -228,6 +239,21 @@ public:
   //!
   bool getPositionSettings(const SVHChannel &channel, SVHPositionSettings &position_settings);
 
+  //!
+  //! \brief returns actual home settings of channel
+  //! \param channel channel to get the position settings for
+  //! \param home_settings settings indicating the movement range of a finger, its reset direction and idle position
+  //! \return true if a valid result was requested (i.e. an existing channel)
+  //!
+  bool getHomeSettings(const SVHChannel &channel, SVHHomeSettings &home_settings);
+
+  //!
+  //! \brief returns actual diagnostic status of channel
+  //! \param channel channel to get the position settings for
+  //! \param diagnostic_status diagnostic data of motor and encoder
+  //! \return true if a valid result was requested (i.e. an existing channel)
+  //!
+  bool getDiagnosticStatus(const SVHChannel &channel, struct diagnostic_state &diagnostic_status);
 
   //!
   //! \brief overwrite current parameters
@@ -253,6 +279,12 @@ public:
   //!
   bool setHomeSettings(const SVHChannel &channel,const SVHHomeSettings& home_settings);
 
+  //!
+  //! \brief resetDiagnosticData reset the diagnostic data vectors
+  //! \param channel channel to reset the data vector for
+  //! \return true if a valid channel was selected
+  //!
+  bool resetDiagnosticData(const SVHChannel &channel);
 
 
   // These 3 functions could be private but where made public for printing and debug purposes. As there is no harm to it it should not be a problem
@@ -344,6 +376,27 @@ private:
 
   //! vector storing information if a finger is enabled. In Case it is all request for it will be granted but not executed on hardware
   std::vector<bool> m_is_switched_off;
+
+  //! \brief vectors storing diagnostic information, encoder state
+  std::vector<bool> m_diagnostic_encoder_state;
+
+  //! \brief vectors storing diagnostic information, current state
+  std::vector<bool> m_diagnostic_current_state;
+
+  //! \brief vectors storing diagnostic information, current maximum
+  std::vector<double> m_diagnostic_current_maximum;
+
+  //! \brief vectors storing diagnostic information, current minimum
+  std::vector<double> m_diagnostic_current_minimum;
+
+  //! \brief vectors storing diagnostic information, position maximum
+  std::vector<double> m_diagnostic_position_maximum;
+
+  //! \brief vectors storing diagnostic information, position minimum
+  std::vector<double> m_diagnostic_position_minimum;
+
+  //! \brief vectors storing diagnostic information, diagnostics deadlock
+  std::vector<double> m_diagnostic_deadlock;
 
   //! Overall movement State to indicate what the hand is doing at the moment
   MovementState m_movement_state;

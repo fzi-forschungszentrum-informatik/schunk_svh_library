@@ -51,6 +51,13 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_position_home(eSVH_DIMENSION, 0),
   m_is_homed(eSVH_DIMENSION, false),
   m_is_switched_off(eSVH_DIMENSION,false),
+  m_diagnostic_encoder_state(eSVH_DIMENSION,false),
+  m_diagnostic_current_state(eSVH_DIMENSION,false),
+  m_diagnostic_current_maximum(eSVH_DIMENSION, 0),
+  m_diagnostic_current_minimum(eSVH_DIMENSION, 0),
+  m_diagnostic_position_maximum(eSVH_DIMENSION, 0),
+  m_diagnostic_position_minimum(eSVH_DIMENSION, 0),
+  m_diagnostic_deadlock(eSVH_DIMENSION, 0),
   m_movement_state(eST_DEACTIVATED),
   m_reset_speed_factor(0.2),
   m_reset_timeout(reset_timeout),
@@ -107,7 +114,13 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
     }
   }
 
-
+  m_diagnostic_encoder_state.resize(eSVH_DIMENSION, false);
+  m_diagnostic_current_state.resize(eSVH_DIMENSION, false);
+  m_diagnostic_current_maximum.resize(eSVH_DIMENSION, 0.0);
+  m_diagnostic_current_minimum.resize(eSVH_DIMENSION, 0.0);
+  m_diagnostic_position_maximum.resize(eSVH_DIMENSION, 0.0);
+  m_diagnostic_position_minimum.resize(eSVH_DIMENSION, 0.0);
+  m_diagnostic_deadlock.resize(eSVH_DIMENSION, 0.0);
 }
 
 SVHFingerManager::~SVHFingerManager()
@@ -364,6 +377,8 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
     }
     else if (channel > eSVH_ALL && eSVH_ALL < eSVH_DIMENSION)
     {
+      m_diagnostic_encoder_state[channel] = false;
+      m_diagnostic_current_state[channel] = false;
       // Tell the websockets
       MovementState last_movement_state = m_movement_state;
       setMovementState(eST_RESETTING);
@@ -430,6 +445,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           m_controller->setControllerTarget(channel, position);
           //m_controller->requestControllerFeedback(channel);
           m_controller->getControllerFeedback(channel, control_feedback);
+          // Timeout while no encoder ticks changed
 
           // Quite extensive Current output!
           if ((icl_core::TimeStamp::now() - start_time_log).milliSeconds() > 250)
@@ -438,8 +454,48 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             start_time_log = icl_core::TimeStamp::now();
           }
 
+          double threshold = 80;
+          // have a look for deadlocks
+          if (home.direction == +1)
+          {
+            double delta = control_feedback.current - m_diagnostic_current_maximum[channel]; // without deadlocks delta should be positiv
+            if (delta <= -threshold)
+            {
+              if (abs(delta) > m_diagnostic_deadlock[channel])
+              {
+                m_diagnostic_deadlock[channel] = abs(delta);
+              }
+            }
+          }
+          else
+          {
+            double delta = control_feedback.current - m_diagnostic_current_minimum[channel];
+            if (delta >= threshold)
+            {
+              if (abs(delta) > m_diagnostic_deadlock[channel])
+              {
+                m_diagnostic_deadlock[channel] = abs(delta);
+              }
+            }
+          }
+
+          // save the maximal/minimal current of the motor
+          if (control_feedback.current > m_diagnostic_current_maximum[channel])
+          {
+            m_diagnostic_current_maximum[channel] = control_feedback.current;
+          }
+          else
+          {
+            if(control_feedback.current < m_diagnostic_current_minimum[channel])
+            {
+              m_diagnostic_current_minimum[channel] = control_feedback.current;
+            }
+          }
+
           if ((home.resetCurrentFactor * cur_set.wmn >= control_feedback.current) || (control_feedback.current >= home.resetCurrentFactor * cur_set.wmx))
           {
+            m_diagnostic_current_state[channel] = true; // when in maximum the current controller is ok
+
             hit_count++;
             LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count increased: " << hit_count << endl);
           }
@@ -469,19 +525,27 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           // reset time if position changes
           if (control_feedback.position != control_feedback_previous.position)
           {
+            m_diagnostic_encoder_state[channel] = true;
+            // save the maximal/minimal position the channel can reach
+            if (control_feedback.position > m_diagnostic_position_maximum[channel])
+              m_diagnostic_position_maximum[channel] = control_feedback.position;
+            else
+              if(control_feedback.position < m_diagnostic_position_minimum[channel])
+                m_diagnostic_position_minimum[channel] = control_feedback.position;
+
             start_time = icl_core::TimeStamp::now();
             if (stale_notification_sent)
             {
-             LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale resolved, continuing detection" << endl);
-             stale_notification_sent = false;
+              LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale resolved, continuing detection" << endl);
+              stale_notification_sent = false;
             }
           }
           else
           {
             if (!stale_notification_sent)
             {
-             LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale detected. Starting Timeout" << endl);
-             stale_notification_sent = true;
+              LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale detected. Starting Timeout" << endl);
+              stale_notification_sent = true;
             }
           }
 
@@ -495,13 +559,14 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         m_controller->disableChannel(eSVH_ALL);
 
         // set reference values
-        m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.minimumOffset);
-        m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.maximumOffset);
-        m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.idlePosition);
+        m_position_min[channel] = static_cast<int32_t>(control_feedback.position + home.direction * home.minimumOffset);
+        m_position_max[channel] = static_cast<int32_t>(control_feedback.position + home.direction * home.maximumOffset);
+        m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.direction * home.idlePosition);
         LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Setting soft stops for Channel " << channel << " min pos = " << m_position_min[channel]
                         << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel] << endl);
 
-        position = static_cast<int32_t>(control_feedback.position + home.idlePosition);
+        // position will now be reached to release the motor and go into soft stops
+        position = m_position_home[channel];
 
         // go to idle position
         m_controller->enableChannel(channel);
@@ -537,12 +602,9 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
       }
       else
       {
-
-         LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Channel " << channel << "switched of by user, homing is set to finished" << endl);
+        LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Channel " << channel << "switched of by user, homing is set to finished" << endl);
+        m_is_homed[channel] = true;
       }
-
-
-      m_is_homed[channel] = true;
 
       // Check if this reset has trigger the reset of all the Fingers
       bool reset_all_success = true;
@@ -595,6 +657,27 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
     return false;
   }
 }
+
+bool SVHFingerManager::getDiagnosticStatus(const SVHChannel &channel, struct diagnostic_state &diagnostic_status)
+{
+  if (channel >=0 && channel < eSVH_DIMENSION)
+  {
+    diagnostic_status.diagnostic_encoder_state = m_diagnostic_encoder_state[channel];
+    diagnostic_status.diagnostic_motor_state = m_diagnostic_current_state[channel];
+    diagnostic_status.diagnostic_current_maximum = m_diagnostic_current_maximum[channel];
+    diagnostic_status.diagnostic_current_minimum = m_diagnostic_current_minimum[channel];
+    diagnostic_status.diagnostic_position_maximum = m_diagnostic_position_maximum[channel];
+    diagnostic_status.diagnostic_position_minimum = m_diagnostic_position_minimum[channel];
+    diagnostic_status.diagnostic_deadlock = m_diagnostic_deadlock[channel];
+    return true;
+  }
+  else
+  {
+    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not get diagnostic status for unknown/unsupported channel " << channel << endl);
+    return false;
+  }
+}
+
 
 // enables controller of channel
 bool SVHFingerManager::enableChannel(const SVHChannel &channel)
@@ -1050,6 +1133,20 @@ bool SVHFingerManager::getPositionSettings(const SVHChannel &channel, SVHPositio
   }
 }
 
+bool SVHFingerManager::getHomeSettings(const SVHChannel &channel, SVHHomeSettings &home_settings)
+{
+  if (channel >=0 && channel < eSVH_DIMENSION)
+  {
+    home_settings = m_home_settings[channel];
+    return true;
+  }
+  else
+  {
+    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not get home settings for unknown/unsupported channel " << channel << endl);
+    return false;
+  }
+}
+
 bool SVHFingerManager::currentSettingsAreSafe(const SVHChannel &channel,const SVHCurrentSettings &current_settings)
 {
   bool settingsAreSafe = true;
@@ -1179,6 +1276,45 @@ bool SVHFingerManager::setHomeSettings(const SVHChannel &channel, const driver_s
   {
     LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not set homing settings for channel " << channel << ": No such channel" << endl);
     return false;
+  }
+}
+
+bool SVHFingerManager::resetDiagnosticData(const SVHChannel &channel)
+{
+  // reset all channels
+  if (channel == eSVH_ALL)
+  {
+    for(size_t i=0; i<= eSVH_DIMENSION; ++i)
+    {
+      m_diagnostic_encoder_state[i] = false;
+      m_diagnostic_current_state[i] = false;
+      m_diagnostic_current_maximum[i] = 0.0;
+      m_diagnostic_current_minimum[i] = 0.0;
+      m_diagnostic_position_maximum[i] = 0.0;
+      m_diagnostic_position_minimum[i] = 0.0;
+      m_diagnostic_deadlock[i] = 0.0;
+    }
+    LOGGING_TRACE_C(DriverSVH,SVHFingerManager, "Diagnostic data for all channel reseted successfully");
+    return true;
+  }
+  else
+  {
+    if (channel > 0 && channel <= eSVH_DIMENSION)
+    {
+      m_diagnostic_encoder_state[channel] = false;
+      m_diagnostic_current_state[channel] = false;
+      m_diagnostic_current_maximum[channel] = 0.0;
+      m_diagnostic_current_minimum[channel] = 0.0;
+      m_diagnostic_position_maximum[channel] = 0.0;
+      m_diagnostic_position_minimum[channel] = 0.0;
+      LOGGING_TRACE_C(DriverSVH,SVHFingerManager, "Diagnostic data for channel " << channel << " reseted successfully");
+      return true;
+    }
+    else
+    {
+      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not reset diagnostic data for channel " << channel << ": No such channel" << endl);
+      return false;
+    }
   }
 }
 

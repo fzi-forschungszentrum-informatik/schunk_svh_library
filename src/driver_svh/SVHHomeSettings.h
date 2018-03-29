@@ -38,7 +38,7 @@ struct SVHHomeSettings
   int   direction;
   //! Minimum reachable tick limit, given as offset from the hard stop (soft limit)
   float minimumOffset;
-  //! Maximum reachable tick limt, given as an offset from the hard stop (soft limit)
+  //! Maximum reachable tick limit, given as an offset from the hard stop (soft limit)
   float maximumOffset;
   //! Idle position to move the fingers to after initialization @note This position should be within the min and max offset positions.
   float idlePosition;

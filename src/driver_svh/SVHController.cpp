@@ -195,7 +195,7 @@ void SVHController::enableChannel(const SVHChannel &channel)
     // Small delays seem to make communication at this point more reliable although they SHOULD NOT be necessary
     icl_core::os::usleep(2000);
 
-    LOGGING_TRACE_C(DriverSVH, SVHController, "Enabling 12V Driver (pwm_reset and pwm_active = =0x0200)..." << endl);
+    LOGGING_TRACE_C(DriverSVH, SVHController, "Enabling 12V Driver (pwm_reset and pwm_active = 0x0200)..." << endl);
     // enable +12v supply driver
     controller_state.pwm_reset = 0x0200;
     controller_state.pwm_active = 0x0200;

@@ -394,7 +394,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
       LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Start homing channel " << channel << endl);
 
-      m_controller->resetPackageCounts();
 
       if (!m_is_switched_off[channel])
       {
@@ -414,7 +413,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         m_controller->getCurrentSettings(channel, cur_set);
 
         // find home position
-        m_controller->disableChannel(eSVH_ALL);
         int32_t position = 0;
 
         if (home.direction > 0)
@@ -556,7 +554,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
         LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Hit counter of " << channel << " reached." << endl);
 
-        m_controller->disableChannel(eSVH_ALL);
 
         // set reference values
         m_position_min[channel] = static_cast<int32_t>(control_feedback.position + std::min(home.minimumOffset, home.maximumOffset));
@@ -569,7 +566,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         position = m_position_home[channel];
 
         // go to idle position
-        m_controller->enableChannel(channel);
         // use the declared start_time variable for the homing timeout
         start_time = icl_core::TimeStamp::now();
         while (true)
@@ -594,7 +590,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             break;
           }
         }
-        m_controller->resetPackageCounts();
         m_controller->disableChannel(eSVH_ALL);
         //icl_core::os::usleep(8000);
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
@@ -637,11 +632,8 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         m_ws_broadcaster->robot->setJointHomed(true,channel);
       }
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
-      unsigned send_count = m_controller->getSentPackageCount();
-      unsigned received_count = m_controller->getReceivedPackageCount();
 
-      LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully homed channel " << channel << endl
-                                               << "Send packages = " << send_count << ", received packages = " << received_count << endl);
+      LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully homed channel " << channel << endl);
 
       return true;
     }

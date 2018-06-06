@@ -83,6 +83,8 @@ SVHController::SVHController():
   m_received_package_count(0)
 {
   LOGGING_TRACE_C(DriverSVH, SVHController, "SVH Controller started"<< endl);
+  m_firmware_info.version_major = 0;
+  m_firmware_info.version_minor = 0;  
 }
 
 SVHController::~SVHController()
@@ -122,6 +124,10 @@ void SVHController::disconnect()
     disableChannel(eSVH_ALL);
     m_serial_interface->close();
   }
+  // Reset the Firmware version, so we get always the current version on a reconnect or 0.0 on failure
+  m_firmware_info.version_major = 0;
+  m_firmware_info.version_minor = 0;
+
   LOGGING_TRACE_C(DriverSVH, SVHController, "Disconnect finished"<< endl);
 }
 

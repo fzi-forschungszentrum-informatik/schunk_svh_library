@@ -170,9 +170,6 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
         // Reset the package counts (in case a previous attempt was made)
         m_controller->resetPackageCounts();
 
-        // initialize feedback polling thread
-        m_feedback_thread = new SVHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
-
         // load default position settings before the fingers are resetted
         std::vector<SVHPositionSettings> position_settings = getDefaultPositionSettings(true);
 
@@ -272,14 +269,23 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
         }
 #endif
 
-        // Request firmware information once at the beginning
-        getFirmwareInfo();
+        // Request firmware information once at the beginning, it will print out on the console
+        m_controller->requestFirmwareInfo();
+        
+        // initialize feedback polling thread
+        m_feedback_thread = new SVHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
+
         // start feedback polling thread
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is starting the fedback polling thread" << endl);
         if (m_feedback_thread != NULL)
         {
           m_feedback_thread->start();
         }
+      }
+      else
+      {
+        //connection open but not stable: close serial port for better reconnect later
+        m_controller->disconnect();
       }
     }
     else
@@ -1502,8 +1508,22 @@ void SVHFingerManager::setResetTimeout(const int& resetTimeout)
   m_reset_timeout = (resetTimeout>0)?resetTimeout:0;
 }
 
-SVHFirmwareInfo SVHFingerManager::getFirmwareInfo()
+SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name,const unsigned int &_retry_count)
 {
+  bool was_connected = true;
+  SVHFirmwareInfo info;
+  if (!m_connected)
+  {
+    was_connected = false;
+    if(!m_controller->connect(dev_name))
+    {
+      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection FAILED! Device could NOT be opened" << endl);
+      info.version_major = 0;
+      info.version_minor = 0;
+      return info;
+    }
+  }
+
   // As the firmware info takes longer we need to disable the polling during the request of the firmware information
   if (m_feedback_thread != NULL)
   {
@@ -1511,21 +1531,37 @@ SVHFirmwareInfo SVHFingerManager::getFirmwareInfo()
     m_feedback_thread->stop();
     m_feedback_thread->join();
   }
-
-  // Tell the hardware to get the newest firmware information
-  m_controller->requestFirmwareInfo();
-  // Just wait a tiny amount
-  icl_core::os::usleep(100);
+  
+  unsigned int retry_count = _retry_count;
+  do
+  {
+    // Tell the hardware to get the newest firmware information
+    m_controller->requestFirmwareInfo();
+    // Just wait a tiny amount
+    icl_core::os::usleep(100000);
+    // Get the Version number if received yet, else 0.0
+    info = m_controller->getFirmwareInfo();
+    --retry_count;
+    if (info.version_major == 0 && info.version_major == 0)
+    {
+      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Getting Firmware Version failed,.Retrying, count: " << retry_count << endl);
+    }
+  }
+  while(retry_count > 0 && info.version_major == 0 && info.version_major == 0);
 
   // Start the feedback process aggain
-  if (m_feedback_thread != NULL)
+  if (m_feedback_thread != NULL && was_connected)
   {
     // wait until thread has stopped
     m_feedback_thread->start();
   }
-
+  
+  if (!was_connected)
+  {
+    m_controller->disconnect();
+  }
   // Note that the Firmware will also be printed to the console by the controller. So in case you just want to know it no further action is required
-  return m_controller->getFirmwareInfo();
+  return info;
 }
 
 }

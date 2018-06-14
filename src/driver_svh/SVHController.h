@@ -244,7 +244,7 @@ public:
    static const char * m_channel_description[];
 
    //! Effort multipliers to calculate the torque of the motors for the individual channels
-   static const float channel_effort_constants[9];
+   static const float channel_effort_constants[9][2];
 
    //! Get all currently available controllerfeedbacks
    void getControllerFeedbackAllChannels(SVHControllerFeedbackAllChannels &controller_feedback);

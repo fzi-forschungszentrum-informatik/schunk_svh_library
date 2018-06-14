@@ -312,6 +312,29 @@ public:
   void setResetTimeout(const int& resetTimeout);
 
   //!
+  //! \brief setMaxForce set the max force / current as a persentage of the maximum possible current
+  //! \param max_force in percent [0,1]
+  //! return if valid max_force was given
+  //!
+  bool setMaxForce(float max_force);
+
+  //!
+  //! \brief setForceLimit set the force limit for the given channel
+  //! \param channel channel to set the force limit for
+  //! \param force_limit force limit to set
+  //! \return value if ok, else 0.0
+  //!
+  float setForceLimit(const SVHChannel &channel, float force_limit);
+
+  //!
+  //! \brief Converts joint currents of a specific channel from current [mA] to force [N] factoring the effort_constants of the channels
+  //! \param channel Channel to Convert for (each one has different constants)
+  //! \param current Current in [mA]
+  //! \return effort The desired effort in [N] (absolut)
+  //!
+  double convertmAtoN(const SVHChannel &channel, const int16_t &current);
+
+  //!
   //! \brief getFirmwareInfo Requests the firmware information from the harware, waits a bit and returns the last one read
   //! \return the last firmware information read (this may not be the one currently requested)
   //!
@@ -359,6 +382,8 @@ private:
   //! \brief vector storing reset flags for each finger
   int8_t m_homing_timeout;
 
+  //! \brief limit the maximum of the force / current of the finger as a percentage of the possible maximum
+  float m_max_current_percentage;
   //! \brief position conversion factor (ticks to RAD) for each channel
   std::vector<double> m_ticks2rad;
 
@@ -451,6 +476,14 @@ private:
   //! \return the RAD Value corresponding to the tick value of a given channel
   //!
   double convertTicks2Rad(const SVHChannel &channel, const int32_t &ticks);
+
+  //!
+  //! \brief Converts joint efforts of a specific channel from force [N] to current [mA] factoring the effort_constants of the channels
+  //! \param channel Channel to Convert for (each one has different constants)
+  //! \param efforts Effort in [N]
+  //! \return current The desired current in [mA]
+  //!
+  uint16_t convertNtomA(const SVHChannel &channel, const double &effort);
 
   //!
   //! \brief Check bounds of target positions

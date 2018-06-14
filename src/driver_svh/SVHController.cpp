@@ -61,17 +61,17 @@ const char * SVHController::m_channel_description[]= {
   NULL
 };
 
-//! Values are given in Nm/mA to be directly compatible to current output of the driver
-const float SVHController::channel_effort_constants[]={
-  0.0000232,  //Thumb Flexion
-  0.0000232,  // Thumb Opposition
-  0.000009,  // Index Finger Distal
-  0.000016,  // Index Finger Proximal
-  0.000009,  // Middle Finger Distal
-  0.000016,  // Middle Finger Proximal
-  0.000009,  // Ring Finger
-  0.000009,  // Pinky
-  0.000016   // Finger Spread
+//! Values are given in N/mA to be directly compatible to current output of the driver
+const float SVHController::channel_effort_constants[][2]={
+  0.015, -1.543, // 0.02,  //Thumb Flexion
+  0, 0,         // 0.02,  // Thumb Opposition
+  0.014, -0.07,// 0.0148,  // Index Finger Distal
+  0.015, 0.026, // 0.0148,  // Index Finger Proximal
+  0.014, -0.026,  // 0.0148,  // Middle Finger Distal
+  0.015, 0.282, // 0.0148,  // Middle Finger Proximal
+  0.007, -0.073, // 0.0148,  // Ring Finger
+  0.005, 0.0812,// 0.0148,  // Pinky
+  0, 0          // 0.0148   // Finger Spread
 };
 
 SVHController::SVHController():

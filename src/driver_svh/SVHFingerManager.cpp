@@ -1149,43 +1149,27 @@ bool SVHFingerManager::getHomeSettings(const SVHChannel &channel, SVHHomeSetting
 
 bool SVHFingerManager::currentSettingsAreSafe(const SVHChannel &channel,const SVHCurrentSettings &current_settings)
 {
-  bool settingsAreSafe = true;
+  bool settingsAreSafe = false;
 
-  // Yeah i would also love to use static arrays here or other fancier things but c++98 is no fun dealing with these things
-  // so i just wrote down the "dumb" approach, its just to veryfy absolute values anyhow
-  switch (channel)
+  if(!isEnabled(eSVH_ALL))
   {
-    case eSVH_THUMB_FLEXION:
-      settingsAreSafe = (current_settings.wmn >= -1800.0) &&
-                        (current_settings.wmx <=  1800.0);
-    break;
-  case eSVH_THUMB_OPPOSITION:
+    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Fingers are not all enabled -> no safety tests" << endl);
+    // befor the fingers are homed no finger-data are valid
+    return true;
+  }
 
-    settingsAreSafe = (current_settings.wmn >= -1800.0) &&
-                      (current_settings.wmx <=  1800.0);
-    break;
-  case eSVH_INDEX_FINGER_DISTAL:
-  case eSVH_MIDDLE_FINGER_DISTAL:
-  case eSVH_RING_FINGER:
-  case eSVH_PINKY:
-
-    settingsAreSafe = (current_settings.wmn >= -650.0) &&
-                      (current_settings.wmx <=  650.0);
-    break;
-  case eSVH_INDEX_FINGER_PROXIMAL:
-  case eSVH_MIDDLE_FINGER_PROXIMAL:
-
-    settingsAreSafe = (current_settings.wmn >= -1100.0) &&
-                      (current_settings.wmx <=  1100.0);
-    break;
-  case eSVH_FINGER_SPREAD:
-    settingsAreSafe = (current_settings.wmn >= -1000.0) &&
-                      (current_settings.wmx <=  1000.0);
-    break;
-  default:
-     // no valid channel was given anyway, this will be disregarded by the controller
-     settingsAreSafe = true;
-    break;
+  if (current_settings.wmx <= m_max_current_percentage *
+      std::max(m_diagnostic_current_maximum[channel], std::abs(m_diagnostic_position_minimum[channel])))
+  {
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Current settings are safe!" << endl);
+    settingsAreSafe = true;
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "The maximum force value given: "
+            <<  current_settings.wmx << " is not valid. Please provide a value between "
+            << " 0 and " << m_max_current_percentage * std::max(m_diagnostic_current_maximum[channel], std::abs(m_diagnostic_position_minimum[channel]))
+            << endl);
   }
 
   return settingsAreSafe;
@@ -1197,10 +1181,11 @@ bool SVHFingerManager::setCurrentSettings(const SVHChannel &channel, const SVHCu
 
   if (channel >=0 && channel < eSVH_DIMENSION)
   {
-    // For now we will only evaluate this and print out warnings, however if you care to do these things.. go right ahead...
+    // For now we will prefent current settings with more current than possible
     if (!currentSettingsAreSafe(channel,current_settings))
     {
-       LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "WARNING!!! Current Controller Params for channel " << channel << " are dangerous! THIS MIGHT DAMAGE YOUR HARDWARE!!!" << endl);
+      // LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "WARNING!!! Current Controller Params for channel " << channel << " are dangerous! THIS MIGHT DAMAGE YOUR HARDWARE!!!" << endl);
+      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "WARNING!!! Current Controller Params for channel " << channel << " would be dangerous! Currents are limited!!!" << endl);
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
       if (m_ws_broadcaster)
       {
@@ -1210,16 +1195,16 @@ bool SVHFingerManager::setCurrentSettings(const SVHChannel &channel, const SVHCu
 #endif
     }
 
-      // First of save the values
-      m_current_settings[channel] = current_settings;
-      m_current_settings_given[channel] = true;
+    // First of save the values
+    m_current_settings[channel] = current_settings;
+    m_current_settings_given[channel] = true;
 
-      // In case the Hardware is connected, update the values
-      if (isConnected())
-      {
-          m_controller->setCurrentSettings(channel, current_settings);
-      }
-      return true;
+    // In case the Hardware is connected, update the values
+    if (isConnected())
+    {
+        m_controller->setCurrentSettings(channel, current_settings);
+    }
+    return true;
   }
   else
   {
@@ -1484,6 +1469,52 @@ double SVHFingerManager::convertTicks2Rad(const SVHChannel &channel, const int32
     return static_cast<double>(cleared_position_ticks * m_ticks2rad[channel]);
 }
 
+// Converts joint efforts of a specific channel from force [N] to current [mA]
+uint16_t SVHFingerManager::convertNtomA(const SVHChannel &channel, const double &effort)
+{
+  // percentage effort calculation
+  // float target_effort;
+  //
+  // // persentage
+  // if((effort != 0.0) && (effort <= 100.0))
+  // {
+  //   float norm = m_current_settings[channel].wmx / 100;
+  //   //std::cout << "Norm: " << norm << std::endl;
+  //   target_effort = static_cast<float>(effort * norm);
+  // }
+  // else
+  // {
+  //   target_effort = m_current_settings[channel].wmx;
+  // }
+
+  uint16_t current;
+  if (SVHController::channel_effort_constants[channel][0] != 0)
+  {
+    // linear least squares
+    // from f(x) = y = a*x + b -->  x = (y-b) / a
+    current = static_cast<int>((effort + SVHController::channel_effort_constants[channel][1] ) /
+                              SVHController::channel_effort_constants[channel][0] + 0.5);
+  }
+  else
+  {
+    current = m_max_current_percentage * m_diagnostic_current_maximum[channel];
+  }
+
+  return current;
+}
+
+// Converts joint effort of a specific channel from current [mA] to force [N]
+double SVHFingerManager::convertmAtoN(const SVHChannel &channel, const int16_t &current)
+{
+  float effort;
+  // linear least squares
+  // f(x) = a*x + b
+  effort = SVHController::channel_effort_constants[channel][0] * std::abs(current)
+          + SVHController::channel_effort_constants[channel][1];
+
+  return effort;
+}
+
 // Check bounds of target positions
 bool SVHFingerManager::isInsideBounds(const SVHChannel &channel, const int32_t &target_position)
 {
@@ -1509,6 +1540,43 @@ void SVHFingerManager::setResetTimeout(const int& resetTimeout)
 {
   m_reset_timeout = (resetTimeout>0)?resetTimeout:0;
 }
+
+bool SVHFingerManager::setMaxForce(float max_force)
+{
+  if (max_force > 0 && max_force <= 1)
+  {
+    m_max_current_percentage = max_force;
+    return true;
+  }
+  else
+  {
+    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Maximal Force / current should be in the are of [0,1], was set to: " << max_force << endl);
+    return false;
+  }
+}
+
+float SVHFingerManager::setForceLimit(const SVHChannel &channel, float force_limit)
+{
+  uint16_t current;
+  current = convertNtomA(channel, force_limit);
+
+  SVHCurrentSettings current_settings;
+
+  current_settings = m_current_settings[channel];
+
+  current_settings.wmx = current;
+  current_settings.wmn = -current;
+
+  if (setCurrentSettings(channel, current_settings))
+  {
+    return force_limit;
+  }
+  else
+  {
+    return 0.0;
+  }
+}
+
 
 SVHFirmwareInfo SVHFingerManager::getFirmwareInfo()
 {

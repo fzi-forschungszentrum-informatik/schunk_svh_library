@@ -1153,7 +1153,7 @@ bool SVHFingerManager::currentSettingsAreSafe(const SVHChannel &channel,const SV
 
   if(!isEnabled(eSVH_ALL))
   {
-    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Fingers are not all enabled -> no safety tests" << endl);
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Fingers are not all enabled -> no safety tests" << endl);
     // befor the fingers are homed no finger-data are valid
     return true;
   }
@@ -1166,10 +1166,12 @@ bool SVHFingerManager::currentSettingsAreSafe(const SVHChannel &channel,const SV
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "The maximum force value given: "
-            <<  current_settings.wmx << " is not valid. Please provide a value between "
-            << " 0 and " << m_max_current_percentage * std::max(m_diagnostic_current_maximum[channel], std::abs(m_diagnostic_position_minimum[channel]))
-            << endl);
+    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Current value given: "
+            <<  current_settings.wmx << " is not valid." << endl);
+    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager," Please provide values between "
+            << " 0 - " << m_max_current_percentage * std::max(m_diagnostic_current_maximum[channel], std::abs(m_diagnostic_position_minimum[channel]))
+            << " [mA] or 0 - " << convertmAtoN(channel, m_max_current_percentage * std::max(m_diagnostic_current_maximum[channel], std::abs(m_diagnostic_position_minimum[channel])))
+            << " [N]" << endl);
   }
 
   return settingsAreSafe;
@@ -1193,6 +1195,7 @@ bool SVHFingerManager::setCurrentSettings(const SVHChannel &channel, const SVHCu
         m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
       }
 #endif
+      return false;
     }
 
     // First of save the values
@@ -1375,7 +1378,7 @@ std::vector<SVHPositionSettings> SVHFingerManager::getDefaultPositionSettings(co
 //  SVHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f,  8.5e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 //  SVHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 
-    
+
   // All Fingers with a speed that will close the complete range of the finger in 1 Seconds    (except the thumb that will take 4)
   SVHPositionSettings pos_set_thumb_flexion            (-1.0e6f, 1.0e6f,  65.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.0f, 400.0f);
   SVHPositionSettings pos_set_thumb_opposition         (-1.0e6f, 1.0e6f,  50.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.1f, 100.0f);
@@ -1490,9 +1493,9 @@ uint16_t SVHFingerManager::convertNtomA(const SVHChannel &channel, const double 
   uint16_t current;
   if (SVHController::channel_effort_constants[channel][0] != 0)
   {
-    // linear least squares
-    // from f(x) = y = a*x + b -->  x = (y-b) / a
-    current = static_cast<int>((effort + SVHController::channel_effort_constants[channel][1] ) /
+    // y = a*x + b -->  x = (y-b) / a
+    // y = effort and x = current
+    current = static_cast<int>((effort - SVHController::channel_effort_constants[channel][1] ) /
                               SVHController::channel_effort_constants[channel][0] + 0.5);
   }
   else
@@ -1507,8 +1510,8 @@ uint16_t SVHFingerManager::convertNtomA(const SVHChannel &channel, const double 
 double SVHFingerManager::convertmAtoN(const SVHChannel &channel, const int16_t &current)
 {
   float effort;
-  // linear least squares
-  // f(x) = a*x + b
+  // y = a*x + b
+  // y = effort and x = current
   effort = SVHController::channel_effort_constants[channel][0] * std::abs(current)
           + SVHController::channel_effort_constants[channel][1];
 

@@ -335,10 +335,13 @@ public:
   double convertmAtoN(const SVHChannel &channel, const int16_t &current);
 
   //!
-  //! \brief getFirmwareInfo Requests the firmware information from the harware, waits a bit and returns the last one read
+  //! \brief getFirmwareInfo Requests the firmware information from the harware, waits a bit and returns the last one read.
+  //! \note  if no connection is open and the param dev_name is given, a connection is opened and closed after the readout.
+  //! \param dev_name file handle of the serial device e.g. "/dev/ttyUSB0"
+  //! \param _retry_count The number of times a connection is tried to be established if at least one package was received
   //! \return the last firmware information read (this may not be the one currently requested)
   //!
-  SVHFirmwareInfo getFirmwareInfo();
+  SVHFirmwareInfo getFirmwareInfo(const std::string &dev_name = "/dev/ttyUSB0",const unsigned int &_retry_count = 3);
 
 
   #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
@@ -384,6 +387,7 @@ private:
 
   //! \brief limit the maximum of the force / current of the finger as a percentage of the possible maximum
   float m_max_current_percentage;
+
   //! \brief position conversion factor (ticks to RAD) for each channel
   std::vector<double> m_ticks2rad;
 

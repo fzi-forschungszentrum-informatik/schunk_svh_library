@@ -170,9 +170,6 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
         // Reset the package counts (in case a previous attempt was made)
         m_controller->resetPackageCounts();
 
-        // initialize feedback polling thread
-        m_feedback_thread = new SVHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
-
         // load default position settings before the fingers are resetted
         std::vector<SVHPositionSettings> position_settings = getDefaultPositionSettings(true);
 
@@ -272,14 +269,23 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
         }
 #endif
 
-        // Request firmware information once at the beginning
-        getFirmwareInfo();
+        // Request firmware information once at the beginning, it will print out on the console
+        m_controller->requestFirmwareInfo();
+        
+        // initialize feedback polling thread
+        m_feedback_thread = new SVHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
+
         // start feedback polling thread
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is starting the fedback polling thread" << endl);
         if (m_feedback_thread != NULL)
         {
           m_feedback_thread->start();
         }
+      }
+      else
+      {
+        //connection open but not stable: close serial port for better reconnect later
+        m_controller->disconnect();
       }
     }
     else
@@ -393,9 +399,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
 
       LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Start homing channel " << channel << endl);
-
-      m_controller->resetPackageCounts();
-
+    
       if (!m_is_switched_off[channel])
       {
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
@@ -414,7 +418,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         m_controller->getCurrentSettings(channel, cur_set);
 
         // find home position
-        m_controller->disableChannel(eSVH_ALL);
         int32_t position = 0;
 
         if (home.direction > 0)
@@ -556,7 +559,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
         LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Hit counter of " << channel << " reached." << endl);
 
-        m_controller->disableChannel(eSVH_ALL);
 
         // set reference values
         m_position_min[channel] = static_cast<int32_t>(control_feedback.position + std::min(home.minimumOffset, home.maximumOffset));
@@ -569,7 +571,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         position = m_position_home[channel];
 
         // go to idle position
-        m_controller->enableChannel(channel);
         // use the declared start_time variable for the homing timeout
         start_time = icl_core::TimeStamp::now();
         while (true)
@@ -594,7 +595,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             break;
           }
         }
-        m_controller->resetPackageCounts();
+
         m_controller->disableChannel(eSVH_ALL);
         //icl_core::os::usleep(8000);
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
@@ -637,11 +638,8 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         m_ws_broadcaster->robot->setJointHomed(true,channel);
       }
 #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
-      unsigned send_count = m_controller->getSentPackageCount();
-      unsigned received_count = m_controller->getReceivedPackageCount();
 
-      LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully homed channel " << channel << endl
-                                               << "Send packages = " << send_count << ", received packages = " << received_count << endl);
+      LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully homed channel " << channel << endl);
 
       return true;
     }
@@ -1378,7 +1376,6 @@ std::vector<SVHPositionSettings> SVHFingerManager::getDefaultPositionSettings(co
 //  SVHPositionSettings pos_set_finger = {-1.0e6f, 1.0e6f,  8.5e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 //  SVHPositionSettings pos_set_spread = {-1.0e6f, 1.0e6f, 17.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f};
 
-
   // All Fingers with a speed that will close the complete range of the finger in 1 Seconds    (except the thumb that will take 4)
   SVHPositionSettings pos_set_thumb_flexion            (-1.0e6f, 1.0e6f,  65.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.0f, 400.0f);
   SVHPositionSettings pos_set_thumb_opposition         (-1.0e6f, 1.0e6f,  50.0e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.1f, 100.0f);
@@ -1581,30 +1578,60 @@ float SVHFingerManager::setForceLimit(const SVHChannel &channel, float force_lim
 }
 
 
-SVHFirmwareInfo SVHFingerManager::getFirmwareInfo()
+SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name,const unsigned int &_retry_count)
 {
-  // As the firmware info takes longer we need to disable the polling during the request of the firmware informatio
+  bool was_connected = true;
+  SVHFirmwareInfo info;
+  if (!m_connected)
+  {
+    was_connected = false;
+    if(!m_controller->connect(dev_name))
+    {
+      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection FAILED! Device could NOT be opened" << endl);
+      info.version_major = 0;
+      info.version_minor = 0;
+      return info;
+    }
+  }
+
+  // As the firmware info takes longer we need to disable the polling during the request of the firmware information
   if (m_feedback_thread != NULL)
   {
     // wait until thread has stopped
     m_feedback_thread->stop();
     m_feedback_thread->join();
   }
-
-  // Tell the hardware to get the newest firmware information
-  m_controller->requestFirmwareInfo();
-  // Just wait a tiny amount
-  icl_core::os::usleep(100);
+  
+  unsigned int retry_count = _retry_count;
+  do
+  {
+    // Tell the hardware to get the newest firmware information
+    m_controller->requestFirmwareInfo();
+    // Just wait a tiny amount
+    icl_core::os::usleep(100000);
+    // Get the Version number if received yet, else 0.0
+    info = m_controller->getFirmwareInfo();
+    --retry_count;
+    if (info.version_major == 0 && info.version_major == 0)
+    {
+      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Getting Firmware Version failed,.Retrying, count: " << retry_count << endl);
+    }
+  }
+  while(retry_count > 0 && info.version_major == 0 && info.version_major == 0);
 
   // Start the feedback process aggain
-  if (m_feedback_thread != NULL)
+  if (m_feedback_thread != NULL && was_connected)
   {
     // wait until thread has stopped
     m_feedback_thread->start();
   }
-
+  
+  if (!was_connected)
+  {
+    m_controller->disconnect();
+  }
   // Note that the Firmware will also be printed to the console by the controller. So in case you just want to know it no further action is required
-  return m_controller->getFirmwareInfo();
+  return info;
 }
 
 }

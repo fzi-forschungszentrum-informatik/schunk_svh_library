@@ -142,7 +142,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
   LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to connect to the Hardware..." << endl);
 
 #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-  // Reset the connection specific hints and give it a go aggain.
+  // Reset the connection specific hints and give it a go again.
   if (m_ws_broadcaster)
   {
     m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
@@ -228,7 +228,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
           icl_core::os::usleep(50000);
         }
 
-        // Try Aggain, but ONLY if we at least got one package back, otherwise its futil
+        // Try again, but ONLY if we at least got one package back, otherwise its futil
         if (!m_connected)
         {
           if (received_count > 0 && retry_count >= 0)
@@ -587,7 +587,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             break;
           }
 
-          // if the finger isn't reach the home position after m_homing_timeout there is an hardware error
+          // if the finger hasn't reached the home position after m_homing_timeout there is an hardware error
           if((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
           {
             m_is_homed[channel] = false;
@@ -686,7 +686,7 @@ bool SVHFingerManager::enableChannel(const SVHChannel &channel)
     {
       for (size_t i = 0; i < eSVH_DIMENSION; ++i)
       {
-        // Just for safety, enable chanels in the same order as we have resetted them (otherwise developers might geht confused)
+        // Just for safety, enable channels in the same order as we have resetted them (otherwise developers might geht confused)
         SVHChannel real_channel = static_cast<SVHChannel>(m_reset_order[i]);
         if (!m_is_switched_off[real_channel])
         {
@@ -697,7 +697,7 @@ bool SVHFingerManager::enableChannel(const SVHChannel &channel)
     }
     else if (channel > eSVH_ALL && eSVH_ALL < eSVH_DIMENSION)
     {
-      // Note: This part is another one of thise places where the names can lead to confusion. I am sorry about that
+      // Note: This part is another one of these places where the names can lead to confusion. I am sorry about that
       // Switched off is a logical term. The user has chosen NOT to use this channel because of hardware trouble.
       // To enable a smooth driver behaviour all replys regarding these channels will be answered in the most positive way
       // the caller could expect. Enabled refers to the actual enabled state of the hardware controller loops that drive the motors.
@@ -753,7 +753,7 @@ void SVHFingerManager::disableChannel(const SVHChannel &channel)
     bool all_disabled = true;
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
-      // Aggain only check channels that are not switched off. Switched off channels will always answer that they are enabled
+      // Again only check channels that are not switched off. Switched off channels will always answer that they are enabled
       all_disabled = all_disabled && (m_is_switched_off[channel] ||!isEnabled(static_cast<SVHChannel>(i)));
     }
     if (all_disabled)

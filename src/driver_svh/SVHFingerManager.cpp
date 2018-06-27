@@ -563,7 +563,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         // set reference values
         m_position_min[channel] = static_cast<int32_t>(control_feedback.position + std::min(home.minimumOffset, home.maximumOffset));
         m_position_max[channel] = static_cast<int32_t>(control_feedback.position + std::max(home.minimumOffset, home.maximumOffset));
-        m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.idlePosition);
+        m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.direction * home.idlePosition);
         LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Setting soft stops for Channel " << channel << " min pos = " << m_position_min[channel]
                         << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel] << endl);
 

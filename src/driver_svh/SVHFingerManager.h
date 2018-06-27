@@ -438,6 +438,7 @@ private:
 
   //! Vector of current controller parameters for each finger (as given by external config)
   std::vector<SVHCurrentSettings> m_current_settings;
+
   //! Information about the validity of externaly given values for the current settings (easier to use this way)
   std::vector<bool> m_current_settings_given;
 
@@ -448,6 +449,9 @@ private:
 
   //! Vector of home settings for each finger (as given by external config)
   std::vector<SVHHomeSettings> m_home_settings;
+
+  //! Firmware info of the connected Hand
+  SVHFirmwareInfo m_firmware_info;
 
   /*!
    * \brief m_serial_device Device handle of the device to use, is overwritten if connect is called with an argument

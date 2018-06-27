@@ -271,7 +271,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
 
         // Request firmware information once at the beginning, it will print out on the console
         m_controller->requestFirmwareInfo();
-        
+
         // initialize feedback polling thread
         m_feedback_thread = new SVHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
 
@@ -399,7 +399,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
 
       LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Start homing channel " << channel << endl);
-    
+
       if (!m_is_switched_off[channel])
       {
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
@@ -1578,60 +1578,66 @@ float SVHFingerManager::setForceLimit(const SVHChannel &channel, float force_lim
 }
 
 
-SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name,const unsigned int &_retry_count)
+SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name, const unsigned int &_retry_count)
 {
-  bool was_connected = true;
-  SVHFirmwareInfo info;
-  if (!m_connected)
+  // If firmware was read out befor do not ask for new firmware
+  if (m_firmware_info.version_major == 0 && m_firmware_info.version_major == 0)
   {
-    was_connected = false;
-    if(!m_controller->connect(dev_name))
+    bool was_connected = true;
+
+    if (!m_connected)
     {
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection FAILED! Device could NOT be opened" << endl);
-      info.version_major = 0;
-      info.version_minor = 0;
-      return info;
+      was_connected = false;
+      if(!m_controller->connect(dev_name))
+      {
+        LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection FAILED! Device could NOT be opened" << endl);
+        m_firmware_info.version_major = 0;
+        m_firmware_info.version_minor = 0;
+        return m_firmware_info;
+      }
+    }
+
+    // As the firmware info takes longer we need to disable the polling during the request of the firmware information
+    if (m_feedback_thread != NULL)
+    {
+      // wait until thread has stopped
+      m_feedback_thread->stop();
+      m_feedback_thread->join();
+    }
+
+    unsigned int retry_count = _retry_count;
+    do
+    {
+      // Tell the hardware to get the newest firmware information
+      m_controller->requestFirmwareInfo();
+      // Just wait a tiny amount
+      icl_core::os::usleep(100000);
+      // Get the Version number if received yet, else 0.0
+      m_firmware_info = m_controller->getFirmwareInfo();
+      --retry_count;
+
+      if (m_firmware_info.version_major == 0 && m_firmware_info.version_major == 0)
+      {
+        LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Getting Firmware Version failed,.Retrying, count: " << retry_count << endl);
+      }
+    }
+    while(retry_count > 0 && m_firmware_info.version_major == 0 && m_firmware_info.version_major == 0);
+
+    // Start the feedback process aggain
+    if (m_feedback_thread != NULL && was_connected)
+    {
+      // wait until thread has stopped
+      m_feedback_thread->start();
+    }
+
+    if (!was_connected)
+    {
+      m_controller->disconnect();
     }
   }
 
-  // As the firmware info takes longer we need to disable the polling during the request of the firmware information
-  if (m_feedback_thread != NULL)
-  {
-    // wait until thread has stopped
-    m_feedback_thread->stop();
-    m_feedback_thread->join();
-  }
-  
-  unsigned int retry_count = _retry_count;
-  do
-  {
-    // Tell the hardware to get the newest firmware information
-    m_controller->requestFirmwareInfo();
-    // Just wait a tiny amount
-    icl_core::os::usleep(100000);
-    // Get the Version number if received yet, else 0.0
-    info = m_controller->getFirmwareInfo();
-    --retry_count;
-    if (info.version_major == 0 && info.version_major == 0)
-    {
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Getting Firmware Version failed,.Retrying, count: " << retry_count << endl);
-    }
-  }
-  while(retry_count > 0 && info.version_major == 0 && info.version_major == 0);
-
-  // Start the feedback process aggain
-  if (m_feedback_thread != NULL && was_connected)
-  {
-    // wait until thread has stopped
-    m_feedback_thread->start();
-  }
-  
-  if (!was_connected)
-  {
-    m_controller->disconnect();
-  }
   // Note that the Firmware will also be printed to the console by the controller. So in case you just want to know it no further action is required
-  return info;
+  return m_firmware_info;
 }
 
 }

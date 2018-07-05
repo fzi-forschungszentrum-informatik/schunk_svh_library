@@ -451,7 +451,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           // Timeout while no encoder ticks changed
 
           // Quite extensive Current output!
-          if ((icl_core::TimeStamp::now() - start_time_log).milliSeconds() > 250)
+          if ((icl_core::TimeStamp::now() - start_time_log).milliSeconds() > 1000)
           {
             LOGGING_INFO_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
             start_time_log = icl_core::TimeStamp::now();
@@ -556,6 +556,8 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           control_feedback_previous = control_feedback;
           //icl_core::os::usleep(8000);
         }
+        // give the last info with highes channel current value
+        LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
 
         LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Hit counter of " << channel << " reached." << endl);
 

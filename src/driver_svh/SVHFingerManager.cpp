@@ -453,7 +453,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           // Quite extensive Current output!
           if ((icl_core::TimeStamp::now() - start_time_log).milliSeconds() > 1000)
           {
-            LOGGING_INFO_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
+            LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
             start_time_log = icl_core::TimeStamp::now();
           }
 
@@ -500,12 +500,12 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             m_diagnostic_current_state[channel] = true; // when in maximum the current controller is ok
 
             hit_count++;
-            LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count increased: " << hit_count << endl);
+            LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count increased: " << hit_count << endl);
           }
           else if (hit_count > 0)
           {
             hit_count--;
-            LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count Decreased: " << hit_count << endl);
+            LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count Decreased: " << hit_count << endl);
           }
 
           // check for time out: Abort, if position does not change after homing timeout.

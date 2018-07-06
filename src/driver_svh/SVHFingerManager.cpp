@@ -1538,7 +1538,7 @@ bool SVHFingerManager::setMaxForce(float max_force)
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Maximal Force / current should be in the are of [0,1], was set to: " << max_force << endl);
+    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Maximal Force / current should be in the range of [0,1], was set to: " << max_force << endl);
     return false;
   }
 }

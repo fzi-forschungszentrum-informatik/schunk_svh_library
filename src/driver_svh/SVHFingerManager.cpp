@@ -1474,20 +1474,6 @@ double SVHFingerManager::convertTicks2Rad(const SVHChannel &channel, const int32
 // Converts joint efforts of a specific channel from force [N] to current [mA]
 uint16_t SVHFingerManager::convertNtomA(const SVHChannel &channel, const double &effort)
 {
-  // percentage effort calculation
-  // float target_effort;
-  //
-  // // persentage
-  // if((effort != 0.0) && (effort <= 100.0))
-  // {
-  //   float norm = m_current_settings[channel].wmx / 100;
-  //   //std::cout << "Norm: " << norm << std::endl;
-  //   target_effort = static_cast<float>(effort * norm);
-  // }
-  // else
-  // {
-  //   target_effort = m_current_settings[channel].wmx;
-  // }
 
   uint16_t current;
   if (SVHController::channel_effort_constants[channel][0] != 0)

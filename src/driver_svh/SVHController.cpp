@@ -66,12 +66,12 @@ const float SVHController::channel_effort_constants[][2]={
   // a, b         // y = a*x + b with y = effort and x = current
   0.015, -1.543,  // Thumb Flexion
   0, 0,           // Thumb Opposition
-  0.014, -0.07,,  // Index Finger Distal
-  0.015, 0.026,   // Index Finger Proximal
+  0.014, -0.07,   // Index Finger Distal
+  0.015, 0.282,   // Index Finger Proximal
   0.014, -0.026,  // Middle Finger Distal
-  0.015, 0.282,   // Middle Finger Proximal
+  0.015, 0.336,   // Middle Finger Proximal
   0.007, -0.073,  // Ring Finger
-  0.005, 0.0812,  // Pinky
+  0.005, 0.081,   // Pinky
   0, 0            // Finger Spread
 };
 

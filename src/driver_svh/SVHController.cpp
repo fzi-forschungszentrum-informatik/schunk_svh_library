@@ -43,6 +43,9 @@
 #include <boost/bind/bind.hpp>
 
 using icl_comm::ArrayBuilder;
+#if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
+using namespace boost::placeholders;
+#endif
 
 namespace driver_svh {
 

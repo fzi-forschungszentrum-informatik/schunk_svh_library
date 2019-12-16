@@ -36,6 +36,9 @@
 
 using icl_core::TimeSpan;
 using icl_comm::serial::SerialFlags;
+#if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
+using namespace boost::placeholders;
+#endif
 
 namespace driver_svh {
 

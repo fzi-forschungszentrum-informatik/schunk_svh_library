@@ -121,6 +121,9 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_diagnostic_position_maximum.resize(eSVH_DIMENSION, 0.0);
   m_diagnostic_position_minimum.resize(eSVH_DIMENSION, 0.0);
   m_diagnostic_deadlock.resize(eSVH_DIMENSION, 0.0);
+
+  m_firmware_info.version_major = 0;
+  m_firmware_info.version_minor = 0;
 }
 
 SVHFingerManager::~SVHFingerManager()

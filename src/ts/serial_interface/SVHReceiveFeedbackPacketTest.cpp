@@ -31,6 +31,9 @@
 
 using icl_comm::ArrayBuilder;
 using namespace driver_svh;
+#if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
+using namespace boost::placeholders;
+#endif
 
 void receivedPacketCallback(const SVHSerialPacket& packet, unsigned int packet_count)
 {

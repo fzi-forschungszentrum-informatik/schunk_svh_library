@@ -32,7 +32,7 @@
 
 #include <icl_core/TimeSpan.h>
 #include <icl_core_thread/PeriodicThread.h>
-#include <icl_comm_serial/Serial.h>
+#include <driver_svh/Serial.h>
 #include <driver_svh/ByteOrderConversion.h>
 
 #include <driver_svh/Logging.h>
@@ -43,7 +43,7 @@
 
 using icl_core::TimeSpan;
 using icl_core::thread::PeriodicThread;
-using icl_comm::serial::Serial;
+using driver_svh::serial::Serial;
 
 namespace driver_svh {
 

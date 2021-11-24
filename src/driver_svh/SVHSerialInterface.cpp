@@ -22,7 +22,7 @@
  *
  * This file contains the SVHSerialInterface class that is used to
  * handle the protocoll overhead of the serial communication.
- * It uses an icl_comm serial device that opens the physical connection and
+ * It uses a serial device that opens the physical connection and
  * is responsible to manage this hardware resource as well as protocoll issues
  * like sync bytes, checksum calculation and counting of packets send and received.
  */
@@ -30,12 +30,12 @@
 #include "driver_svh/SVHSerialInterface.h"
 #include "driver_svh/Logging.h"
 
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
 
 
 using icl_core::TimeSpan;
-using icl_comm::serial::SerialFlags;
+using driver_svh::serial::SerialFlags;
 #if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
 using namespace boost::placeholders;
 #endif
@@ -150,7 +150,7 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
     {
       // Prepare arraybuilder
       size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
-      icl_comm::ArrayBuilder send_array(size);
+      driver_svh::ArrayBuilder send_array(size);
       // Write header and packet information and checksum
       send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
 
@@ -215,7 +215,7 @@ void SVHSerialInterface::printPacketOnConsole(SVHSerialPacket &packet)
 
   // Prepare arraybuilder
   size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
-  icl_comm::ArrayBuilder send_array(size);
+  driver_svh::ArrayBuilder send_array(size);
   // Write header and packet information and checksum
   send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
 

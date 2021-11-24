@@ -23,11 +23,11 @@
 //----------------------------------------------------------------------
 
 #include <driver_svh/ByteOrderConversion.h>
-#include <icl_comm_serial/Serial.h>
+#include <driver_svh/Serial.h>
 
 using driver_svh::ArrayBuilder;
-using icl_comm::serial::Serial;
-using icl_comm::serial::SerialFlags;
+using driver_svh::serial::Serial;
+using driver_svh::serial::SerialFlags;
 
 // testing serial interface of svh driver
 int main(int argc, const char* argv[])

@@ -31,8 +31,8 @@
 using driver_svh::ArrayBuilder;
 using namespace driver_svh;
 
-using icl_comm::serial::Serial;
-using icl_comm::serial::SerialFlags;
+using driver_svh::serial::Serial;
+using driver_svh::serial::SerialFlags;
 
 // testing serial interface of svh driver
 int main(int argc, const char* argv[])

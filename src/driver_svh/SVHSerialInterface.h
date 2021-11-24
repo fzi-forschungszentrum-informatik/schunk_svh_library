@@ -23,7 +23,7 @@
  *
  * This file contains the SVHSerialInterface class that is used to
  * handle the protocol overhead of the serial communication.
- * It uses an icl_comm serial device that opens the physical connection and
+ * It uses a serial device that opens the physical connection and
  * is responsible to manage this hardware resource as well as protocoll issues
  * like sync bytes, checksum calculation and counting of packets sent and received.
  */
@@ -36,9 +36,9 @@
 
 #include <driver_svh/SVHSerialPacket.h>
 #include <driver_svh/SVHReceiveThread.h>
-#include <icl_comm_serial/Serial.h>
+#include <driver_svh/Serial.h>
 #include <boost/shared_ptr.hpp>
-using icl_comm::serial::Serial;
+using driver_svh::serial::Serial;
 
 namespace driver_svh {
 

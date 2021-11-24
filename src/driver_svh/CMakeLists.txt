@@ -4,6 +4,8 @@ ICMAKER_SET("driver_svh" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 ICMAKER_ADD_SOURCES(
   ByteOrderConversion.cpp
   Logging.cpp
+  Serial.cpp
+  SerialFlags.cpp
   SVHController.cpp
   SVHFeedbackPollingThread.cpp
   SVHFingerManager.cpp
@@ -16,6 +18,8 @@ ICMAKER_ADD_HEADERS(
   ByteOrderConversion.h
   ImportExport.h
   Logging.h
+  Serial.h
+  SerialFlags.h
   SVHController.h
   SVHSerialPacket.h
   SVHPositionSettings.h
@@ -46,7 +50,6 @@ ICMAKER_DEPENDENCIES(
 ICMAKER_DEPENDENCIES(EXPORT
   icl_core
   icl_core_thread
-  icl_comm_serial
   Boost_THREAD
 )
 

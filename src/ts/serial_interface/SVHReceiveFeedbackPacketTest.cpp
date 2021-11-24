@@ -22,14 +22,14 @@
  */
 //----------------------------------------------------------------------
 
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 #include <driver_svh/SVHPositionSettings.h>
 #include <driver_svh/SVHControllerFeedback.h>
 #include <driver_svh/SVHController.h>
 #include <driver_svh/SVHSerialPacket.h>
 #include <boost/bind/bind.hpp>
 
-using icl_comm::ArrayBuilder;
+using driver_svh::ArrayBuilder;
 using namespace driver_svh;
 #if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
 using namespace boost::placeholders;
@@ -54,7 +54,7 @@ void receivedPacketCallback(const SVHSerialPacket& packet, unsigned int packet_c
     ab >> controller_feedback;
     LOGGING_INFO_C(DriverSVH, SVHController, "Received a Control Feedback/Control Command packet for channel "<< channel << endl);
 
-    std::cout << "Controller Feedback " << controller_feedback << endl;
+    std::cout << "Controller Feedback " << controller_feedback << std::endl;
   }
 }
 

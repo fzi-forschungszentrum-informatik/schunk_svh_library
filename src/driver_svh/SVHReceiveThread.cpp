@@ -31,7 +31,7 @@
 #include <driver_svh/Logging.h>
 #include <sstream>
 
-using icl_comm::ArrayBuilder;
+using driver_svh::ArrayBuilder;
 
 namespace driver_svh {
 

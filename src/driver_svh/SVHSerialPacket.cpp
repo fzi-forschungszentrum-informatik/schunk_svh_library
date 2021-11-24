@@ -30,13 +30,13 @@
 
 namespace driver_svh {
 
-icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SVHSerialPacket& data)
+driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHSerialPacket& data)
 {
   ab << data.index << data.address << static_cast<uint16_t>(data.data.size()) << data.data;
   return ab;
 }
 
-icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHSerialPacket& data)
+driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHSerialPacket& data)
 {
   // Disregard the size when deserializing as we get that anyway
   uint16_t size ;

@@ -58,7 +58,7 @@ struct SVHEncoderSettings {
 
 
 //! overload stream operator to easily serialize encoder scaling data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SVHEncoderSettings& data)
+inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHEncoderSettings& data)
 {
   // Trivial as the vector slicing is already done by the arraybuilder
   ab << data.scalings;
@@ -66,7 +66,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SV
 }
 
 //! overload stream operator to easily serialize encoder scaling data
-inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHEncoderSettings& data)
+inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHEncoderSettings& data)
 {
   ab >> data.scalings;
   return ab;

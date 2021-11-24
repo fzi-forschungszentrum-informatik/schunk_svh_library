@@ -14,7 +14,7 @@ ICMAKER_INTERNAL_DEPENDENCIES(
   driver_svh
   icl_core
   icl_core_thread
-  icl_comm
+  icl_comm_serial
   )
 
 ICMAKER_BUILD_TEST()
@@ -36,7 +36,7 @@ ICMAKER_INTERNAL_DEPENDENCIES(
   driver_svh
   icl_core
   icl_core_thread
-  icl_comm
+  icl_comm_serial
   )
 
 ICMAKER_BUILD_TEST()
@@ -58,7 +58,7 @@ ICMAKER_INTERNAL_DEPENDENCIES(
   driver_svh
   icl_core
   icl_core_thread
-  icl_comm
+  icl_comm_serial
   )
 
 ICMAKER_BUILD_TEST()
@@ -80,7 +80,7 @@ ICMAKER_INTERNAL_DEPENDENCIES(
   driver_svh
   icl_core
   icl_core_thread
-  icl_comm
+  icl_comm_serial
   )
 
 ICMAKER_BUILD_TEST()
@@ -102,7 +102,7 @@ ICMAKER_INTERNAL_DEPENDENCIES(
   driver_svh
   icl_core
   icl_core_thread
-  icl_comm
+  icl_comm_serial
   )
 
 ICMAKER_BUILD_TEST()
@@ -124,7 +124,7 @@ ICMAKER_INTERNAL_DEPENDENCIES(
   driver_svh
   icl_core
   icl_core_thread
-  icl_comm
+  icl_comm_serial
   )
 
 ICMAKER_BUILD_TEST()

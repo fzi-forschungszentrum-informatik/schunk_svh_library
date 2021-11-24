@@ -51,7 +51,7 @@ struct SVHFirmwareInfo
 };
 
 //! overload stream operator to easily serialize firmware data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, SVHFirmwareInfo& data)
+inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, SVHFirmwareInfo& data)
 {
   // Stream operator can not handle arrays (due to missing size information) to make things easy we just copy the data around. Feel free to do something else
   // Todo: The conversion in this direction is not properly working, as the readout is working fine so far this is a fix for later.
@@ -71,7 +71,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, SVHFirmw
 
 
 //! overload stream operator to easily serialize firmware data
-inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHFirmwareInfo& data)
+inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHFirmwareInfo& data)
 {
   // Stream operator can not handle arrays (due to missing size information) to make things easy we just copy the data around. Feel free to do something else
   std::vector<uint8_t> text(48);

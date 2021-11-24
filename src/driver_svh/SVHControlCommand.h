@@ -27,7 +27,7 @@
 #ifndef SVHCONTROLCOMMAND_H
 #define SVHCONTROLCOMMAND_H
 
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 
 namespace driver_svh {
 
@@ -119,7 +119,7 @@ struct SVHControlCommandAllChannels
 
 //! overload stream operator to easily serialize control commands for one channel
 //! slightly uneccessary at this point but put in anayway for the time it`s needed
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SVHControlCommand& data)
+inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHControlCommand& data)
 {
   ab << data.position;
   return ab;
@@ -127,7 +127,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SV
 
 
 //! overload stream operator to easily deserialize control commands for one channel
-inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHControlCommand& data)
+inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHControlCommand& data)
 {
   ab >> data.position;
   return ab;
@@ -141,7 +141,7 @@ inline std::ostream& operator << (std::ostream& o, const SVHControlCommand& cc)
 }
 
 //! overload stream operator to easily serialize control commands for all channels
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SVHControlCommandAllChannels& data)
+inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHControlCommandAllChannels& data)
 {
   // We could also just give the whole vector in ...
   for (std::vector<SVHControlCommand>::const_iterator it = data.commands.begin() ; it != data.commands.end(); ++it)
@@ -153,7 +153,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SV
 
 
 //! overload stream operator to easily deserialize control commands for all channels
-inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHControlCommandAllChannels& data)
+inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHControlCommandAllChannels& data)
 {
   for (std::vector<SVHControlCommand>::iterator it = data.commands.begin() ; it != data.commands.end(); ++it)
   {

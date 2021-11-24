@@ -22,10 +22,10 @@
  */
 //----------------------------------------------------------------------
 
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 #include <icl_comm_serial/Serial.h>
 
-using icl_comm::ArrayBuilder;
+using driver_svh::ArrayBuilder;
 using icl_comm::serial::Serial;
 using icl_comm::serial::SerialFlags;
 

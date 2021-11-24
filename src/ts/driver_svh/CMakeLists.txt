@@ -2,6 +2,7 @@
 ICMAKER_SET("ts_SVHDriver" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 
 ICMAKER_ADD_SOURCES(
+  ts_ByteOrderConversion.cpp
   ts_main.cpp
   ts_SVHDriver.cpp
   )
@@ -22,7 +23,6 @@ ICMAKER_INTERNAL_DEPENDENCIES(
   driver_svh
   icl_core
   icl_core_thread
-  icl_comm
   Boost_THREAD
   )
 

@@ -27,7 +27,7 @@
 #ifndef SVHPOSITIONSETTINGS_H
 #define SVHPOSITIONSETTINGS_H
 
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 
 namespace driver_svh {
 
@@ -124,7 +124,7 @@ public:
 };
 
 //! overload stream operator to easily serialize position settings data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SVHPositionSettings& data)
+inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHPositionSettings& data)
 {
   ab << data.wmn
      << data.wmx
@@ -140,7 +140,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SV
 }
 
 //! overload stream operator to easily deserialize position settings data
-inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHPositionSettings& data)
+inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHPositionSettings& data)
 {
   ab >> data.wmn
      >> data.wmx

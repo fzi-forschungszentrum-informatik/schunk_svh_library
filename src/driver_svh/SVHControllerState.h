@@ -76,7 +76,7 @@ struct SVHControllerState
 };
 
 //! overload stream operator to easily serialize controller state data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SVHControllerState& data)
+inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHControllerState& data)
 {
   ab << data.pwm_fault
      << data.pwm_otw
@@ -88,7 +88,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SV
 }
 
 //! overload stream operator to easily serialize controller state data
-inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHControllerState& data)
+inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHControllerState& data)
 {
   ab >> data.pwm_fault
      >> data.pwm_otw

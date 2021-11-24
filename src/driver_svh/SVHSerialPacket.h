@@ -29,7 +29,7 @@
 #ifndef SVHSERIALPACKET_H
 #define SVHSERIALPACKET_H
 
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 
 namespace driver_svh {
 
@@ -94,10 +94,10 @@ struct SVHSerialPacket
 };
 
 //! overload stream operator to easily serialize raw packet data
-icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SVHSerialPacket& data);
+driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHSerialPacket& data);
 
 //! overload stream operator to easily deserialize raw packet data
-icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHSerialPacket& data);
+driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHSerialPacket& data);
 
 //! Output Stream operator for easy printing of packet data
 std::ostream& operator << (std::ostream& o, const SVHSerialPacket& sp);

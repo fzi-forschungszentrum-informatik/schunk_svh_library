@@ -28,7 +28,7 @@
 #ifndef SVHCONTROLLERFEEDBACK_H
 #define SVHCONTROLLERFEEDBACK_H
 
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 
 namespace driver_svh {
 
@@ -122,7 +122,7 @@ struct SVHControllerFeedbackAllChannels
 };
 
 //! Overload stream operator to easily serialize feedback data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab,const SVHControllerFeedback& data)
+inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab,const SVHControllerFeedback& data)
 {
   ab << data.position
      << data.current;
@@ -131,7 +131,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab,const SVH
 
 
 //! Overload stream operator to easily deserialize feedback data
-inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHControllerFeedback& data)
+inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHControllerFeedback& data)
 {
   ab >> data.position
      >> data.current;
@@ -147,7 +147,7 @@ inline std::ostream& operator << (std::ostream& o, const SVHControllerFeedback& 
 
 
 //! Overload stream operator to easily serialize all channel feedback data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab,SVHControllerFeedbackAllChannels& data)
+inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab,SVHControllerFeedbackAllChannels& data)
 {
   // The Data is transmitted not channel by channel but rather position first, Currents afterwards for all channels
   for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
@@ -164,7 +164,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab,SVHContro
 
 
 //! Overload stream operator to easily deserialize all channel feedback data
-inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHControllerFeedbackAllChannels& data)
+inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHControllerFeedbackAllChannels& data)
 {
   // The Data is transmitted not channel by channel but rather position first, Currents afterwards for all channels
   for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)

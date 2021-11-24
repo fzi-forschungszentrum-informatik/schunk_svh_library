@@ -22,11 +22,11 @@
  */
 //----------------------------------------------------------------------
 
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 #include <driver_svh/SVHSerialInterface.h>
 #include <driver_svh/SVHPositionSettings.h>
 
-using icl_comm::ArrayBuilder;
+using driver_svh::ArrayBuilder;
 using namespace driver_svh;
 
 using icl_comm::serial::Serial;

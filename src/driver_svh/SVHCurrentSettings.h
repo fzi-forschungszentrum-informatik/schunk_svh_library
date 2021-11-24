@@ -27,7 +27,7 @@
 #ifndef SVHCURRENTSETTINGS_H
 #define SVHCURRENTSETTINGS_H
 
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 
 namespace driver_svh {
 
@@ -124,7 +124,7 @@ struct SVHCurrentSettings
 };
 
 //! overload stream operator to easily serialize current settings data
-inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SVHCurrentSettings& data)
+inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHCurrentSettings& data)
 {
   ab << data.wmn
      << data.wmx
@@ -140,7 +140,7 @@ inline icl_comm::ArrayBuilder& operator << (icl_comm::ArrayBuilder& ab, const SV
 }
 
 //! overload stream operator to easily serialize current settings data
-inline icl_comm::ArrayBuilder& operator >> (icl_comm::ArrayBuilder& ab, SVHCurrentSettings& data)
+inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHCurrentSettings& data)
 {
   ab >> data.wmn
      >> data.wmx

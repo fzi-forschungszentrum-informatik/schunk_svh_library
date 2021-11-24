@@ -21,7 +21,7 @@
  *
  */
 //----------------------------------------------------------------------
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 #include <boost/test/unit_test.hpp>
 
 #include <driver_svh/SVHPositionSettings.h>
@@ -34,7 +34,7 @@
 #include <driver_svh/SVHController.h>
 #include <driver_svh/SVHFingerManager.h>
 
-using icl_comm::ArrayBuilder;
+using driver_svh::ArrayBuilder;
 using namespace driver_svh;
 
 BOOST_AUTO_TEST_SUITE(ts_SVHDriver)

@@ -33,7 +33,7 @@
 #include <icl_core/TimeSpan.h>
 #include <icl_core_thread/PeriodicThread.h>
 #include <icl_comm_serial/Serial.h>
-#include <icl_comm/ByteOrderConversion.h>
+#include <driver_svh/ByteOrderConversion.h>
 
 #include <driver_svh/Logging.h>
 #include <driver_svh/SVHSerialPacket.h>
@@ -113,7 +113,7 @@ private:
   std::vector<uint8_t> m_data;
 
   //! pointer to array builder object for packet receive
-  icl_comm::ArrayBuilder m_ab;
+  driver_svh::ArrayBuilder m_ab;
 
   //! packets counter
   unsigned int m_packets_received;

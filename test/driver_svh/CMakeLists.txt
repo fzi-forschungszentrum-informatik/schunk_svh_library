@@ -2,9 +2,9 @@
 ICMAKER_SET("ts_SVHDriver" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 
 ICMAKER_ADD_SOURCES(
-  ts_ByteOrderConversion.cpp
-  ts_main.cpp
-  ts_SVHDriver.cpp
+  ByteOrderConversionTest.cpp
+  MainTest.cpp
+  SVHDriverTest.cpp
   )
 
 IF(Boost_FOUND)

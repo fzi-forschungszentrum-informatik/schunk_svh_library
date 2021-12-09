@@ -3,25 +3,26 @@
 TODO:
 
 ## Installation
-Inside the `ic_workspace` folder, call
+
+Make sure that `cmake` finds IC-related exports with
+setting an environment variable in the shell for cmake (adjust to your setup):
+
 ```bash
-mkdir build && cd build
-cmake ..
-make -j6
-make install
+export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/home/scherzin/src/robot_folders/checkout/schunk_svh_ros1/ic_workspace/export
 ```
 
-Calling `install` is actually important to have all CMake targets in the right place.
-Note that ROS1 didn't require this and allowed users to work primariliy with the `devel`.
+Start an *out of source build* in the parent folder of this package with
+```bash
+mkdir build && cd build
+cmake ../driver_svh/
+cmake --build .
+```
 
 ## Running tests manually
 
 We currently use the `Boost` test framework.
-You can call the tests manually on the command line with
+You can run the tests manually on the command line with
 
 ```bash
 make CTEST_OUTPUT_ON_FAILURE=1 test
 ```
-
-
-

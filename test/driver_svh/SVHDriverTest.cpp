@@ -21,18 +21,18 @@
  *
  */
 //----------------------------------------------------------------------
-#include <driver_svh/ByteOrderConversion.h>
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
 #include <boost/test/unit_test.hpp>
 
-#include <driver_svh/SVHPositionSettings.h>
-#include <driver_svh/SVHCurrentSettings.h>
-#include <driver_svh/SVHSerialPacket.h>
-#include <driver_svh/SVHControllerState.h>
-#include <driver_svh/SVHControlCommand.h>
-#include <driver_svh/SVHControllerFeedback.h>
-#include <driver_svh/SVHEncoderSettings.h>
-#include <driver_svh/SVHController.h>
-#include <driver_svh/SVHFingerManager.h>
+#include <schunk_svh_library/control/SVHPositionSettings.h>
+#include <schunk_svh_library/control/SVHCurrentSettings.h>
+#include <schunk_svh_library/serial/SVHSerialPacket.h>
+#include <schunk_svh_library/control/SVHControllerState.h>
+#include <schunk_svh_library/control/SVHControlCommand.h>
+#include <schunk_svh_library/control/SVHControllerFeedback.h>
+#include <schunk_svh_library/control/SVHEncoderSettings.h>
+#include <schunk_svh_library/control/SVHController.h>
+#include <schunk_svh_library/control/SVHFingerManager.h>
 
 using driver_svh::ArrayBuilder;
 using namespace driver_svh;

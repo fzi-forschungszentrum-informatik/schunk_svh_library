@@ -36,10 +36,10 @@
  * querrying the hardware. This might be changed in further releases.
  */
 //----------------------------------------------------------------------
-#include "driver_svh/SVHController.h"
+#include "schunk_svh_library/control/SVHController.h"
 
-#include <driver_svh/Logging.h>
-#include <driver_svh/ByteOrderConversion.h>
+#include <schunk_svh_library/Logging.h>
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
 
 using driver_svh::ArrayBuilder;

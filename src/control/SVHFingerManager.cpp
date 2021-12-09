@@ -30,8 +30,8 @@
  *
  */
 //----------------------------------------------------------------------
-#include <driver_svh/Logging.h>
-#include <driver_svh/SVHFingerManager.h>
+#include <schunk_svh_library/Logging.h>
+#include <schunk_svh_library/control/SVHFingerManager.h>
 
 #include <icl_core/TimeStamp.h>
 

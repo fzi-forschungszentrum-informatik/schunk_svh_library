@@ -26,7 +26,7 @@
  * By wrapping everything in the same packet structure it can be handled quite neatly
  */
 //----------------------------------------------------------------------
-#include <driver_svh/SVHSerialPacket.h>
+#include <schunk_svh_library/serial/SVHSerialPacket.h>
 
 namespace driver_svh {
 

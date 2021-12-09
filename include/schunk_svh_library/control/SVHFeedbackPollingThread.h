@@ -32,7 +32,7 @@
 
 #include <icl_core/TimeSpan.h>
 #include <icl_core_thread/PeriodicThread.h>
-#include <driver_svh/SVHController.h>
+#include <schunk_svh_library/control/SVHController.h>
 
 using icl_core::TimeSpan;
 using icl_core::thread::PeriodicThread;

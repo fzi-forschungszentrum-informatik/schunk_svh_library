@@ -27,8 +27,8 @@
  * data to further parsing once a complete serial packaged is received
  */
 //----------------------------------------------------------------------
-#include <driver_svh/SVHReceiveThread.h>
-#include <driver_svh/Logging.h>
+#include <schunk_svh_library/serial/SVHReceiveThread.h>
+#include <schunk_svh_library/Logging.h>
 #include <sstream>
 
 using driver_svh::ArrayBuilder;

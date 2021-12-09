@@ -15,7 +15,7 @@
  */
 //----------------------------------------------------------------------
 
-#include "driver_svh/SerialFlags.h"
+#include "schunk_svh_library/serial/SerialFlags.h"
 
 // Terminal headers are included after all Debug headers, because the
 // Debug headers may include Eigen/Core from the Eigen matrix library.

@@ -22,8 +22,8 @@
  */
 //----------------------------------------------------------------------
 
-#include <driver_svh/SVHFingerManager.h>
-#include <driver_svh/SVHSerialPacket.h>
+#include <schunk_svh_library/control/SVHFingerManager.h>
+#include <schunk_svh_library/serial/SVHSerialPacket.h>
 
 using namespace driver_svh;
 

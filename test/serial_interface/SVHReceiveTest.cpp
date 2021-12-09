@@ -22,8 +22,8 @@
  */
 //----------------------------------------------------------------------
 
-#include <driver_svh/ByteOrderConversion.h>
-#include <driver_svh/Serial.h>
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
+#include <schunk_svh_library/serial/Serial.h>
 
 using driver_svh::ArrayBuilder;
 using driver_svh::serial::Serial;

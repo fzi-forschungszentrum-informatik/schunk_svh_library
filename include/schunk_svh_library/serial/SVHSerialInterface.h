@@ -32,11 +32,11 @@
 #define DRIVER_SVH_SVH_SERIAL_INTERFACE_H_INCLUDED
 
 // Windows declarations
-#include <driver_svh/ImportExport.h>
+#include <schunk_svh_library/ImportExport.h>
 
-#include <driver_svh/SVHSerialPacket.h>
-#include <driver_svh/SVHReceiveThread.h>
-#include <driver_svh/Serial.h>
+#include <schunk_svh_library/serial/SVHSerialPacket.h>
+#include <schunk_svh_library/serial/SVHReceiveThread.h>
+#include <schunk_svh_library/serial/Serial.h>
 #include <boost/shared_ptr.hpp>
 using driver_svh::serial::Serial;
 

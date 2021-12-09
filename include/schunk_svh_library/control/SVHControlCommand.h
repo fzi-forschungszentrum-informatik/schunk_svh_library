@@ -27,7 +27,7 @@
 #ifndef SVHCONTROLCOMMAND_H
 #define SVHCONTROLCOMMAND_H
 
-#include <driver_svh/ByteOrderConversion.h>
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
 
 namespace driver_svh {
 

@@ -20,7 +20,7 @@
 
 // Not functional with Mac OS X (UH)
 
-#include "driver_svh/Serial.h"
+#include "schunk_svh_library/serial/Serial.h"
 
 #include <cassert>
 #include <algorithm>

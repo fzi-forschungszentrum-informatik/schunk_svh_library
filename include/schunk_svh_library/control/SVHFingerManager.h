@@ -30,12 +30,12 @@
 #ifndef DRIVER_SVH_SVH_FINGER_MANAGER_H_INCLUDED
 #define DRIVER_SVH_SVH_FINGER_MANAGER_H_INCLUDED
 
-#include <driver_svh/ImportExport.h>
-#include <driver_svh/SVHController.h>
-#include <driver_svh/SVHFeedbackPollingThread.h>
-#include <driver_svh/SVHPositionSettings.h>
-#include <driver_svh/SVHCurrentSettings.h>
-#include <driver_svh/SVHHomeSettings.h>
+#include <schunk_svh_library/ImportExport.h>
+#include <schunk_svh_library/control/SVHController.h>
+#include <schunk_svh_library/control/SVHFeedbackPollingThread.h>
+#include <schunk_svh_library/control/SVHPositionSettings.h>
+#include <schunk_svh_library/control/SVHCurrentSettings.h>
+#include <schunk_svh_library/control/SVHHomeSettings.h>
 
 #include <boost/shared_ptr.hpp>
 

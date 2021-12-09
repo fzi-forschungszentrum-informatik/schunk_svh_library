@@ -27,10 +27,10 @@
  * like sync bytes, checksum calculation and counting of packets send and received.
  */
 //----------------------------------------------------------------------
-#include "driver_svh/SVHSerialInterface.h"
-#include "driver_svh/Logging.h"
+#include "schunk_svh_library/serial/SVHSerialInterface.h"
+#include "schunk_svh_library/Logging.h"
 
-#include <driver_svh/ByteOrderConversion.h>
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
 
 

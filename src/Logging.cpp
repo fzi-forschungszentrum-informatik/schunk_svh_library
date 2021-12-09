@@ -7,7 +7,7 @@
  *
  */
 //----------------------------------------------------------------------
-#include "driver_svh/Logging.h"
+#include "schunk_svh_library/Logging.h"
 
 namespace driver_svh {
 

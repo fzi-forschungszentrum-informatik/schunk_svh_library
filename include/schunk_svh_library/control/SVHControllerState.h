@@ -29,6 +29,8 @@
 #ifndef SVHCONTROLLERSTATE_H
 #define SVHCONTROLLERSTATE_H
 
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
+
 namespace driver_svh {
 
 /*!

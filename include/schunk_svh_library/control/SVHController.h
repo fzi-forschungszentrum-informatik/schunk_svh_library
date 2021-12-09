@@ -39,16 +39,16 @@
 #ifndef DRIVER_SVH_SVH_CONTROLLER_H_INCLUDED
 #define DRIVER_SVH_SVH_CONTROLLER_H_INCLUDED
 
-#include <driver_svh/ImportExport.h>
-#include <driver_svh/SVHSerialInterface.h>
-#include <driver_svh/SVHReceiveThread.h>
-#include <driver_svh/SVHControlCommand.h>
-#include <driver_svh/SVHControllerFeedback.h>
-#include <driver_svh/SVHCurrentSettings.h>
-#include <driver_svh/SVHFirmwareInfo.h>
-#include <driver_svh/SVHPositionSettings.h>
-#include <driver_svh/SVHControllerState.h>
-#include <driver_svh/SVHEncoderSettings.h>
+#include <schunk_svh_library/ImportExport.h>
+#include <schunk_svh_library/serial/SVHSerialInterface.h>
+#include <schunk_svh_library/serial/SVHReceiveThread.h>
+#include <schunk_svh_library/control/SVHControlCommand.h>
+#include <schunk_svh_library/control/SVHControllerFeedback.h>
+#include <schunk_svh_library/control/SVHCurrentSettings.h>
+#include <schunk_svh_library/SVHFirmwareInfo.h>
+#include <schunk_svh_library/control/SVHPositionSettings.h>
+#include <schunk_svh_library/control/SVHControllerState.h>
+#include <schunk_svh_library/control/SVHEncoderSettings.h>
 
 namespace driver_svh {
 

@@ -22,9 +22,9 @@
 
 #include <icl_core/BaseTypes.h>
 
-#include "driver_svh/ImportExport.h"
-#include "driver_svh/Logging.h"
-#include "driver_svh/SerialFlags.h"
+#include "schunk_svh_library/ImportExport.h"
+#include "schunk_svh_library/Logging.h"
+#include "schunk_svh_library/serial/SerialFlags.h"
 
 #ifdef _SYSTEM_WIN32_
 typedef unsigned int   speed_t;

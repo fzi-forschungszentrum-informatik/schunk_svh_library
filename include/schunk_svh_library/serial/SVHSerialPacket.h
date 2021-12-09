@@ -29,7 +29,7 @@
 #ifndef SVHSERIALPACKET_H
 #define SVHSERIALPACKET_H
 
-#include <driver_svh/ByteOrderConversion.h>
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
 
 namespace driver_svh {
 

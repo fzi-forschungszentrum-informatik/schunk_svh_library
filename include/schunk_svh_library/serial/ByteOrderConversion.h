@@ -16,7 +16,7 @@
 #include <icl_core/BaseTypes.h>
 #include <icl_core/Vector.h>
 
-#include "driver_svh/ImportExport.h"
+#include "schunk_svh_library/ImportExport.h"
 
 #include <boost/detail/endian.hpp>
 #include <iostream>

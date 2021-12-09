@@ -29,6 +29,9 @@
 #ifndef SVHHOMESETTINGS_H
 #define SVHHOMESETTINGS_H
 
+#include <vector>
+#include <ostream>
+
 namespace driver_svh {
 
 //! data sctructure for home positions

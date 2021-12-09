@@ -22,11 +22,11 @@
  */
 //----------------------------------------------------------------------
 
-#include <driver_svh/ByteOrderConversion.h>
-#include <driver_svh/SVHSerialInterface.h>
-#include <driver_svh/SVHControllerFeedback.h>
-#include <driver_svh/SVHController.h>
-#include <driver_svh/SVHSerialPacket.h>
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
+#include <schunk_svh_library/serial/SVHSerialInterface.h>
+#include <schunk_svh_library/control/SVHControllerFeedback.h>
+#include <schunk_svh_library/control/SVHController.h>
+#include <schunk_svh_library/serial/SVHSerialPacket.h>
 
 using driver_svh::ArrayBuilder;
 using namespace driver_svh;

@@ -32,11 +32,11 @@
 
 #include <icl_core/TimeSpan.h>
 #include <icl_core_thread/PeriodicThread.h>
-#include <driver_svh/Serial.h>
-#include <driver_svh/ByteOrderConversion.h>
+#include <schunk_svh_library/serial/Serial.h>
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
 
-#include <driver_svh/Logging.h>
-#include <driver_svh/SVHSerialPacket.h>
+#include <schunk_svh_library/Logging.h>
+#include <schunk_svh_library/serial/SVHSerialPacket.h>
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>

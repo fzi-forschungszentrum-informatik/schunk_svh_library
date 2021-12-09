@@ -27,8 +27,8 @@
  * The feedback polling thread is implemented in this file.
  */
 //----------------------------------------------------------------------
-#include <driver_svh/Logging.h>
-#include <driver_svh/SVHFingerManager.h>
+#include <schunk_svh_library/Logging.h>
+#include <schunk_svh_library/control/SVHFingerManager.h>
 
 namespace driver_svh {
 

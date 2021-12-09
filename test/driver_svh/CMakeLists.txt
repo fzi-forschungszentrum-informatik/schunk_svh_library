@@ -1,6 +1,8 @@
 # this is for emacs file handling -*- mode: cmake; indent-tabs-mode: nil -*-
 ICMAKER_SET("ts_SVHDriver" IDE_FOLDER ${DRIVER_SVH_IDE_FOLDER})
 
+set(ICMAKER_VERBOSE TRUE)
+
 ICMAKER_ADD_SOURCES(
   ByteOrderConversionTest.cpp
   MainTest.cpp

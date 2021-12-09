@@ -29,6 +29,7 @@
 #ifndef SVHENCODERSETTINGS_H
 #define SVHENCODERSETTINGS_H
 
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
 
 namespace driver_svh {
 

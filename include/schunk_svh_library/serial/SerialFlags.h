@@ -23,7 +23,7 @@
 #include <Windows.h>
 #endif
 
-#include "driver_svh/ImportExport.h"
+#include "schunk_svh_library/ImportExport.h"
 
 namespace driver_svh {
 namespace serial {

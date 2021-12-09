@@ -22,8 +22,8 @@
  */
 //----------------------------------------------------------------------
 
-#include <driver_svh/SVHController.h>
-#include <driver_svh/SVHSerialPacket.h>
+#include <schunk_svh_library/control/SVHController.h>
+#include <schunk_svh_library/serial/SVHSerialPacket.h>
 
 using namespace driver_svh;
 

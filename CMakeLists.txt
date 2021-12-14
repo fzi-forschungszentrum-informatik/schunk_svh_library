@@ -14,6 +14,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(icl_core)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
+pkg_check_modules(ZMQ REQUIRED libzmq)
+find_package(Boost COMPONENTS thread REQUIRED)
 
 # --------------------------------------------------------------------------------
 # User library
@@ -45,6 +47,7 @@ add_library(svh_serial SHARED
         src/serial/SVHReceiveThread.cpp
         src/serial/SVHSerialInterface.cpp
         src/serial/SVHSerialPacket.cpp
+        src/Logging.cpp
         )
 
 target_include_directories(svh_serial PUBLIC
@@ -62,6 +65,7 @@ target_compile_definitions(svh_serial PUBLIC
         "-D_SYSTEM_POSIX_"
         )
 
+# --------------------------------------------------------------------------------
 
 add_library(svh_websocket SHARED
         src/websocket/ZMQClient.cpp
@@ -80,6 +84,8 @@ target_include_directories(svh_websocket PUBLIC
 target_link_libraries(svh_websocket PUBLIC
         ${icl_core_LIBRARIES}
         "${JSONCPP_LIBRARIES}"
+        "${ZMQ_LIBRARIES}"
+        Boost::thread
         )
 
 # Leftovers by icl_core

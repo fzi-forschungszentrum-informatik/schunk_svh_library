@@ -73,7 +73,7 @@ void ZMQClient::msgListener()
         if (items[0].revents & ZMQ_POLLIN)
         {
             zmq::message_t message;
-            m_receiver.recv(&message);
+            m_receiver.recv(message);
 
             std::string msg = std::string(static_cast<char*>(message.data()), message.size());
 

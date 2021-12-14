@@ -18,7 +18,7 @@
 
 #include "schunk_svh_library/ImportExport.h"
 
-#include <boost/detail/endian.hpp>
+#include <boost/predef/other/endian.h>
 #include <iostream>
 #include <iomanip>
 #include <assert.h>

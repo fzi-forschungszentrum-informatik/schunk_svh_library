@@ -16,6 +16,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 pkg_check_modules(ZMQ REQUIRED libzmq)
 find_package(Boost COMPONENTS thread REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 # --------------------------------------------------------------------------------
 # User library
@@ -94,3 +95,103 @@ target_compile_definitions(svh_websocket PUBLIC
         "-D_SYSTEM_POSIX_"
         )
 
+# --------------------------------------------------------------------------------
+# Tests
+# --------------------------------------------------------------------------------
+add_executable(test_driver_svh
+        test/driver_svh/ByteOrderConversionTest.cpp
+        test/driver_svh/MainTest.cpp
+        test/driver_svh/SVHDriverTest.cpp
+        )
+target_include_directories(test_driver_svh PUBLIC
+        "${PROJECT_SOURCE_DIR}/include"
+        "${icl_core_INCLUDE_DIRS}"
+        )
+target_link_libraries(test_driver_svh
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        ${icl_core_LIBRARIES}
+        schunk_svh
+        )
+target_compile_definitions(test_driver_svh PUBLIC
+        "-D_SYSTEM_LINUX_"
+        "-D_SYSTEM_POSIX_"
+        )
+add_test(NAME test_driver_svh COMMAND test_driver_svh)
+
+# --------------------------------------------------------------------------------
+
+add_executable(test_svh_send_packet
+        test/serial_interface/SVHSendPacketTest.cpp
+        )
+target_include_directories(test_svh_send_packet PUBLIC
+        "${PROJECT_SOURCE_DIR}/include"
+        "${icl_core_INCLUDE_DIRS}"
+        )
+target_link_libraries(test_svh_send_packet
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        svh_serial
+        )
+add_test(NAME test_svh_send_packet COMMAND test_svh_send_packet)
+
+# --------------------------------------------------------------------------------
+
+add_executable(test_svh_receive
+        test/serial_interface/SVHReceiveTest.cpp
+        )
+target_include_directories(test_svh_receive PUBLIC
+        "${PROJECT_SOURCE_DIR}/include"
+        "${icl_core_INCLUDE_DIRS}"
+        )
+target_link_libraries(test_svh_receive
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        svh_serial
+        )
+add_test(NAME test_svh_receive COMMAND test_svh_receive)
+
+# --------------------------------------------------------------------------------
+
+add_executable(test_svh_send_feedback_packet
+        test/serial_interface/SVHSendFeedbackPacketTest.cpp
+        )
+target_include_directories(test_svh_send_feedback_packet PUBLIC
+        "${PROJECT_SOURCE_DIR}/include"
+        "${icl_core_INCLUDE_DIRS}"
+        )
+target_link_libraries(test_svh_send_feedback_packet
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        svh_serial
+        )
+add_test(NAME test_svh_send_feedback_packet COMMAND test_svh_send_feedback_packet)
+
+# --------------------------------------------------------------------------------
+
+add_executable(test_svh_controller_init_send
+        test/serial_interface/SVHControllerInitSendTest.cpp
+        )
+target_include_directories(test_svh_controller_init_send PUBLIC
+        "${PROJECT_SOURCE_DIR}/include"
+        "${icl_core_INCLUDE_DIRS}"
+        )
+target_link_libraries(test_svh_controller_init_send
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        schunk_svh
+        )
+add_test(NAME test_svh_controller_init_send COMMAND test_svh_controller_init_send)
+
+# --------------------------------------------------------------------------------
+
+add_executable(test_svh_finger_manager
+        test/serial_interface/SVHFingerManagerTest.cpp
+        )
+target_include_directories(test_svh_finger_manager PUBLIC
+        "${PROJECT_SOURCE_DIR}/include"
+        "${icl_core_INCLUDE_DIRS}"
+        )
+target_link_libraries(test_svh_finger_manager
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        schunk_svh
+        )
+add_test(NAME test_svh_finger_manager COMMAND test_svh_finger_manager)
+
+# --------------------------------------------------------------------------------
+enable_testing()

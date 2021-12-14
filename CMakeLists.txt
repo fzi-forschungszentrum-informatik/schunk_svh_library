@@ -11,8 +11,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # System dependencies
-find_package(icl_comm)
 find_package(icl_core)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 
 # --------------------------------------------------------------------------------
 # User library
@@ -31,6 +32,7 @@ target_include_directories(schunk_svh PUBLIC
 
 target_link_libraries(schunk_svh PUBLIC
         svh_serial
+        svh_websocket
         )
 
 # --------------------------------------------------------------------------------
@@ -47,17 +49,41 @@ add_library(svh_serial SHARED
 
 target_include_directories(svh_serial PUBLIC
         "${PROJECT_SOURCE_DIR}/include"
-        "${icl_comm_INCLUDE_DIRS}"
         "${icl_core_INCLUDE_DIRS}"
         )
 
 target_link_libraries(svh_serial PUBLIC
-        ${icl_comm_LIBRARIES}
         ${icl_core_LIBRARIES}
         )
 
 # Leftovers by icl_comm and icl_core
 target_compile_definitions(svh_serial PUBLIC
+        "-D_SYSTEM_LINUX_"
+        "-D_SYSTEM_POSIX_"
+        )
+
+
+add_library(svh_websocket SHARED
+        src/websocket/ZMQClient.cpp
+        src/websocket/RobotState.cpp
+        src/websocket/LWA4PState.cpp
+        src/websocket/SVHState.cpp
+        src/websocket/WsBroadcaster.cpp
+        )
+
+target_include_directories(svh_websocket PUBLIC
+        "${PROJECT_SOURCE_DIR}/include"
+        "${JSONCPP_INCLUDE_DIRS}"
+        "${icl_core_INCLUDE_DIRS}"
+        )
+
+target_link_libraries(svh_websocket PUBLIC
+        ${icl_core_LIBRARIES}
+        "${JSONCPP_LIBRARIES}"
+        )
+
+# Leftovers by icl_core
+target_compile_definitions(svh_websocket PUBLIC
         "-D_SYSTEM_LINUX_"
         "-D_SYSTEM_POSIX_"
         )

@@ -49,9 +49,9 @@ void SVHFeedbackPollingThread::run()
         m_finger_manager->requestControllerFeedback(eSVH_ALL);
 
         // This would inform a websocket server about new states, disregard that.
-        #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+        #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
         m_finger_manager->updateWebSocket();
-        #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+        #endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
       }
       else
       {

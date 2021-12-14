@@ -68,8 +68,8 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_home_settings(eSVH_DIMENSION),
   m_serial_device("/dev/ttyUSB0")
 {
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-  m_ws_broadcaster = boost::shared_ptr<icl_comm::websocket::WsBroadcaster>(new icl_comm::websocket::WsBroadcaster(icl_comm::websocket::WsBroadcaster::eRT_SVH));
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
+  m_ws_broadcaster = boost::shared_ptr<schunk_svh_library::websocket::WsBroadcaster>(new schunk_svh_library::websocket::WsBroadcaster(schunk_svh_library::websocket::WsBroadcaster::eRT_SVH));
   if (m_ws_broadcaster)
   {
     // Register a custom handler for received JSON Messages
@@ -104,7 +104,7 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
     if (m_is_switched_off[i])
     {
       LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Joint: " << m_controller->m_channel_description[i] << " was disabled as per user request. It will not do anything!" << endl);
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setHint(eHT_CHANNEL_SWITCHED_OF);
@@ -144,7 +144,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
 {
   LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to connect to the Hardware..." << endl);
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
   // Reset the connection specific hints and give it a go again.
   if (m_ws_broadcaster)
   {
@@ -219,7 +219,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
             timeout = true;
             LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection timeout! Could not connect to SCHUNK five finger hand." << endl
                             << "Send packages = " << send_count << ", received packages = " << received_count << endl);
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
             if (m_ws_broadcaster)
             {
               m_ws_broadcaster->robot->setHint(eHT_CONNECTION_FAILED);
@@ -258,7 +258,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
       if (m_connected)
       {
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
         if (m_ws_broadcaster)
         {
@@ -293,7 +293,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
     }
     else
     {
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setHint(eHT_DEVICE_NOT_FOUND);
@@ -331,7 +331,7 @@ void SVHFingerManager::disconnect()
     m_controller->disconnect();
   }
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
     // Connection hint is always true when no connection is established :)
     if (m_ws_broadcaster)
     {
@@ -372,7 +372,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
       }
 
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
         // In case we still told the user that this was an issue, it is clearly resolved now.
         if (reset_all_success && m_ws_broadcaster)
         {
@@ -392,13 +392,13 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
       MovementState last_movement_state = m_movement_state;
       setMovementState(eST_RESETTING);
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setJointEnabled(false,channel);
         m_ws_broadcaster->robot->setJointHomed(false,channel);
       }
-#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
 
       LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Start homing channel " << channel << endl);
@@ -517,7 +517,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             m_controller->disableChannel(eSVH_ALL);
             LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Timeout: Aborted finding home position for channel " << channel << endl);
             // Timeout could mean serious hardware issues or just plain wrong settings
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
             if (m_ws_broadcaster)
             {
@@ -621,7 +621,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
       if (reset_all_success)
       {
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
         // In case we still told the user that this was an issue, it is clearly resolved now.
         if (m_ws_broadcaster)
         {
@@ -637,12 +637,12 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         setMovementState(last_movement_state);
       }
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setJointHomed(true,channel);
       }
-#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
       LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully homed channel " << channel << endl);
 
@@ -712,12 +712,12 @@ bool SVHFingerManager::enableChannel(const SVHChannel &channel)
         m_controller->enableChannel(channel);
       }
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setJointEnabled(true,channel);
       }
-#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
       setMovementState(eST_PARTIALLY_ENABLED);
       if (isEnabled(eSVH_ALL))
@@ -746,12 +746,12 @@ void SVHFingerManager::disableChannel(const SVHChannel &channel)
       m_controller->disableChannel(channel);
     }
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
     if (m_ws_broadcaster)
     {
       m_ws_broadcaster->robot->setJointEnabled(false,channel);
     }
-#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
     setMovementState(eST_PARTIALLY_ENABLED);
 
@@ -817,7 +817,7 @@ bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
 }
 
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 void SVHFingerManager::receivedHintMessage(const int &hint)
 {
   LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Received a special command to clear error :" << hint << endl);
@@ -854,9 +854,9 @@ void SVHFingerManager::receivedHintMessage(const int &hint)
     break;
   }
 }
-#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 void SVHFingerManager::updateWebSocket()
 {
   if (m_ws_broadcaster)
@@ -886,7 +886,7 @@ void SVHFingerManager::updateWebSocket()
     }
   }
 }
-#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
 
 
@@ -1102,12 +1102,12 @@ void SVHFingerManager::setMovementState(const SVHFingerManager::MovementState &s
 {
   m_movement_state = state;
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
   if (m_ws_broadcaster)
   {
     m_ws_broadcaster->robot->setMovementState(state);
   }
-#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 }
 
 bool SVHFingerManager::getCurrentSettings(const SVHChannel &channel, SVHCurrentSettings &current_settings)
@@ -1191,7 +1191,7 @@ bool SVHFingerManager::setCurrentSettings(const SVHChannel &channel, const SVHCu
     {
       // LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "WARNING!!! Current Controller Params for channel " << channel << " are dangerous! THIS MIGHT DAMAGE YOUR HARDWARE!!!" << endl);
       LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "WARNING!!! Current Controller Params for channel " << channel << " would be dangerous! Currents are limited!!!" << endl);
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
       if (m_ws_broadcaster)
       {
         m_ws_broadcaster->robot->setHint(eHT_DANGEROUS_CURRENTS);

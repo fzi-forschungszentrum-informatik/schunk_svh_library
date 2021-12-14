@@ -40,18 +40,18 @@
 #include <boost/shared_ptr.hpp>
 
 
-#ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
-#include <icl_comm_websocket/WsBroadcaster.h>
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
+#include <schunk_svh_library/websocket/WsBroadcaster.h>
 #else
 // Forward Deklaration of the WsBroadcaster
 // This is not needed for normal driver operation
 // but might be added later. To keep the interface the same
 // a forward declaration becomes necessary
-namespace icl_comm{
+namespace schunk_svh_library{
 namespace websocket{
   class WsBroadcaster;
 }}// NS end
-#endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
 
 
@@ -344,7 +344,7 @@ public:
   SVHFirmwareInfo getFirmwareInfo(const std::string &dev_name = "/dev/ttyUSB0",const unsigned int &_retry_count = 3);
 
 
-  #ifdef _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
   /*!
    * \brief updateWebSocket Will gather the current state of the hand and send it out via websocket
    * \note this function will NOT update everything as it would be to much overhead to ask every single time if a finger is enabled or not. Things
@@ -359,7 +359,7 @@ public:
    */
   void receivedHintMessage(const int &hint);
 
-  #endif // _IC_BUILDER_ICL_COMM_WEBSOCKET_
+  #endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
 // ----------------------------------------------------------------------
 // ---- private functions and varaibles
@@ -368,7 +368,7 @@ public:
 private:
 
   //! \brief Websocket handle for updating diagnostic backend (OPTIONAL)
-  boost::shared_ptr<icl_comm::websocket::WsBroadcaster> m_ws_broadcaster;
+  boost::shared_ptr<schunk_svh_library::websocket::WsBroadcaster> m_ws_broadcaster;
 
   //! \brief pointer to svh controller
   SVHController *m_controller;

@@ -14,9 +14,11 @@ export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/home/scherzin/src/robot_folders/che
 Start an *out of source build* in the parent folder of this package with
 ```bash
 mkdir build && cd build
-cmake ../driver_svh/
+cmake ../driver_svh/ -DCMAKE_INSTALL_PREFIX=../install
 cmake --build .
+make install
 ```
+You may also provide another install folder via `-DCMAKE_INSTALL_PREFIX=`.
 
 ## Running tests manually
 

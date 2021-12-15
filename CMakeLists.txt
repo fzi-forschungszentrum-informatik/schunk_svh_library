@@ -19,6 +19,22 @@ find_package(Boost COMPONENTS thread REQUIRED)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 # --------------------------------------------------------------------------------
+# Make sure that library relocation works for both build and install.
+# See here: https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
+# --------------------------------------------------------------------------------
+
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# The RPATH to use when installing, but only if it's not a system directory
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif("${isSystemDir}" STREQUAL "-1")
+
+# --------------------------------------------------------------------------------
 # User library
 # --------------------------------------------------------------------------------
 add_library(svh-library SHARED

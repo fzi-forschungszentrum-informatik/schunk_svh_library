@@ -63,7 +63,7 @@ int main(int argc, const char* argv[])
 {
   icl_core::logging::initialize();
 
-  std::string serial_device_name = "/dev/ttyUSB2";
+  std::string serial_device_name = "/dev/ttyUSB0";
 
   SVHSerialInterface serial_com(boost::bind(&receivedPacketCallback,_1,_2));
   serial_com.connect(serial_device_name);

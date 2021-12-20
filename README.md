@@ -14,9 +14,24 @@ export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/home/scherzin/src/robot_folders/che
 Start an *out of source build* in the parent folder of this package with
 ```bash
 mkdir build && cd build
-cmake ../driver_svh/
+cmake ../driver_svh/ -DCMAKE_INSTALL_PREFIX=../install
 cmake --build .
+make install
 ```
+You may also provide another install folder via `-DCMAKE_INSTALL_PREFIX=`.
+
+## Connection to the SVH
+
+This driver library uses a *serial* interface to communicate with the SVH.
+We assume that you use a suitable *usb-serial dongle* and that the dongle's driver provides a `/dev/ttyUSB0` file for communication with the hardware.
+Recent Ubuntu operating systems should support that out-of-the-box.
+However, it will be necessary to add your user to the `dialout` group to speak with that device file without sudo privileges.
+Call
+```bash
+usermod -a -G dialout $USER
+```
+and restart your system.
+After that, you are good to go.
 
 ## Running tests manually
 

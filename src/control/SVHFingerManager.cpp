@@ -34,6 +34,8 @@
 #include <schunk_svh_library/control/SVHFingerManager.h>
 
 #include <icl_core/TimeStamp.h>
+#include <thread>
+#include <chrono>
 
 #include <boost/bind/bind.hpp>
 
@@ -228,7 +230,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
 #endif
 
           }
-          icl_core::os::usleep(50000);
+          std::this_thread::sleep_for(std::chrono::microseconds(50000));
         }
 
         // Try again, but ONLY if we at least got one package back, otherwise its futil
@@ -557,7 +559,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
           // save previous control feedback
           control_feedback_previous = control_feedback;
-          //icl_core::os::usleep(8000);
+          //std::this_thread::sleep_for(std::chrono::microseconds(8000));
         }
         // give the last info with highes channel current value
         LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
@@ -602,7 +604,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         }
 
         m_controller->disableChannel(eSVH_ALL);
-        //icl_core::os::usleep(8000);
+        //std::this_thread::sleep_for(std::chrono::microseconds(8000));
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
         m_controller->setPositionSettings(channel, getDefaultPositionSettings(false)[channel]);
       }
@@ -1602,7 +1604,7 @@ SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name, c
       // Tell the hardware to get the newest firmware information
       m_controller->requestFirmwareInfo();
       // Just wait a tiny amount
-      icl_core::os::usleep(100000);
+      std::this_thread::sleep_for(std::chrono::microseconds(100000));
       // Get the Version number if received yet, else 0.0
       m_firmware_info = m_controller->getFirmwareInfo();
       --retry_count;

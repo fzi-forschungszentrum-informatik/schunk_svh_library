@@ -24,6 +24,8 @@
 
 #include <schunk_svh_library/control/SVHFingerManager.h>
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
+#include <thread>
+#include <chrono>
 
 using namespace driver_svh;
 
@@ -43,7 +45,7 @@ int main(int argc, const char* argv[])
 
     finger_manager.resetChannel(test_channel);
 
-    icl_core::os::sleep(2);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     std::cout << "Pinky is enabled: " << finger_manager.isEnabled(test_channel) << std::endl;
     std::cout << "Pinky is homed: " << finger_manager.isHomed(test_channel) << std::endl;
@@ -51,13 +53,13 @@ int main(int argc, const char* argv[])
     std::cout << "Enabling Pinky: " << finger_manager.enableChannel(test_channel) << std::endl;
 
 
-    icl_core::os::sleep(2);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     std::cout << "Pinky is enabled: " << finger_manager.isEnabled(test_channel) << std::endl;
     std::cout << "Pinky is homed: " << finger_manager.isHomed(test_channel) << std::endl;
 
 
-    icl_core::os::sleep(10);
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
     std::cout << "after sleep" << std::endl;
 

@@ -27,6 +27,8 @@
 #include <schunk_svh_library/control/SVHControllerFeedback.h>
 #include <schunk_svh_library/control/SVHController.h>
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
+#include <thread>
+#include <chrono>
 
 using driver_svh::ArrayBuilder;
 using namespace driver_svh;
@@ -59,7 +61,7 @@ int main(int argc, const char* argv[])
   // send packet via serial port
   serial_com.sendPacket(test_serial_packet);
 
-  icl_core::os::sleep(5);
+  std::this_thread::sleep_for(std::chrono::seconds(5));
 
   test_controller_feedback.position = -8000;
 

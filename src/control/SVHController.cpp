@@ -41,6 +41,8 @@
 #include <schunk_svh_library/Logging.h>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
+#include <chrono>
+#include <thread>
 
 using driver_svh::ArrayBuilder;
 #if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
@@ -203,7 +205,7 @@ void SVHController::enableChannel(const SVHChannel &channel)
     ab.reset(40);
 
     // Small delays seem to make communication at this point more reliable although they SHOULD NOT be necessary
-    icl_core::os::usleep(2000);
+    std::this_thread::sleep_for(std::chrono::microseconds(2000));
 
     LOGGING_TRACE_C(DriverSVH, SVHController, "Enabling 12V Driver (pwm_reset and pwm_active = 0x0200)..." << endl);
     // enable +12v supply driver
@@ -214,7 +216,7 @@ void SVHController::enableChannel(const SVHChannel &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
-    icl_core::os::usleep(2000);
+    std::this_thread::sleep_for(std::chrono::microseconds(2000));
 
      LOGGING_TRACE_C(DriverSVH, SVHController, "Enabling pos_ctrl and cur_ctrl..." << endl);
     // enable controller
@@ -225,7 +227,7 @@ void SVHController::enableChannel(const SVHChannel &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
-     icl_core::os::usleep(2000);
+    std::this_thread::sleep_for(std::chrono::microseconds(2000));
 
     LOGGING_TRACE_C(DriverSVH, SVHController, "...Done" << endl);
   }
@@ -251,7 +253,7 @@ void SVHController::enableChannel(const SVHChannel &channel)
     ab.reset(40);
 
     // WARNING: DO NOT ! REMOVE THESE DELAYS OR THE HARDWARE WILL! FREAK OUT! (see reason above)
-    icl_core::os::usleep(500);
+    std::this_thread::sleep_for(std::chrono::microseconds(500));
 
     controller_state.pos_ctrl = 0x0001;
     controller_state.cur_ctrl = 0x0001;

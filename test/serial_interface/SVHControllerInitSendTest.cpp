@@ -24,6 +24,8 @@
 
 #include <schunk_svh_library/control/SVHController.h>
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
+#include <thread>
+#include <chrono>
 
 using namespace driver_svh;
 
@@ -94,7 +96,7 @@ int main(int argc, const char* argv[])
 
   }
 
-  icl_core::os::sleep(20);
+  std::this_thread::sleep_for(std::chrono::seconds(20));
 
   controller.disconnect();
 

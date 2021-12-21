@@ -2,6 +2,8 @@
 
 #include <icl_core_logging/Logging.h>
 #include <json/json.h>
+#include <thread>
+#include <chrono>
 
 
 
@@ -40,7 +42,7 @@ bool WsBroadcaster::sendState()
   }
 
   // This is ugly.. but otherwise the other process is never active that reads the content of the socket and after that the messages will be parsed as one....
-  usleep(5);
+  std::this_thread::sleep_for(std::chrono::microseconds(5));
   return true;
 }
 
@@ -60,7 +62,7 @@ bool WsBroadcaster::sendHints()
   }
 
   // This is ugly.. but otherwise the other process is never active that reads the content of the socket and after that the messages will be parsed as one....
-  usleep(5);
+  std::this_thread::sleep_for(std::chrono::microseconds(5));
   return true;
 }
 

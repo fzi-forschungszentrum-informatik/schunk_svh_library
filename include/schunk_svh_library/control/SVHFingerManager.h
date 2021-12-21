@@ -32,12 +32,12 @@
 
 #include <schunk_svh_library/ImportExport.h>
 #include <schunk_svh_library/control/SVHController.h>
-#include <schunk_svh_library/control/SVHFeedbackPollingThread.h>
 #include <schunk_svh_library/control/SVHPositionSettings.h>
 #include <schunk_svh_library/control/SVHCurrentSettings.h>
 #include <schunk_svh_library/control/SVHHomeSettings.h>
 
 #include <boost/shared_ptr.hpp>
+#include <thread>
 
 
 #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
@@ -373,8 +373,11 @@ private:
   //! \brief pointer to svh controller
   SVHController *m_controller;
 
-  //! \brief pointer to svh controller
-  SVHFeedbackPollingThread *m_feedback_thread;
+  //! \brief Flag whether to poll feedback periodically in the feedback thread
+  std::atomic<bool> m_poll_feedback;
+
+  //! \brief Thread for polling periodic feedback from the hardware
+  std::thread m_feedback_thread;
 
   //! \brief holds the connected state
   bool m_connected;
@@ -508,6 +511,14 @@ private:
    * \return true if they are "reasonable safe". Only the most vile settings will be rejected!
    */
   bool currentSettingsAreSafe(const SVHChannel &channel,const SVHCurrentSettings &current_settings);
+
+  /**
+   * \brief Periodically poll feedback from the hardware
+   *
+   * The hardware will send data only in response to special requests. We realize constant joint position feedback
+   * for all fingers through sending these requests periodically in this function.
+   */
+  void pollFeedback();
 
   // DEBUG
   SVHControllerFeedback debug_feedback;

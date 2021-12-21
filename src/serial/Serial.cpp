@@ -26,6 +26,7 @@
 #include <algorithm>
 
 #include <icl_core/os_lxrt.h>
+#include <ratio>
 
 #ifdef _SYSTEM_LXRT_
 # include <sys/mman.h>
@@ -40,8 +41,7 @@
 # include <string.h>
 #endif
 
-#include "icl_core/TimeStamp.h"
-#include "icl_core/TimeSpan.h"
+#include <chrono>
 //#include "mcal_math/OwnMath.h"
 
 #ifdef _SYSTEM_WIN32_
@@ -612,13 +612,13 @@ namespace serial {
   ssize_t Serial::Read(void *data, ssize_t size, unsigned long time, bool return_on_less_data)
   {
     //tTime end_time = tTime().FutureUSec(time);
-    icl_core::TimeStamp end_time = icl_core::TimeStamp::futureMSec(time / 1000);
+    auto end_time = std::chrono::high_resolution_clock::now() + std::chrono::microseconds(time);
 
   #if defined _SYSTEM_LINUX_
     if (file_descr < 0)
       return m_status;
 
-    icl_core::TimeSpan tz;
+    std::chrono::duration<double, std::milli> tz;
     fd_set fds;
     int bytes_read  = 0;
     int bytes_read_inc;
@@ -641,7 +641,7 @@ namespace serial {
         // not received the whole message, so if configured for reading on less data: read what you can get
         if ((read_return = rt_spread_timed(tty, (char*)data, msg_size, timeout_relative)) != 0)
         {
-          //LDM("rt_spread_timed(%i, data, %i) = %i (time left %li us) => bytes read = 0\n", tty, msg_size, read_return, (end_time - icl_core::TimeStamp::now()).tsUSec());
+          //LDM("rt_spread_timed(%i, data, %i) = %i (time left %li us) => bytes read = 0\n", tty, msg_size, read_return, (end_time - std::chrono::high_resolution_clock::now()).tsUSec());
           if (return_on_less_data)
           {
             read_return = rt_spread(tty, (char*)data, msg_size);
@@ -658,8 +658,8 @@ namespace serial {
               LOGGING_DEBUG_CO(DriverSVH, Serial, Read, "Error on reading " << tty " (" << m_dev_name << "). Status (" << m_status << ":" << strerror(-m_status) << ")" << endl);
               //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Error on reading %i (%s). Status (%i:%s)\n", tty, m_dev_name, m_status, strerror(-m_status));
 
-              icl_core::TimeSpan excess_read_time = icl_core::TimeStamp::now() - end_time;
-              if (excess_read_time > icl_core::TimeSpan().fromMSec(1))
+              auto excess_read_time = std::chrono::high_resolution_clock::now() - end_time;
+              if (excess_read_time > std::chrono::milliSeconds(1))
               {
                 LOGGING_ERROR_CO(DriverSVH, Serial, Read, "Serial(" << m_dev_name << ")::Read(" << size << "took too long (" << excess_read_time.toUSec() << "us)" << endl);
                 //ERRORMSG("Serial(%s)::Read(%i) took too long (%ius)\n", m_dev_name, size, excess_read_time.ToUSec());
@@ -668,17 +668,17 @@ namespace serial {
               return m_status;
             }
             bytes_read = size - read_return;
-            //LDM("rt_spread(%i, data, %i) = %i (time left %li us), bytes read = %i\n", tty, msg_size, read_return, (end_time - icl_core::TimeStamp::now()).tsUSec(), bytes_read);
+            //LDM("rt_spread(%i, data, %i) = %i (time left %li us), bytes read = %i\n", tty, msg_size, read_return, (end_time - std::chrono::high_resolution_clock::now()).tsUSec(), bytes_read);
           }
         }
         else
         {
           bytes_read = msg_size;
-          //LDM("rt_spread_timed(%i, data, %i) = 0 (time left %li us) => bytes read = %i\n", tty, msg_size, (end_time - icl_core::TimeStamp::now()).tsUSec(), bytes_read);
+          //LDM("rt_spread_timed(%i, data, %i) = 0 (time left %li us) => bytes read = %i\n", tty, msg_size, (end_time - std::chrono::high_resolution_clock::now()).tsUSec(), bytes_read);
         }
 
-        icl_core::TimeSpan() excess_read_time = icl_core::TimeStamp::now() - end_time;
-        if (excess_read_time > icl_core::TimeSpan().fromMSec(1))
+        auto excess_read_time = std::chrono::high_resolution_clock::now() - end_time;
+        if (excess_read_time > std::chrono::milliSeconds(1))
         {
           LOGGING_ERROR_CO(DriverSVH, Serial, Read, "Serial(" << m_dev_name << ")::Read(" << size << "took too long (" << excess_read_time.toUSec() << "us)" << endl);
           //ERRORMSG("Serial(%s)::Read(%i) took too long (%ius)\n", m_dev_name, size, excess_read_time.ToUSec());
@@ -696,11 +696,11 @@ namespace serial {
       // We wait max time
       do
       {
-        tz = end_time - icl_core::TimeStamp::now();
+        tz = end_time - std::chrono::high_resolution_clock::now();
         // min 1 us, otherwise we will read nothing at all
-        if (tz < icl_core::TimeSpan(0, 1000))
+        if (tz < std::chrono::microseconds(1))
         {
-          tz = icl_core::TimeSpan(0, 1000);
+          tz = std::chrono::microseconds(1);
         }
 
         //LDM("Serial(%s) Check Read.\n", m_dev_name);
@@ -773,10 +773,10 @@ namespace serial {
         }
       }
       // Look again for data, if any time left
-      while (icl_core::TimeStamp::now() < end_time);
+      while (std::chrono::high_resolution_clock::now() < end_time);
     }
 
-    //LDM("Serial(%s)::Read(%i) (time left %li us) = %i.\n", m_dev_name, size, (end_time - icl_core::TimeStamp::now()).toUSec(), bytes_read);
+    //LDM("Serial(%s)::Read(%i) (time left %li us) = %i.\n", m_dev_name, size, (end_time - std::chrono::high_resolution_clock::now()).toUSec(), bytes_read);
     return bytes_read;
   #endif
 
@@ -812,7 +812,7 @@ namespace serial {
     {
       DWORD bytes_received = 0;
       size_t bytes_remaining = (m_read_buffer_fill < size ? size - m_read_buffer_fill : 0);
-      icl_core::TimeStamp now;
+      auto now std::chrono::high_resolution_clock::now();
       do
       {
         if (ReadFile(m_com, m_read_buffer + m_read_buffer_fill, bytes_remaining, &bytes_received, NULL))
@@ -837,7 +837,7 @@ namespace serial {
             //WARNINGMSG("Serial(%s): ERROR>> error during read (%s).\n", m_dev_name, StatusText().c_str());
           }
         }
-        now = icl_core::TimeStamp::now();
+        now = std::chrono::high_resolution_clock::now();
       }
       while (m_status == 0 && !return_on_less_data && bytes_remaining && now < end_time);
 

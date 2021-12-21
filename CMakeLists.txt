@@ -40,7 +40,6 @@ endif("${isSystemDir}" STREQUAL "-1")
 add_library(svh-library SHARED
         src/Logging.cpp
         src/control/SVHController.cpp
-        src/control/SVHFeedbackPollingThread.cpp
         src/control/SVHFingerManager.cpp
         )
 

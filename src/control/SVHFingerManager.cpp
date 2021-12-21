@@ -278,14 +278,9 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
         m_controller->requestFirmwareInfo();
 
         // initialize feedback polling thread
-        m_feedback_thread = new SVHFeedbackPollingThread(icl_core::TimeSpan::createFromMSec(100), this);
-
-        // start feedback polling thread
+        m_poll_feedback = true;
+        m_feedback_thread = std::thread(&SVHFingerManager::pollFeedback, this);
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is starting the fedback polling thread" << endl);
-        if (m_feedback_thread != NULL)
-        {
-          m_feedback_thread->start();
-        }
       }
       else
       {
@@ -316,14 +311,10 @@ void SVHFingerManager::disconnect()
   m_connection_feedback_given = false;
 
   // Disable Polling
-  if (m_feedback_thread != NULL)
+  m_poll_feedback = false;
+  if (m_feedback_thread.joinable())
   {
-    // wait until thread has stopped
-    m_feedback_thread->stop();
-    m_feedback_thread->join();
-
-    delete m_feedback_thread;
-    m_feedback_thread = NULL;
+    m_feedback_thread.join();
     LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Feedback thread terminated" << endl);
   }
 
@@ -1591,11 +1582,10 @@ SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name, c
     }
 
     // As the firmware info takes longer we need to disable the polling during the request of the firmware information
-    if (m_feedback_thread != NULL)
+    m_poll_feedback = false;
+    if (m_feedback_thread.joinable())
     {
-      // wait until thread has stopped
-      m_feedback_thread->stop();
-      m_feedback_thread->join();
+      m_feedback_thread.join();
     }
 
     unsigned int retry_count = _retry_count;
@@ -1617,11 +1607,8 @@ SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name, c
     while(retry_count > 0 && m_firmware_info.version_major == 0 && m_firmware_info.version_major == 0);
 
     // Start the feedback process aggain
-    if (m_feedback_thread != NULL && was_connected)
-    {
-      // wait until thread has stopped
-      m_feedback_thread->start();
-    }
+    m_poll_feedback = true;
+    m_feedback_thread = std::thread(&SVHFingerManager::pollFeedback, this);
 
     if (!was_connected)
     {
@@ -1631,6 +1618,27 @@ SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name, c
 
   // Note that the Firmware will also be printed to the console by the controller. So in case you just want to know it no further action is required
   return m_firmware_info;
+}
+
+void SVHFingerManager::pollFeedback()
+{
+  while (m_poll_feedback)
+  {
+    if (isConnected())
+    {
+      requestControllerFeedback(eSVH_ALL);
+
+#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
+      m_finger_manager->updateWebSocket();
+#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
+    }
+    else
+    {
+      LOGGING_WARNING_C(DriverSVH, SVHFeedbackPollingThread, "SCHUNK five finger hand is not connected!" << endl);
+    }
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 }

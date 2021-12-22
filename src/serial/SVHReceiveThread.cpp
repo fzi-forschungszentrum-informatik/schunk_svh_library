@@ -30,14 +30,16 @@
 #include <schunk_svh_library/serial/SVHReceiveThread.h>
 #include <schunk_svh_library/Logging.h>
 #include <sstream>
+#include <chrono>
+#include <thread>
 
 using driver_svh::ArrayBuilder;
 
 namespace driver_svh {
 
-SVHReceiveThread::SVHReceiveThread(const TimeSpan& period, boost::shared_ptr<Serial> device,
+SVHReceiveThread::SVHReceiveThread(const std::chrono::microseconds& idle_sleep, boost::shared_ptr<Serial> device,
                                      ReceivedPacketCallback const & received_callback)
-  : PeriodicThread("SVHReceiveThread", period),
+  : m_idle_sleep(idle_sleep),
     m_serial_device(device),
     m_received_state(eRS_HEADER1),
     m_length(0),
@@ -50,28 +52,39 @@ SVHReceiveThread::SVHReceiveThread(const TimeSpan& period, boost::shared_ptr<Ser
 
 void SVHReceiveThread::run()
 {
-  while (execute())
+  while (m_continue)
   {
     if (m_serial_device)// != NULL)
     {
       if (m_serial_device->IsOpen())
       {
+        auto start = std::chrono::high_resolution_clock::now();
+
         // All we every want to do is receiving data :)
         if(!receiveData())
         {
-          waitPeriod();
+          auto elapsed_time = std::chrono::high_resolution_clock::now() - start;
+
+          if ((m_idle_sleep - elapsed_time).count() > 0) // sleep remainder of the cycle
+          {
+            std::this_thread::sleep_for(m_idle_sleep - elapsed_time);
+          }
+          else // We exceeded at least one cycle time. Sleep until we are back in sync.
+          {
+            std::this_thread::sleep_for(elapsed_time % m_idle_sleep);
+          }
         }
       }
       else
       {
         LOGGING_WARNING_C(DriverSVH, SVHReceiveThread, "Cannot read data from serial device. It is not opened!" << endl);
-        waitPeriod();
+        std::this_thread::sleep_for(m_idle_sleep);  // we can neglect the processing time to get here
       }
     }
     else
     {
       // Wait for the thread period so that the timing is in sync.
-      waitPeriod();
+      std::this_thread::sleep_for(m_idle_sleep);  // we can neglect the processing time to get here
     }
   }
 }

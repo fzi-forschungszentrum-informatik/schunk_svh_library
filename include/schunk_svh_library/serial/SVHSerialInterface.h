@@ -38,6 +38,9 @@
 #include <schunk_svh_library/serial/SVHReceiveThread.h>
 #include <schunk_svh_library/serial/Serial.h>
 #include <boost/shared_ptr.hpp>
+#include <memory>
+#include <thread>
+
 using driver_svh::serial::Serial;
 
 namespace driver_svh {
@@ -114,7 +117,10 @@ private:
   void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SVHSerialPacket& packet);
 
   //! thread for receiving serial packets
-  boost::shared_ptr<SVHReceiveThread> m_receive_thread;
+  std::thread m_receive_thread;
+
+  //! handle to manage the actual receiving of data
+  std::unique_ptr<SVHReceiveThread> m_svh_receiver;
 
   //! Callback function for received packets
   ReceivedPacketCallback m_received_packet_callback;

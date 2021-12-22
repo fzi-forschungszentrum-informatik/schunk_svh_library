@@ -30,13 +30,13 @@
 #include "schunk_svh_library/serial/SVHSerialInterface.h"
 #include "schunk_svh_library/Logging.h"
 
+#include <memory>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
 #include <thread>
 #include <chrono>
 
 
-using icl_core::TimeSpan;
 using driver_svh::serial::SerialFlags;
 #if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
 using namespace boost::placeholders;
@@ -79,23 +79,14 @@ bool SVHSerialInterface::connect(const std::string &dev_name)
     return false;
   }
 
-  // create receive thread
-  m_receive_thread.reset(new SVHReceiveThread(TimeSpan(0, 500000), m_serial_device, boost::bind(&SVHSerialInterface::receivedPacketCallback,this,_1,_2)));
+  m_svh_receiver = std::make_unique<SVHReceiveThread>(
+      std::chrono::microseconds(500),
+      m_serial_device,
+      boost::bind(&SVHSerialInterface::receivedPacketCallback,this,_1,_2)
+  );
 
-  if (m_receive_thread)
-  {
-    // start receive thread
-    if (!m_receive_thread->start())
-    {
-      LOGGING_ERROR_C(DriverSVH, SVHSerialInterface, "Could not start the receive thread for the serial device!" << endl);
-      return false;
-    }
-  }
-  else
-  {
-    LOGGING_ERROR_C(DriverSVH, SVHSerialInterface, "Could not create the receive thread for the serial device!" << endl);
-    return false;
-  }
+  // create receive thread
+  m_receive_thread = std::thread([this]{m_svh_receiver->run(); });
 
   m_connected = true;
   LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device  " << dev_name.c_str()  << " opened and receive thread started. Communication can now begin." << endl);
@@ -108,15 +99,13 @@ void SVHSerialInterface::close()
   m_connected = false;
 
   // cancel and delete receive packet thread
-  if (m_receive_thread)
+  m_svh_receiver->stop();
+  if (m_receive_thread.joinable())
   {
-    // cancel thread
-    m_receive_thread->cancel();
-
-    m_receive_thread.reset();
-
-    LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device receive thread was terminated." << endl);
+    m_receive_thread.join();
   }
+
+  LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device receive thread was terminated." << endl);
 
   // close and delete serial device handler
   if (m_serial_device)
@@ -195,7 +184,7 @@ void SVHSerialInterface::resetTransmitPackageCount()
 {
   m_packets_transmitted = 0;
   // Only the receive thread knows abotu the accurate number it has received
-  m_receive_thread->resetReceivedPackageCount();
+  m_svh_receiver->resetReceivedPackageCount();
 }
 
 void SVHSerialInterface::printPacketOnConsole(SVHSerialPacket &packet)

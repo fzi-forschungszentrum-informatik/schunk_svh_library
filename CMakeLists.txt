@@ -7,7 +7,7 @@ project(schunk_svh_library VERSION 1.0 DESCRIPTION "C++ driver library for the S
 configure_file(include/schunk_svh_library/VersionConfig.h.in SVHVersionConfig.h)
 
 # We require this C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # System dependencies

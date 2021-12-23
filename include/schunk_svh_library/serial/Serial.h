@@ -181,12 +181,6 @@ private:
 #ifdef _SYSTEM_POSIX_
   int file_descr;
   termios io_set_old;
-
-  bool is_lxrt_serial;
-# ifdef _SYSTEM_LXRT_
-  bool IsLXRTDeviceName(const char* device_name);
-  int tty;
-# endif
 #endif
 
   char *m_dev_name;

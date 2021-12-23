@@ -99,13 +99,15 @@ void SVHSerialInterface::close()
   m_connected = false;
 
   // cancel and delete receive packet thread
-  m_svh_receiver->stop();
+  if (m_svh_receiver)
+  {
+    m_svh_receiver->stop();
+  }
   if (m_receive_thread.joinable())
   {
     m_receive_thread.join();
+    LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device receive thread was terminated." << endl);
   }
-
-  LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device receive thread was terminated." << endl);
 
   // close and delete serial device handler
   if (m_serial_device)

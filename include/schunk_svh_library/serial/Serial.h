@@ -20,8 +20,6 @@
 #ifndef DRIVER_SVH_SERIAL_SERIAL_H_INCLUDED
 #define DRIVER_SVH_SERIAL_SERIAL_H_INCLUDED
 
-#include <icl_core/BaseTypes.h>
-
 #include "schunk_svh_library/ImportExport.h"
 #include "schunk_svh_library/Logging.h"
 #include "schunk_svh_library/serial/SerialFlags.h"

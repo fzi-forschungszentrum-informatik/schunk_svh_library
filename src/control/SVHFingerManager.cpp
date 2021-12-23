@@ -33,7 +33,6 @@
 #include <schunk_svh_library/Logging.h>
 #include <schunk_svh_library/control/SVHFingerManager.h>
 
-#include <icl_core/TimeStamp.h>
 #include <thread>
 #include <chrono>
 
@@ -198,7 +197,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
         }
 
         // check for correct response from hardware controller
-        icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
+        auto start_time = std::chrono::high_resolution_clock::now();
         bool timeout = false;
         unsigned int received_count = 0;
         unsigned int send_count = 0;
@@ -216,7 +215,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
           LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
 
           // check for timeout
-          if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_reset_timeout)
+          if ((std::chrono::high_resolution_clock::now() - start_time) > m_reset_timeout)
           {
             timeout = true;
             LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection timeout! Could not connect to SCHUNK five finger hand." << endl
@@ -434,8 +433,8 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
         SVHControllerFeedback control_feedback;
 
         // initialize timeout
-        icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
-        icl_core::TimeStamp start_time_log = icl_core::TimeStamp::now();
+        auto start_time = std::chrono::high_resolution_clock::now();
+        auto start_time_log = std::chrono::high_resolution_clock::now();
         // Debug helper to just notify about fresh stales
         bool stale_notification_sent = false;
 
@@ -447,10 +446,10 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           // Timeout while no encoder ticks changed
 
           // Quite extensive Current output!
-          if ((icl_core::TimeStamp::now() - start_time_log).milliSeconds() > 1000)
+          if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time_log) > std::chrono::milliseconds(1000))
           {
             LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
-            start_time_log = icl_core::TimeStamp::now();
+            start_time_log = std::chrono::high_resolution_clock::now();
           }
 
           double threshold = 80;
@@ -505,7 +504,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           }
 
           // check for time out: Abort, if position does not change after homing timeout.
-          if ((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
+          if ((std::chrono::high_resolution_clock::now() - start_time) > m_homing_timeout)
           {
             m_controller->disableChannel(eSVH_ALL);
             LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Timeout: Aborted finding home position for channel " << channel << endl);
@@ -532,7 +531,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
               if(control_feedback.position < m_diagnostic_position_minimum[channel])
                 m_diagnostic_position_minimum[channel] = control_feedback.position;
 
-            start_time = icl_core::TimeStamp::now();
+            start_time = std::chrono::high_resolution_clock::now();
             if (stale_notification_sent)
             {
               LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale resolved, continuing detection" << endl);
@@ -570,7 +569,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 
         // go to idle position
         // use the declared start_time variable for the homing timeout
-        start_time = icl_core::TimeStamp::now();
+        start_time = std::chrono::high_resolution_clock::now();
         while (true)
         {
           m_controller->setControllerTarget(channel, position);
@@ -586,10 +585,10 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           }
 
           // if the finger hasn't reached the home position after m_homing_timeout there is an hardware error
-          if((icl_core::TimeStamp::now() - start_time).tsSec() > m_homing_timeout)
+          if((std::chrono::high_resolution_clock::now() - start_time) > m_homing_timeout)
           {
             m_is_homed[channel] = false;
-            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Channel " << channel << " home position is not reachable after " << m_homing_timeout << "s! There could be an hardware error!" << endl);
+            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Channel " << channel << " home position is not reachable after " << m_homing_timeout.count() << "s! There could be an hardware error!" << endl);
             break;
           }
         }
@@ -1522,7 +1521,7 @@ void SVHFingerManager::requestControllerState()
 
 void SVHFingerManager::setResetTimeout(const int& resetTimeout)
 {
-  m_reset_timeout = (resetTimeout>0)?resetTimeout:0;
+  m_reset_timeout = (resetTimeout>0) ? std::chrono::seconds(resetTimeout) : std::chrono::seconds(0);
 }
 
 bool SVHFingerManager::setMaxForce(float max_force)

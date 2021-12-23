@@ -30,6 +30,7 @@
 #ifndef DRIVER_SVH_SVH_FINGER_MANAGER_H_INCLUDED
 #define DRIVER_SVH_SVH_FINGER_MANAGER_H_INCLUDED
 
+#include <chrono>
 #include <schunk_svh_library/ImportExport.h>
 #include <schunk_svh_library/control/SVHController.h>
 #include <schunk_svh_library/control/SVHPositionSettings.h>
@@ -385,8 +386,8 @@ private:
   //! Helper variable to check if feedback was printed (will be replaced by a better solution in the future)
   bool m_connection_feedback_given;
 
-  //! \brief vector storing reset flags for each finger
-  int8_t m_homing_timeout;
+  //! \brief Timeout for homing.
+  std::chrono::seconds m_homing_timeout;
 
   //! \brief limit the maximum of the force / current of the finger as a percentage of the possible maximum
   float m_max_current_percentage;
@@ -437,7 +438,7 @@ private:
   float m_reset_speed_factor;
 
   //! Time in seconds after which the a reset is aborted if no change in current is observable
-  uint32_t m_reset_timeout;
+  std::chrono::seconds m_reset_timeout;
 
   //! Vector of current controller parameters for each finger (as given by external config)
   std::vector<SVHCurrentSettings> m_current_settings;

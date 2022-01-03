@@ -277,6 +277,11 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
         m_controller->requestFirmwareInfo();
 
         // initialize feedback polling thread
+        if (m_feedback_thread.joinable()) // clean reset
+        {
+          m_poll_feedback = false;
+          m_feedback_thread.join();
+        }
         m_poll_feedback = true;
         m_feedback_thread = std::thread(&SVHFingerManager::pollFeedback, this);
         LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is starting the fedback polling thread" << endl);
@@ -1635,9 +1640,9 @@ void SVHFingerManager::pollFeedback()
     {
       LOGGING_WARNING_C(DriverSVH, SVHFeedbackPollingThread, "SCHUNK five finger hand is not connected!" << endl);
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 }

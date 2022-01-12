@@ -13,7 +13,8 @@
 //----------------------------------------------------------------------
 
 #include "schunk_svh_library/websocket/ZMQClient.h"
-#include <boost/lexical_cast.hpp>
+#include <thread>
+#include <string>
 
 namespace schunk_svh_library {
 namespace websocket {
@@ -31,7 +32,7 @@ ZMQClient::ZMQClient(unsigned short recvPort, unsigned short sendPort)
     int val = 0;
     m_sender.setsockopt (ZMQ_LINGER, &val, sizeof(val));
 
-    std::string sendTo = "tcp://127.0.0.1:"+boost::lexical_cast<std::string>(m_sendPort);
+    std::string sendTo = "tcp://127.0.0.1:" + std::to_string(m_sendPort);
     m_sender.connect(sendTo.c_str());
 }
 
@@ -53,14 +54,19 @@ void ZMQClient::addCallback(WsbCallback *cb)
 
 void ZMQClient::startListening()
 {
-    m_listener = boost::thread(&ZMQClient::msgListener, this);
+  // Fresh restart on repetitive calls.
+  if (m_listener.joinable())
+  {
+    m_listener.join();
+  }
+  m_listener = std::thread(&ZMQClient::msgListener, this);
 }
 
 void ZMQClient::msgListener()
 {
     m_listening = true;
 
-    std::string recvFrom = "tcp://127.0.0.1:"+boost::lexical_cast<std::string>(m_recvPort);
+    std::string recvFrom = "tcp://127.0.0.1:" + std::to_string(m_recvPort);
     m_receiver.connect(recvFrom.c_str());
 
     zmq::pollitem_t items [] = {
@@ -88,7 +94,10 @@ void ZMQClient::msgListener()
 void ZMQClient::stop()
 {
     m_listening = false;
-    m_listener.join();
+    if (m_listener.joinable())
+    {
+      m_listener.join();
+    }
 }
 
 

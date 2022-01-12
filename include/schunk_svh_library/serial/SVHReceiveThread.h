@@ -38,16 +38,17 @@
 
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 #include <chrono>
+#include <atomic>
 
 using driver_svh::serial::Serial;
 
 namespace driver_svh {
 
-//! definition of boost function callback for received packages
-typedef boost::function<void (const SVHSerialPacket& packet, unsigned int packet_count)> ReceivedPacketCallback;
+//! definition of function callback for received packages
+using ReceivedPacketCallback = std::function<void (const SVHSerialPacket& packet, unsigned int packet_count)>;
 
 /*!
  * \brief Class for receiving messages from the serial device.
@@ -64,7 +65,7 @@ public:
    * \param device handle of the serial device
    * \param received_callback function to call uppon finished packet
    */
-  SVHReceiveThread(const std::chrono::microseconds& idle_sleep, boost::shared_ptr<Serial> device,
+  SVHReceiveThread(const std::chrono::microseconds& idle_sleep, std::shared_ptr<Serial> device,
                     ReceivedPacketCallback const & received_callback);
 
   //! Default DTOR
@@ -93,7 +94,7 @@ private:
   std::chrono::microseconds m_idle_sleep;
 
   //! pointer to serial device object
-  boost::shared_ptr<Serial> m_serial_device;
+  std::shared_ptr<Serial> m_serial_device;
 
   //! enum for receive packet state machine states
   enum

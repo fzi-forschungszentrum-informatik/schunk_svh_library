@@ -15,14 +15,11 @@
 
 #include "schunk_svh_library/ImportExport.h"
 
-#include <boost/predef/other/endian.h>
 #include <iostream>
 #include <iomanip>
 #include <assert.h>
 #include <vector>
 
-// For type limiting
-#include <boost/type_traits/is_arithmetic.hpp>
 
 namespace driver_svh {
 

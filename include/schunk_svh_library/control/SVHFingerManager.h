@@ -37,7 +37,7 @@
 #include <schunk_svh_library/control/SVHCurrentSettings.h>
 #include <schunk_svh_library/control/SVHHomeSettings.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <thread>
 
 
@@ -369,7 +369,7 @@ public:
 private:
 
   //! \brief Websocket handle for updating diagnostic backend (OPTIONAL)
-  boost::shared_ptr<schunk_svh_library::websocket::WsBroadcaster> m_ws_broadcaster;
+  std::shared_ptr<schunk_svh_library::websocket::WsBroadcaster> m_ws_broadcaster;
 
   //! \brief pointer to svh controller
   SVHController *m_controller;

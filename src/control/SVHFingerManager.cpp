@@ -35,8 +35,9 @@
 
 #include <thread>
 #include <chrono>
+#include <memory>
+#include <functional>
 
-#include <boost/bind/bind.hpp>
 
 namespace driver_svh {
 
@@ -70,11 +71,11 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
   m_serial_device("/dev/ttyUSB0")
 {
 #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-  m_ws_broadcaster = boost::shared_ptr<schunk_svh_library::websocket::WsBroadcaster>(new schunk_svh_library::websocket::WsBroadcaster(schunk_svh_library::websocket::WsBroadcaster::eRT_SVH));
+  m_ws_broadcaster = std::shared_ptr<schunk_svh_library::websocket::WsBroadcaster>(new schunk_svh_library::websocket::WsBroadcaster(schunk_svh_library::websocket::WsBroadcaster::eRT_SVH));
   if (m_ws_broadcaster)
   {
     // Register a custom handler for received JSON Messages
-    m_ws_broadcaster->registerHintCallback(boost::bind(&SVHFingerManager::receivedHintMessage,this,_1));
+    m_ws_broadcaster->registerHintCallback(std::bind(&SVHFingerManager::receivedHintMessage, this, std::placeholders::_1));
 
     m_ws_broadcaster->robot->setInputToRadFactor(1);
     m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);

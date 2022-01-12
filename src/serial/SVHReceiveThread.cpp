@@ -37,7 +37,7 @@ using driver_svh::ArrayBuilder;
 
 namespace driver_svh {
 
-SVHReceiveThread::SVHReceiveThread(const std::chrono::microseconds& idle_sleep, boost::shared_ptr<Serial> device,
+SVHReceiveThread::SVHReceiveThread(const std::chrono::microseconds& idle_sleep, std::shared_ptr<Serial> device,
                                      ReceivedPacketCallback const & received_callback)
   : m_idle_sleep(idle_sleep),
     m_serial_device(device),

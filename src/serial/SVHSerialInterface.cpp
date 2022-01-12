@@ -32,15 +32,12 @@
 
 #include <memory>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>
-#include <boost/bind/bind.hpp>
+#include <functional>
 #include <thread>
 #include <chrono>
 
 
 using driver_svh::serial::SerialFlags;
-#if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
-using namespace boost::placeholders;
-#endif
 
 namespace driver_svh {
 
@@ -82,7 +79,7 @@ bool SVHSerialInterface::connect(const std::string &dev_name)
   m_svh_receiver = std::make_unique<SVHReceiveThread>(
       std::chrono::microseconds(500),
       m_serial_device,
-      boost::bind(&SVHSerialInterface::receivedPacketCallback,this,_1,_2)
+      std::bind(&SVHSerialInterface::receivedPacketCallback, this, std::placeholders::_1, std::placeholders::_2)
   );
 
   // create receive thread

@@ -37,7 +37,7 @@
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
 #include <schunk_svh_library/serial/SVHReceiveThread.h>
 #include <schunk_svh_library/serial/Serial.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <memory>
 #include <thread>
 
@@ -111,7 +111,7 @@ private:
   uint8_t last_index;
 
   //! pointer to serial interface object
-  boost::shared_ptr<Serial> m_serial_device;
+  std::shared_ptr<Serial> m_serial_device;
 
   //! cecksum calculation
   void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SVHSerialPacket& packet);

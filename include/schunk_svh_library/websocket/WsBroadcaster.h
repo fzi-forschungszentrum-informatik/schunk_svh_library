@@ -24,20 +24,19 @@
 #include <schunk_svh_library/websocket/LWA4PState.h>
 #include <schunk_svh_library/websocket/SVHState.h>
 
+#include <atomic>
 #include <thread>
 #include <chrono>
-#include <boost/thread.hpp>
-#include <boost/date_time.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 
 
 namespace schunk_svh_library {
 namespace websocket {
 
 
-//! definition of boost function callback for received JSON Message
-typedef boost::function<void (const int &hint)> ReceivedHintCallback;
+//! definition of function callback for received JSON Message
+using ReceivedHintCallback = std::function<void (const int &hint)>;
 
 
 class DRIVER_SVH_IMPORT_EXPORT WsBroadcaster : WsbCallback
@@ -60,11 +59,11 @@ public:
     switch (robot_type)
     {
       case eRT_SVH:
-        robot = boost::shared_ptr<SVHState>(new SVHState());
+        robot = std::shared_ptr<SVHState>(new SVHState());
         break;
       case eRT_LWA4P:
       default:
-        robot = boost::shared_ptr<LWA4PState>(new LWA4PState());
+        robot = std::shared_ptr<LWA4PState>(new LWA4PState());
         break;
     }
   }
@@ -76,7 +75,7 @@ public:
 
   /*!
    * \brief registerMessageCallback register a function to call when the WS Broadcaster receives data
-   * \param received_callback boost function signature of the function to call (with one string argument)
+   * \param received_callback function signature of the function to call (with one string argument)
    */
   void registerHintCallback(ReceivedHintCallback const & received_callback)
   {
@@ -112,7 +111,7 @@ public:
    */
   void simulateRobot(const int &cycle_time_ms)
   {
-    while (true)
+    while (m_simulate)
     {
       robot->simulateTick();
       std::this_thread::sleep_for(std::chrono::milliseconds(cycle_time_ms));
@@ -128,7 +127,15 @@ public:
   {
     robot->setTps(1000/cycle_time_ms);
     robot->setJointPositions(std::vector<double>(robot->getNumAxes(),0.0));
-    m_simulation_thread = boost::thread(boost::bind(&WsBroadcaster::simulateRobot,this,cycle_time_ms));
+
+    // Fresh restart on repetitive calls
+    if (m_simulation_thread.joinable())
+    {
+      m_simulate = false;
+      m_simulation_thread.join();
+    }
+    m_simulate = true;
+    m_simulation_thread = std::thread(std::bind(&WsBroadcaster::simulateRobot,this,cycle_time_ms));
   }
 
   /*!
@@ -136,27 +143,31 @@ public:
    */
   void stopSimulation()
   {
-    m_simulation_thread.interrupt();
-    m_simulation_thread.join();
+    m_simulate = false;
+    if (m_simulation_thread.joinable())
+    {
+      m_simulation_thread.join();
+    }
   }
 
 
  // As the robot state and possible later states are just meant as a data storage for everyone to write their values to they are public for convenience
 
  //! Robot state representing the current state of the robot in terms of diagnostics
- boost::shared_ptr<RobotState> robot;
+ std::shared_ptr<RobotState> robot;
 
 private:
  //! Unix Socket to communicate with the Websocket server
-  boost::shared_ptr<ZMQClient> m_socket;
+  std::shared_ptr<ZMQClient> m_socket;
   unsigned short m_recvPort;
   unsigned short m_sendPort;
   size_t m_send_error_counter;
   size_t m_reset_error_counter;
+  std::atomic<bool> m_simulate{true};
 
 
  //! hread to simulate the robot output
- boost::thread m_simulation_thread;
+ std::thread m_simulation_thread;
 
  //! function callback for received hints (if other people are interested)
  ReceivedHintCallback m_received_callback;

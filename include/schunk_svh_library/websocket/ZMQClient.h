@@ -17,7 +17,7 @@
 #include <schunk_svh_library/websocket/WsbCallback.h>
 #include <schunk_svh_library/ImportExport.h>
 
-#include <boost/thread.hpp>
+#include <thread>
 
 #ifndef ZMQCLIENT_H
 #define ZMQCLIENT_H
@@ -54,6 +54,8 @@ public:
 
     /*!
       * \brief Starts the receiver thread.
+      *
+      * Repetitive calls will first join threads and then freshly restart.
       */
     void startListening();
 
@@ -80,7 +82,7 @@ private:
 
     bool m_listening;
 
-    boost::thread m_listener;
+    std::thread m_listener;
 };
 
 }}

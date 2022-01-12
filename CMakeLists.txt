@@ -15,7 +15,6 @@ find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 pkg_check_modules(ZMQ REQUIRED libzmq)
-find_package(Boost COMPONENTS thread REQUIRED)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 # --------------------------------------------------------------------------------
@@ -112,7 +111,6 @@ target_include_directories(svh-websocket PUBLIC
 target_link_libraries(svh-websocket PUBLIC
         ${JSONCPP_LIBRARIES}
         ${ZMQ_LIBRARIES}
-        Boost::thread
         )
 
 target_compile_definitions(svh-websocket PUBLIC

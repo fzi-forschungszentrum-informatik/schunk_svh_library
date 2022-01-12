@@ -40,14 +40,11 @@
 
 #include <schunk_svh_library/Logger.h>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>
-#include <boost/bind/bind.hpp>
+#include <functional>
 #include <chrono>
 #include <thread>
 
 using driver_svh::ArrayBuilder;
-#if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
-using namespace boost::placeholders;
-#endif
 
 namespace driver_svh {
 
@@ -84,7 +81,8 @@ SVHController::SVHController():
   m_current_settings(eSVH_DIMENSION),  // Vectors have to be filled with objects for correct deserialization
   m_position_settings(eSVH_DIMENSION),
   m_controller_feedback(eSVH_DIMENSION),
-  m_serial_interface(new SVHSerialInterface(boost::bind(&SVHController::receivedPacketCallback,this,_1,_2))),
+  m_serial_interface(new SVHSerialInterface(
+    std::bind(&SVHController::receivedPacketCallback, this, std::placeholders::_1, std::placeholders::_2))),
   m_enable_mask(0),
   m_received_package_count(0)
 {

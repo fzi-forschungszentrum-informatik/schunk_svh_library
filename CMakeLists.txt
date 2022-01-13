@@ -12,7 +12,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # System dependencies
 find_package(Threads REQUIRED)
-find_package(icl_core)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 pkg_check_modules(ZMQ REQUIRED libzmq)
@@ -39,7 +38,6 @@ endif("${isSystemDir}" STREQUAL "-1")
 # User library
 # --------------------------------------------------------------------------------
 add_library(svh-library SHARED
-        src/Logging.cpp
         src/control/SVHController.cpp
         src/control/SVHFingerManager.cpp
         )
@@ -58,6 +56,7 @@ target_link_libraries(svh-library PUBLIC
         svh-websocket
         )
 
+
 # --------------------------------------------------------------------------------
 # Internal libraries
 # --------------------------------------------------------------------------------
@@ -69,7 +68,6 @@ add_library(svh-serial SHARED
         src/serial/SVHReceiveThread.cpp
         src/serial/SVHSerialInterface.cpp
         src/serial/SVHSerialPacket.cpp
-        src/Logging.cpp
         )
 
 add_library(Schunk::svh-serial ALIAS svh-serial)
@@ -77,14 +75,10 @@ add_library(Schunk::svh-serial ALIAS svh-serial)
 target_include_directories(svh-serial PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
-        ${icl_core_INCLUDE_DIRS}
         )
 
 target_link_libraries(svh-serial PUBLIC
-        ${icl_core_LIBRARIES}
         )
-
-# Leftovers by icl_comm and icl_core
 target_compile_definitions(svh-serial PUBLIC
         -D_SYSTEM_LINUX_
         -D_SYSTEM_POSIX_
@@ -113,20 +107,15 @@ target_include_directories(svh-websocket PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
         ${JSONCPP_INCLUDE_DIRS}
-        ${icl_core_INCLUDE_DIRS}
         )
 
 target_link_libraries(svh-websocket PUBLIC
-        ${icl_core_LIBRARIES}
         ${JSONCPP_LIBRARIES}
         ${ZMQ_LIBRARIES}
         Boost::thread
         )
 
-# Leftovers by icl_core
 target_compile_definitions(svh-websocket PUBLIC
-        -D_SYSTEM_LINUX_
-        -D_SYSTEM_POSIX_
         )
 
 # --------------------------------------------------------------------------------
@@ -139,11 +128,9 @@ add_executable(test_driver_svh
         )
 target_include_directories(test_driver_svh PUBLIC
         ${PROJECT_SOURCE_DIR}/include
-        ${icl_core_INCLUDE_DIRS}
         )
 target_link_libraries(test_driver_svh
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-        ${icl_core_LIBRARIES}
         svh-library
         )
 target_compile_definitions(test_driver_svh PUBLIC
@@ -159,7 +146,6 @@ add_executable(test_svh_send_packet
         )
 target_include_directories(test_svh_send_packet PUBLIC
         ${PROJECT_SOURCE_DIR}/include
-        ${icl_core_INCLUDE_DIRS}
         )
 target_link_libraries(test_svh_send_packet
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -174,7 +160,6 @@ add_executable(test_svh_receive
         )
 target_include_directories(test_svh_receive PUBLIC
         ${PROJECT_SOURCE_DIR}/include
-        ${icl_core_INCLUDE_DIRS}
         )
 target_link_libraries(test_svh_receive
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -190,7 +175,6 @@ add_executable(test_svh_send_feedback_packet
         )
 target_include_directories(test_svh_send_feedback_packet PUBLIC
         ${PROJECT_SOURCE_DIR}/include
-        ${icl_core_INCLUDE_DIRS}
         )
 target_link_libraries(test_svh_send_feedback_packet
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -205,7 +189,6 @@ add_executable(test_svh_controller_init_send
         )
 target_include_directories(test_svh_controller_init_send PUBLIC
         ${PROJECT_SOURCE_DIR}/include
-        ${icl_core_INCLUDE_DIRS}
         )
 target_link_libraries(test_svh_controller_init_send
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -220,7 +203,6 @@ add_executable(test_svh_finger_manager
         )
 target_include_directories(test_svh_finger_manager PUBLIC
         ${PROJECT_SOURCE_DIR}/include
-        ${icl_core_INCLUDE_DIRS}
         )
 target_link_libraries(test_svh_finger_manager
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}

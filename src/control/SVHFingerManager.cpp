@@ -30,7 +30,7 @@
  *
  */
 //----------------------------------------------------------------------
-#include <schunk_svh_library/Logging.h>
+#include <schunk_svh_library/Logger.h>
 #include <schunk_svh_library/control/SVHFingerManager.h>
 
 #include <thread>

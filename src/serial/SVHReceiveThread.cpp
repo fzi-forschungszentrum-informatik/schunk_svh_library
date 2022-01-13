@@ -28,7 +28,7 @@
  */
 //----------------------------------------------------------------------
 #include <schunk_svh_library/serial/SVHReceiveThread.h>
-#include <schunk_svh_library/Logging.h>
+#include <schunk_svh_library/Logger.h>
 #include <sstream>
 #include <chrono>
 #include <thread>

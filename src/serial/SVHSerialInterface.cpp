@@ -28,7 +28,7 @@
  */
 //----------------------------------------------------------------------
 #include "schunk_svh_library/serial/SVHSerialInterface.h"
-#include "schunk_svh_library/Logging.h"
+#include "schunk_svh_library/Logger.h"
 
 #include <memory>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>

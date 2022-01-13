@@ -21,6 +21,7 @@
 // Not functional with Mac OS X (UH)
 
 #include "schunk_svh_library/serial/Serial.h"
+#include "schunk_svh_library/Logger.h"
 
 #include <cassert>
 #include <algorithm>

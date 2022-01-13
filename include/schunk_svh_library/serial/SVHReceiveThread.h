@@ -36,7 +36,6 @@
 #include <schunk_svh_library/serial/Serial.h>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>
 
-#include <schunk_svh_library/Logging.h>
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
 
 #include <boost/function.hpp>

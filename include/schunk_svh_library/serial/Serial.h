@@ -20,8 +20,10 @@
 #ifndef DRIVER_SVH_SERIAL_SERIAL_H_INCLUDED
 #define DRIVER_SVH_SERIAL_SERIAL_H_INCLUDED
 
+#include <string>
+#include <sys/types.h>
+
 #include "schunk_svh_library/ImportExport.h"
-#include "schunk_svh_library/Logging.h"
 #include "schunk_svh_library/serial/SerialFlags.h"
 
 #ifdef _SYSTEM_WIN32_

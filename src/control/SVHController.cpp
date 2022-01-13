@@ -38,7 +38,7 @@
 //----------------------------------------------------------------------
 #include "schunk_svh_library/control/SVHController.h"
 
-#include <schunk_svh_library/Logging.h>
+#include <schunk_svh_library/Logger.h>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
 #include <chrono>

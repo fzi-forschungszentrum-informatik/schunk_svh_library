@@ -256,9 +256,6 @@ BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
 
   std::cout << "Controller receiving feedback Packet ....";
 
-  // Initialize logging
-  icl_core::logging::initialize();
-
   // Reset Array Builder
   // BEWARE OF ARRAY LENGTH!
   payload.reset(64);

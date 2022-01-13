@@ -62,6 +62,7 @@ target_link_libraries(svh-library PUBLIC
 # Internal libraries
 # --------------------------------------------------------------------------------
 add_library(svh-serial SHARED
+        src/LogHandler.cpp
         src/serial/ByteOrderConversion.cpp
         src/serial/Serial.cpp
         src/serial/SerialFlags.cpp

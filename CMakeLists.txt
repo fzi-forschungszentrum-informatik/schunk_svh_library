@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # System dependencies
+find_package(Threads REQUIRED)
 find_package(icl_core)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
@@ -87,6 +88,13 @@ target_compile_definitions(svh-serial PUBLIC
         -D_SYSTEM_LINUX_
         -D_SYSTEM_POSIX_
         )
+if(THREADS_HAVE_PTHREAD_ARG)
+  target_compile_options(svh-serial PUBLIC "-pthread")
+endif()
+if(CMAKE_THREAD_LIBS_INIT)
+  target_link_libraries(svh-serial PUBLIC "${CMAKE_THREAD_LIBS_INIT}")
+endif()
+
 
 # --------------------------------------------------------------------------------
 

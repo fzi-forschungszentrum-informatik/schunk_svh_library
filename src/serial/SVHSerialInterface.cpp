@@ -69,13 +69,13 @@ bool SVHSerialInterface::connect(const std::string &dev_name)
     // open serial device
     if (!m_serial_device->Open())
     {
-      LOGGING_ERROR_C(DriverSVH, SVHSerialInterface, "Could not open serial device: " << dev_name.c_str() << endl);
+      SVH_LOG_ERROR_STREAM("SVHSerialInterface", "Could not open serial device: " << dev_name.c_str());
       return false;
     }
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHSerialInterface, "Could not create serial device handle: " << dev_name.c_str() << endl);
+    SVH_LOG_ERROR_STREAM("SVHSerialInterface", "Could not create serial device handle: " << dev_name.c_str());
     return false;
   }
 
@@ -89,7 +89,7 @@ bool SVHSerialInterface::connect(const std::string &dev_name)
   m_receive_thread = std::thread([this]{m_svh_receiver->run(); });
 
   m_connected = true;
-  LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device  " << dev_name.c_str()  << " opened and receive thread started. Communication can now begin." << endl);
+  SVH_LOG_DEBUG_STREAM("SVHSerialInterface", "Serial device  " << dev_name.c_str()  << " opened and receive thread started. Communication can now begin.");
 
   return true;
 }
@@ -106,7 +106,7 @@ void SVHSerialInterface::close()
   if (m_receive_thread.joinable())
   {
     m_receive_thread.join();
-    LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device receive thread was terminated." << endl);
+    SVH_LOG_DEBUG_STREAM("SVHSerialInterface", "Serial device receive thread was terminated.");
   }
 
   // close and delete serial device handler
@@ -115,7 +115,7 @@ void SVHSerialInterface::close()
     m_serial_device->Close();
 
     m_serial_device.reset();
-    LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device handle was closed and terminated." << endl);
+    SVH_LOG_DEBUG_STREAM("SVHSerialInterface", "Serial device handle was closed and terminated.");
   }
 }
 
@@ -163,7 +163,7 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
     }
     else
     {
-      LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "sendPacket failed, serial device was not properly initialized." << endl);
+      SVH_LOG_DEBUG_STREAM("SVHSerialInterface", "sendPacket failed, serial device was not properly initialized.");
       return false;
     }
 

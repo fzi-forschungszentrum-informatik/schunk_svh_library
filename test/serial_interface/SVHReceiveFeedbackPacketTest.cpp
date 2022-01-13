@@ -52,7 +52,7 @@ void receivedPacketCallback(const SVHSerialPacket& packet, unsigned int packet_c
     SVHControllerFeedback controller_feedback;
 
     ab >> controller_feedback;
-    LOGGING_INFO_C(DriverSVH, SVHController, "Received a Control Feedback/Control Command packet for channel "<< channel << endl);
+    SVH_LOG_INFO_STREAM("SVHController", "Received a Control Feedback/Control Command packet for channel "<< channel);
 
     std::cout << "Controller Feedback " << controller_feedback << std::endl;
   }

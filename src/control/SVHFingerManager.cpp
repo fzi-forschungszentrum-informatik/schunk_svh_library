@@ -104,7 +104,7 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool> &disable_mask, const 
     m_is_switched_off[i] = disable_mask[i];
     if (m_is_switched_off[i])
     {
-      LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Joint: " << m_controller->m_channel_description[i] << " was disabled as per user request. It will not do anything!" << endl);
+      SVH_LOG_INFO_STREAM("SVHFingerManager", "Joint: " << m_controller->m_channel_description[i] << " was disabled as per user request. It will not do anything!");
 #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
       if (m_ws_broadcaster)
       {
@@ -143,7 +143,7 @@ SVHFingerManager::~SVHFingerManager()
 
 bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_retry_count)
 {
-  LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to connect to the Hardware..." << endl);
+  SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Finger manager is trying to connect to the Hardware...");
 
 #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
   // Reset the connection specific hints and give it a go again.
@@ -208,18 +208,18 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
           if (send_count == received_count)
           {
             m_connected = true;
-            LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully established connection to SCHUNK five finger hand." << endl
-                           << "Send packages = " << send_count << ", received packages = " << received_count << endl);
+            SVH_LOG_INFO_STREAM("SVHFingerManager", "Successfully established connection to SCHUNK five finger hand."
+                           << "Send packages = " << send_count << ", received packages = " << received_count);
 
           }
-          LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count << endl);
+          SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Try to connect to SCHUNK five finger hand: Send packages = " << send_count << ", received packages = " << received_count);
 
           // check for timeout
           if ((std::chrono::high_resolution_clock::now() - start_time) > m_reset_timeout)
           {
             timeout = true;
-            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection timeout! Could not connect to SCHUNK five finger hand." << endl
-                            << "Send packages = " << send_count << ", received packages = " << received_count << endl);
+            SVH_LOG_ERROR_STREAM("SVHFingerManager", "Connection timeout! Could not connect to SCHUNK five finger hand."
+                            << "Send packages = " << send_count << ", received packages = " << received_count);
 #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
             if (m_ws_broadcaster)
             {
@@ -238,12 +238,12 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
           if (received_count > 0 && retry_count >= 0)
           {
             retry_count--;
-            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Retrying, count: " << retry_count << endl);
+            SVH_LOG_ERROR_STREAM("SVHFingerManager", "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Retrying, count: " << retry_count);
           }
           else
           {
             retry_count = 0;
-            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Not Retrying anymore."<< endl);
+            SVH_LOG_ERROR_STREAM("SVHFingerManager", "Connection Failed! Send packages = " << send_count << ", received packages = " << received_count << ". Not Retrying anymore.");
           }
         }
         // Keep trying to reconnect several times because the brainbox often makes problems
@@ -252,7 +252,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
 
       if (!m_connected && retry_count<= 0)
       {
-        LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "A Stable connection could NOT be made, however some packages where received. Please check the hardware!" << endl);
+        SVH_LOG_ERROR_STREAM("SVHFingerManager", "A Stable connection could NOT be made, however some packages where received. Please check the hardware!");
       }
 
 
@@ -284,7 +284,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
         }
         m_poll_feedback = true;
         m_feedback_thread = std::thread(&SVHFingerManager::pollFeedback, this);
-        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is starting the fedback polling thread" << endl);
+        SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Finger manager is starting the fedback polling thread");
       }
       else
       {
@@ -301,7 +301,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
         m_ws_broadcaster->sendHints(); // Hints are updated Manually
       }
 #endif
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection FAILED! Device could NOT be opened" << endl);
+      SVH_LOG_ERROR_STREAM("SVHFingerManager", "Connection FAILED! Device could NOT be opened");
     }
   }
 
@@ -310,7 +310,7 @@ bool SVHFingerManager::connect(const std::string &dev_name,const unsigned int &_
 
 void SVHFingerManager::disconnect()
 {
-  LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Finger manager is trying to discoconnect to the Hardware..." << endl);
+  SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Finger manager is trying to discoconnect to the Hardware...");
   m_connected = false;
   m_connection_feedback_given = false;
 
@@ -319,7 +319,7 @@ void SVHFingerManager::disconnect()
   if (m_feedback_thread.joinable())
   {
     m_feedback_thread.join();
-    LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Feedback thread terminated" << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Feedback thread terminated");
   }
 
   // Tell the Controller to terminate the rest
@@ -362,7 +362,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           max_reset_counter--;
         }
 
-        LOGGING_DEBUG_C(DriverSVH, resetChannel, "Channel " << m_reset_order[i] << " reset success = " << reset_success << endl);
+        SVH_LOG_DEBUG_STREAM("resetChannel", "Channel " << m_reset_order[i] << " reset success = " << reset_success);
 
         // set all reset flag
         reset_all_success = reset_all_success && reset_success;
@@ -398,11 +398,11 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
 #endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
 
-      LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Start homing channel " << channel << endl);
+      SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Start homing channel " << channel);
 
       if (!m_is_switched_off[channel])
       {
-        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Setting reset position values for controller of channel " << channel << endl);
+        SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Setting reset position values for controller of channel " << channel);
 
         m_controller->setPositionSettings(channel, getDefaultPositionSettings(true)[channel]);
 
@@ -429,7 +429,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           position = static_cast<int32_t>(pos_set.wmn);
         }
 
-        LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Driving channel " << channel << " to hardstop. Detection thresholds: Current MIN: "<< home.resetCurrentFactor * cur_set.wmn << "mA MAX: "<< home.resetCurrentFactor * cur_set.wmx <<"mA" << endl);
+        SVH_LOG_INFO_STREAM("SVHFingerManager", "Driving channel " << channel << " to hardstop. Detection thresholds: Current MIN: "<< home.resetCurrentFactor * cur_set.wmn << "mA MAX: "<< home.resetCurrentFactor * cur_set.wmx <<"mA");
 
         m_controller->setControllerTarget(channel, position);
         m_controller->enableChannel(channel);
@@ -453,7 +453,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           // Quite extensive Current output!
           if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time_log) > std::chrono::milliseconds(1000))
           {
-            LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
+            SVH_LOG_INFO_STREAM("SVHFingerManager", "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA");
             start_time_log = std::chrono::high_resolution_clock::now();
           }
 
@@ -500,19 +500,19 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             m_diagnostic_current_state[channel] = true; // when in maximum the current controller is ok
 
             hit_count++;
-            LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count increased: " << hit_count << endl);
+            SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count increased: " << hit_count);
           }
           else if (hit_count > 0)
           {
             hit_count--;
-            LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count Decreased: " << hit_count << endl);
+            SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Hit Count Decreased: " << hit_count);
           }
 
           // check for time out: Abort, if position does not change after homing timeout.
           if ((std::chrono::high_resolution_clock::now() - start_time) > m_homing_timeout)
           {
             m_controller->disableChannel(eSVH_ALL);
-            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Timeout: Aborted finding home position for channel " << channel << endl);
+            SVH_LOG_ERROR_STREAM("SVHFingerManager", "Timeout: Aborted finding home position for channel " << channel);
             // Timeout could mean serious hardware issues or just plain wrong settings
 #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
@@ -539,7 +539,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
             start_time = std::chrono::high_resolution_clock::now();
             if (stale_notification_sent)
             {
-              LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale resolved, continuing detection" << endl);
+              SVH_LOG_DEBUG_STREAM("SVHFingerManager","Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale resolved, continuing detection");
               stale_notification_sent = false;
             }
           }
@@ -547,7 +547,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           {
             if (!stale_notification_sent)
             {
-              LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale detected. Starting Timeout" << endl);
+              SVH_LOG_DEBUG_STREAM("SVHFingerManager","Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " Stale detected. Starting Timeout");
               stale_notification_sent = true;
             }
           }
@@ -557,17 +557,17 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           //std::this_thread::sleep_for(std::chrono::microseconds(8000));
         }
         // give the last info with highes channel current value
-        LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA" << endl);
+        SVH_LOG_INFO_STREAM("SVHFingerManager", "Resetting Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA");
 
-        LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Hit counter of " << channel << " reached." << endl);
+        SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Hit counter of " << channel << " reached.");
 
 
         // set reference values
         m_position_min[channel] = static_cast<int32_t>(control_feedback.position + std::min(home.minimumOffset, home.maximumOffset));
         m_position_max[channel] = static_cast<int32_t>(control_feedback.position + std::max(home.minimumOffset, home.maximumOffset));
         m_position_home[channel] = static_cast<int32_t>(control_feedback.position + home.direction * home.idlePosition);
-        LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Setting soft stops for Channel " << channel << " min pos = " << m_position_min[channel]
-                        << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel] << endl);
+        SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Setting soft stops for Channel " << channel << " min pos = " << m_position_min[channel]
+                        << " max pos = " << m_position_max[channel] << " home pos = " << m_position_home[channel]);
 
         // position will now be reached to release the motor and go into soft stops
         position = m_position_home[channel];
@@ -581,7 +581,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           //m_controller->requestControllerFeedback(channel);
           m_controller->getControllerFeedback(channel, control_feedback);
 
-          LOGGING_TRACE_C(DriverSVH, SVHFingerManager,"Homing Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA, position ticks: " << control_feedback.position <<  endl);
+          SVH_LOG_DEBUG_STREAM("SVHFingerManager","Homing Channel "<< channel << ":" << m_controller->m_channel_description[channel] << " current: " << control_feedback.current << " mA, position ticks: " << control_feedback.position);
 
           if (abs(position - control_feedback.position) < 1000)
           {
@@ -593,19 +593,19 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
           if((std::chrono::high_resolution_clock::now() - start_time) > m_homing_timeout)
           {
             m_is_homed[channel] = false;
-            LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Channel " << channel << " home position is not reachable after " << m_homing_timeout.count() << "s! There could be an hardware error!" << endl);
+            SVH_LOG_ERROR_STREAM("SVHFingerManager", "Channel " << channel << " home position is not reachable after " << m_homing_timeout.count() << "s! There could be an hardware error!");
             break;
           }
         }
 
         m_controller->disableChannel(eSVH_ALL);
         //std::this_thread::sleep_for(std::chrono::microseconds(8000));
-        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Restoring default position values for controller of channel " << channel << endl);
+        SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Restoring default position values for controller of channel " << channel);
         m_controller->setPositionSettings(channel, getDefaultPositionSettings(false)[channel]);
       }
       else
       {
-        LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Channel " << channel << "switched of by user, homing is set to finished" << endl);
+        SVH_LOG_INFO_STREAM("SVHFingerManager", "Channel " << channel << "switched of by user, homing is set to finished");
         m_is_homed[channel] = true;
       }
 
@@ -641,19 +641,19 @@ bool SVHFingerManager::resetChannel(const SVHChannel &channel)
       }
 #endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 
-      LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Successfully homed channel " << channel << endl);
+      SVH_LOG_INFO_STREAM("SVHFingerManager", "Successfully homed channel " << channel);
 
       return true;
     }
     else
     {
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Channel " << channel << " is out of bounds!" << endl);
+      SVH_LOG_ERROR_STREAM("SVHFingerManager", "Channel " << channel << " is out of bounds!");
       return false;
     }
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not reset channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not reset channel " << channel << ": No connection to SCHUNK five finger hand!");
     return false;
   }
 }
@@ -673,7 +673,7 @@ bool SVHFingerManager::getDiagnosticStatus(const SVHChannel &channel, struct dia
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not get diagnostic status for unknown/unsupported channel " << channel << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not get diagnostic status for unknown/unsupported channel " << channel);
     return false;
   }
 }
@@ -774,7 +774,7 @@ bool SVHFingerManager::requestControllerFeedback(const SVHChannel &channel)
     return true;
   }
 
-  LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Feedback for channel " << channel << " could not be requested. FM is not connected to HW." << endl);
+  SVH_LOG_WARN_STREAM("SVHFingerManager", "Feedback for channel " << channel << " could not be requested. FM is not connected to HW.");
   return false;
 }
 
@@ -802,13 +802,13 @@ bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
     }
 
     // DISABLED as the output was realy spamming everything else :)
-    //LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Channel " << channel << ": position_ticks = " << controller_feedback.position
-    //                << " | cleared_position_ticks = " << cleared_position_ticks << " | position rad = " << position << endl);
+    //SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Channel " << channel << ": position_ticks = " << controller_feedback.position
+    //                << " | cleared_position_ticks = " << cleared_position_ticks << " | position rad = " << position);
     return true;
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Could not get postion for channel " << channel << endl);
+    SVH_LOG_WARN_STREAM("SVHFingerManager", "Could not get postion for channel " << channel);
     return false;
   }
 }
@@ -817,37 +817,37 @@ bool SVHFingerManager::getPosition(const SVHChannel &channel, double &position)
 #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
 void SVHFingerManager::receivedHintMessage(const int &hint)
 {
-  LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Received a special command to clear error :" << hint << endl);
+  SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Received a special command to clear error :" << hint);
   switch (hint)
   {
   case eHT_DEVICE_NOT_FOUND:
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Retrying connection with device handle: " << m_serial_device << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Retrying connection with device handle: " << m_serial_device);
     connect(m_serial_device);
     break;
   case eHT_CONNECTION_FAILED:
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Retrying connection with device handle: " << m_serial_device << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Retrying connection with device handle: " << m_serial_device);
     connect(m_serial_device);
     break;
   case eHT_NOT_RESETTED:
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Resetting ALL fingers " << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Resetting ALL fingers ");
     resetChannel(eSVH_ALL);
     break;
   case eHT_NOT_CONNECTED:
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Retrying connection with device handle: " << m_serial_device << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Retrying connection with device handle: " << m_serial_device);
     connect(m_serial_device);
     break;
   case eHT_RESET_FAILED:
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Resetting ALL fingers " << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Resetting ALL fingers ");
     resetChannel(eSVH_ALL);
     break;
   case eHT_CHANNEL_SWITCHED_OF:
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "No specific action associated with command" << hint << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "No specific action associated with command" << hint);
     break;
   case eHT_DANGEROUS_CURRENTS:
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "No specific action associated with command" << hint << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "No specific action associated with command" << hint);
     break;
   default:
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Special error clearing command " << hint << " could not be mapped. No action is taken please contact support if this happens." << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "Special error clearing command " << hint << " could not be mapped. No action is taken please contact support if this happens.");
     break;
   }
 }
@@ -878,7 +878,7 @@ void SVHFingerManager::updateWebSocket()
       // One of the few places we actually need to call the sendstate as this function is periodically called by the feedback polling thread
       if (!m_ws_broadcaster->sendState())
       {
-        //LOGGING_INFO_C(DriverSVH, SVHFingerManager, "Can't send ws_broadcaster state - reconnect pending..." << endl);
+        //SVH_LOG_INFO_STREAM("SVHFingerManager", "Can't send ws_broadcaster state - reconnect pending...");
       }
     }
   }
@@ -900,7 +900,7 @@ bool SVHFingerManager::getCurrent(const SVHChannel &channel, double &current)
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Could not get current for channel " << channel << endl);
+    SVH_LOG_WARN_STREAM("SVHFingerManager", "Could not get current for channel " << channel);
     return false;
   }
 }
@@ -946,14 +946,14 @@ bool SVHFingerManager::setAllTargetPositions(const std::vector<double>& position
       }
       else
       {
-        LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Could not set target position vector: At least one channel is out of bounds!" << endl);
+        SVH_LOG_WARN_STREAM("SVHFingerManager", "Could not set target position vector: At least one channel is out of bounds!");
         return false;
       }
 
     }
     else
     {
-      LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Size of target position vector wrong: size = " << positions.size() << " expected size = " << (int)eSVH_DIMENSION << endl);
+      SVH_LOG_WARN_STREAM("SVHFingerManager", "Size of target position vector wrong: size = " << positions.size() << " expected size = " << (int)eSVH_DIMENSION);
       return false;
     }
   }
@@ -961,7 +961,7 @@ bool SVHFingerManager::setAllTargetPositions(const std::vector<double>& position
   {
     if (!m_connection_feedback_given)
     {
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not set target position vector: No connection to SCHUNK five finger hand!" << endl);
+      SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not set target position vector: No connection to SCHUNK five finger hand!");
       m_connection_feedback_given = true;
     }
     return false;
@@ -977,7 +977,7 @@ bool SVHFingerManager::setTargetPosition(const SVHChannel &channel, double posit
       if (m_is_switched_off[channel])
       {
         // Switched off channels  behave transparent so we return a true value while we ignore the input
-        LOGGING_TRACE_C(DriverSVH, SVHFingerManager, "Target position for channel " << channel << " was ignored as it is switched off by the user"<< endl);
+        SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Target position for channel " << channel << " was ignored as it is switched off by the user");
         return true;
       }
 
@@ -987,7 +987,7 @@ bool SVHFingerManager::setTargetPosition(const SVHChannel &channel, double posit
         int32_t target_position = convertRad2Ticks(channel, position);
 
         //Disabled as the output will spam everything
-        //LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Target position for channel " << channel << " = " << target_position << endl);
+        //SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Target position for channel " << channel << " = " << target_position);
 
         // check for bounds
         if (isInsideBounds(channel, target_position))
@@ -1002,19 +1002,19 @@ bool SVHFingerManager::setTargetPosition(const SVHChannel &channel, double posit
         }
         else
         {
-          LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Target position for channel " << channel << " out of bounds!" << endl);
+          SVH_LOG_ERROR_STREAM("SVHFingerManager", "Target position for channel " << channel << " out of bounds!");
           return false;
         }
       }
       else
       {
-        LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not set target position for channel " << channel << ": Reset first!" << endl);
+        SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not set target position for channel " << channel << ": Reset first!");
         return false;
       }
     }
     else
     {
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not set target position for channel " << channel << ": Illegal Channel" << endl);
+      SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not set target position for channel " << channel << ": Illegal Channel");
       return false;
     }
   }
@@ -1023,7 +1023,7 @@ bool SVHFingerManager::setTargetPosition(const SVHChannel &channel, double posit
     // Give the Warning about no Connection exactly once! Otherwise this will immediately spam the log
     if (!m_connection_feedback_given)
     {
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not set target position for channel " << channel << ": No connection to SCHUNK five finger hand!" << endl);
+      SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not set target position for channel " << channel << ": No connection to SCHUNK five finger hand!");
       m_connection_feedback_given = true;
     }
     return false;
@@ -1042,7 +1042,7 @@ bool SVHFingerManager::isEnabled(const SVHChannel &channel)
       // disabled for now, to noisy
 //      if (!isEnabled(static_cast<SVHChannel>(i)))
 //      {
-//        LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "All finger enabled check failed: Channel: " << channel << " : " << SVHController::m_channel_description[i] << " is not enabled" << endl);
+//        SVH_LOG_WARN_STREAM("SVHFingerManager", "All finger enabled check failed: Channel: " << channel << " : " << SVHController::m_channel_description[i] << " is not enabled");
 //      }
     }
 
@@ -1062,7 +1062,7 @@ bool SVHFingerManager::isEnabled(const SVHChannel &channel)
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "isEnabled was requested for UNKNOWN Channel: " << channel << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "isEnabled was requested for UNKNOWN Channel: " << channel);
     return false;
   }
 }
@@ -1077,7 +1077,7 @@ bool SVHFingerManager::isHomed(const SVHChannel &channel)
       all_homed = all_homed && isHomed(static_cast<SVHChannel>(i));
       if (!isHomed(static_cast<SVHChannel>(i)))
       {
-        LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "All finger homed check failed: Channel: " << i << " : " << SVHController::m_channel_description[i] << " is not homed" << endl);
+        SVH_LOG_WARN_STREAM("SVHFingerManager", "All finger homed check failed: Channel: " << i << " : " << SVHController::m_channel_description[i] << " is not homed");
       }
     }
 
@@ -1090,7 +1090,7 @@ bool SVHFingerManager::isHomed(const SVHChannel &channel)
   }
   else //should not happen but better be save than sorry
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "isHomed was requested for UNKNOWN Channel: " << channel << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "isHomed was requested for UNKNOWN Channel: " << channel);
     return false;
   }
 }
@@ -1115,7 +1115,7 @@ bool SVHFingerManager::getCurrentSettings(const SVHChannel &channel, SVHCurrentS
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not get current settings for unknown/unsupported channel " << channel << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not get current settings for unknown/unsupported channel " << channel);
     return false;
   }
 }
@@ -1128,7 +1128,7 @@ bool SVHFingerManager::getPositionSettings(const SVHChannel &channel, SVHPositio
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not get position settings for unknown/unsupported channel " << channel << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not get position settings for unknown/unsupported channel " << channel);
     return false;
   }
 }
@@ -1142,7 +1142,7 @@ bool SVHFingerManager::getHomeSettings(const SVHChannel &channel, SVHHomeSetting
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not get home settings for unknown/unsupported channel " << channel << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not get home settings for unknown/unsupported channel " << channel);
     return false;
   }
 }
@@ -1153,7 +1153,7 @@ bool SVHFingerManager::currentSettingsAreSafe(const SVHChannel &channel,const SV
 
   if(!isEnabled(eSVH_ALL))
   {
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Fingers are not all enabled -> no safety tests" << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Fingers are not all enabled -> no safety tests");
     // befor the fingers are homed no finger-data are valid
     return true;
   }
@@ -1161,17 +1161,17 @@ bool SVHFingerManager::currentSettingsAreSafe(const SVHChannel &channel,const SV
   if (current_settings.wmx <= m_max_current_percentage *
       std::max(m_diagnostic_current_maximum[channel], std::abs(m_diagnostic_position_minimum[channel])))
   {
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager, "Current settings are safe!" << endl);
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Current settings are safe!");
     settingsAreSafe = true;
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Current value given: "
-            <<  current_settings.wmx << " is not valid." << endl);
-    LOGGING_DEBUG_C(DriverSVH, SVHFingerManager," Please provide values between "
+    SVH_LOG_WARN_STREAM("SVHFingerManager", "Current value given: "
+            <<  current_settings.wmx << " is not valid.");
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager"," Please provide values between "
             << " 0 - " << m_max_current_percentage * std::max(m_diagnostic_current_maximum[channel], std::abs(m_diagnostic_position_minimum[channel]))
             << " [mA] or 0 - " << convertmAtoN(channel, m_max_current_percentage * std::max(m_diagnostic_current_maximum[channel], std::abs(m_diagnostic_position_minimum[channel])))
-            << " [N]" << endl);
+            << " [N]");
   }
 
   return settingsAreSafe;
@@ -1186,8 +1186,8 @@ bool SVHFingerManager::setCurrentSettings(const SVHChannel &channel, const SVHCu
     // For now we will prefent current settings with more current than possible
     if (!currentSettingsAreSafe(channel,current_settings))
     {
-      // LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "WARNING!!! Current Controller Params for channel " << channel << " are dangerous! THIS MIGHT DAMAGE YOUR HARDWARE!!!" << endl);
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "WARNING!!! Current Controller Params for channel " << channel << " would be dangerous! Currents are limited!!!" << endl);
+      // SVH_LOG_ERROR_STREAM("SVHFingerManager", "WARNING!!! Current Controller Params for channel " << channel << " are dangerous! THIS MIGHT DAMAGE YOUR HARDWARE!!!");
+      SVH_LOG_ERROR_STREAM("SVHFingerManager", "WARNING!!! Current Controller Params for channel " << channel << " would be dangerous! Currents are limited!!!");
 #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
       if (m_ws_broadcaster)
       {
@@ -1211,7 +1211,7 @@ bool SVHFingerManager::setCurrentSettings(const SVHChannel &channel, const SVHCu
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not set Current Controller Params for channel " << channel << ": No such channel" << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not set Current Controller Params for channel " << channel << ": No such channel");
     return false;
   }
 }
@@ -1236,7 +1236,7 @@ bool SVHFingerManager::setPositionSettings(const SVHChannel &channel, const SVHP
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not set Position Controller Params for channel " << channel << ": No such channel" << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not set Position Controller Params for channel " << channel << ": No such channel");
     return false;
   }
 }
@@ -1248,10 +1248,10 @@ bool SVHFingerManager::setHomeSettings(const SVHChannel &channel, const driver_s
   {
     // First of save the values
     m_home_settings[channel] = home_settings;
-    LOGGING_TRACE_C(DriverSVH,SVHFingerManager, "Channel " << channel << " setting new homing settings : ");
-    LOGGING_TRACE_C(DriverSVH,SVHFingerManager, "Direction " << home_settings.direction << " " << "Min offset " << home_settings.minimumOffset << " "
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Channel " << channel << " setting new homing settings : ");
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Direction " << home_settings.direction << " " << "Min offset " << home_settings.minimumOffset << " "
                                              << "Max offset "<< home_settings.maximumOffset << " " << "idle pos "  << home_settings.idlePosition  << " "
-                                             << "Range Rad " << home_settings.rangeRad << " " << "Reset Curr Factor " << home_settings.resetCurrentFactor << " " << endl
+                                             << "Range Rad " << home_settings.rangeRad << " " << "Reset Curr Factor " << home_settings.resetCurrentFactor << " "
                     );
 
     // Update the conversion factor for this finger:
@@ -1262,7 +1262,7 @@ bool SVHFingerManager::setHomeSettings(const SVHChannel &channel, const driver_s
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not set homing settings for channel " << channel << ": No such channel" << endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not set homing settings for channel " << channel << ": No such channel");
     return false;
   }
 }
@@ -1282,7 +1282,7 @@ bool SVHFingerManager::resetDiagnosticData(const SVHChannel &channel)
       m_diagnostic_position_minimum[i] = 0.0;
       m_diagnostic_deadlock[i] = 0.0;
     }
-    LOGGING_TRACE_C(DriverSVH,SVHFingerManager, "Diagnostic data for all channel reseted successfully");
+    SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Diagnostic data for all channel reseted successfully");
     return true;
   }
   else
@@ -1295,12 +1295,12 @@ bool SVHFingerManager::resetDiagnosticData(const SVHChannel &channel)
       m_diagnostic_current_minimum[channel] = 0.0;
       m_diagnostic_position_maximum[channel] = 0.0;
       m_diagnostic_position_minimum[channel] = 0.0;
-      LOGGING_TRACE_C(DriverSVH,SVHFingerManager, "Diagnostic data for channel " << channel << " reseted successfully");
+      SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Diagnostic data for channel " << channel << " reseted successfully");
       return true;
     }
     else
     {
-      LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Could not reset diagnostic data for channel " << channel << ": No such channel" << endl);
+      SVH_LOG_ERROR_STREAM("SVHFingerManager", "Could not reset diagnostic data for channel " << channel << ": No such channel");
       return false;
     }
   }
@@ -1433,7 +1433,7 @@ void driver_svh::SVHFingerManager::setResetSpeed(const float &speed)
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "The reset speed value given: "<< speed << " is not valid. Please provide a value between 0.0 and 1.0, default is 0.2"<< endl);
+    SVH_LOG_ERROR_STREAM("SVHFingerManager", "The reset speed value given: "<< speed << " is not valid. Please provide a value between 0.0 and 1.0, default is 0.2");
   }
 }
 
@@ -1514,7 +1514,7 @@ bool SVHFingerManager::isInsideBounds(const SVHChannel &channel, const int32_t &
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Channel" << channel << " : " << SVHController::m_channel_description[channel]  << " Target: " << target_position << "(" << convertTicks2Rad(channel,target_position) << "rad)" << " is out of bounds! [" << m_position_min[channel] << "/" << m_position_max[channel] << "]"  << endl);
+    SVH_LOG_WARN_STREAM("SVHFingerManager", "Channel" << channel << " : " << SVHController::m_channel_description[channel]  << " Target: " << target_position << "(" << convertTicks2Rad(channel,target_position) << "rad)" << " is out of bounds! [" << m_position_min[channel] << "/" << m_position_max[channel] << "]");
     return false;
   }
 }
@@ -1538,7 +1538,7 @@ bool SVHFingerManager::setMaxForce(float max_force)
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHFingerManager, "Maximal Force / current should be in the range of [0,1], was set to: " << max_force << endl);
+    SVH_LOG_WARN_STREAM("SVHFingerManager", "Maximal Force / current should be in the range of [0,1], was set to: " << max_force);
     return false;
   }
 }
@@ -1578,7 +1578,7 @@ SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name, c
       was_connected = false;
       if(!m_controller->connect(dev_name))
       {
-        LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Connection FAILED! Device could NOT be opened" << endl);
+        SVH_LOG_ERROR_STREAM("SVHFingerManager", "Connection FAILED! Device could NOT be opened");
         m_firmware_info.version_major = 0;
         m_firmware_info.version_minor = 0;
         return m_firmware_info;
@@ -1605,7 +1605,7 @@ SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string &dev_name, c
 
       if (m_firmware_info.version_major == 0 && m_firmware_info.version_major == 0)
       {
-        LOGGING_ERROR_C(DriverSVH, SVHFingerManager, "Getting Firmware Version failed,.Retrying, count: " << retry_count << endl);
+        SVH_LOG_ERROR_STREAM("SVHFingerManager", "Getting Firmware Version failed,.Retrying, count: " << retry_count);
       }
     }
     while(retry_count > 0 && m_firmware_info.version_major == 0 && m_firmware_info.version_major == 0);
@@ -1638,7 +1638,7 @@ void SVHFingerManager::pollFeedback()
     }
     else
     {
-      LOGGING_WARNING_C(DriverSVH, SVHFeedbackPollingThread, "SCHUNK five finger hand is not connected!" << endl);
+      SVH_LOG_WARN_STREAM("SVHFeedbackPollingThread", "SCHUNK five finger hand is not connected!");
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }

@@ -77,7 +77,7 @@ void SVHReceiveThread::run()
       }
       else
       {
-        LOGGING_WARNING_C(DriverSVH, SVHReceiveThread, "Cannot read data from serial device. It is not opened!" << endl);
+        SVH_LOG_WARN_STREAM("SVHReceiveThread", "Cannot read data from serial device. It is not opened!");
         std::this_thread::sleep_for(m_idle_sleep);  // we can neglect the processing time to get here
       }
     }
@@ -106,7 +106,7 @@ bool SVHReceiveThread::receiveData()
   int bytes = m_serial_device->Read(&data_byte, sizeof(uint8_t));
   if (bytes < 0)
   {
-    LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Serial read error:" << bytes << endl );
+    SVH_LOG_DEBUG_STREAM("SVHReceiveThread", "Serial read error:" << bytes);
     return false;
   }
   if (bytes < 1)
@@ -226,8 +226,8 @@ bool SVHReceiveThread::receiveData()
 
         m_packets_received++;
 
-        if(m_skipped_bytes>0)LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Skipped "<<m_skipped_bytes<<" bytes "<< endl);
-        LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Received packet index:" << received_packet.index <<", address:"<<received_packet.address<<", size:"<<received_packet.data.size() << endl);
+        if(m_skipped_bytes>0)SVH_LOG_DEBUG_STREAM("SVHReceiveThread", "Skipped "<<m_skipped_bytes<<" bytes ");
+        SVH_LOG_DEBUG_STREAM("SVHReceiveThread", "Received packet index:" << received_packet.index <<", address:"<<received_packet.address<<", size:"<<received_packet.data.size());
         m_skipped_bytes=0;
 
         // notify whoever is waiting for this
@@ -245,8 +245,8 @@ bool SVHReceiveThread::receiveData()
         SVHSerialPacket received_packet(m_length);
         m_ab >> received_packet;
 
-        if(m_skipped_bytes>0)LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Skipped "<<m_skipped_bytes<<" bytes: "<< endl);
-        LOGGING_TRACE_C(DriverSVH, SVHReceiveThread, "Checksum error: "<< (int)checksum1<<","<<(int)checksum2<<"!=0, skipping "<<m_length+8<<"bytes, packet index:" << received_packet.index <<", address:"<<received_packet.address<<", size:"<<received_packet.data.size() << endl);
+        if(m_skipped_bytes>0)SVH_LOG_DEBUG_STREAM("SVHReceiveThread", "Skipped "<<m_skipped_bytes<<" bytes: ");
+        SVH_LOG_DEBUG_STREAM("SVHReceiveThread", "Checksum error: "<< (int)checksum1<<","<<(int)checksum2<<"!=0, skipping "<<m_length+8<<"bytes, packet index:" << received_packet.index <<", address:"<<received_packet.address<<", size:"<<received_packet.data.size());
         m_skipped_bytes=0;
         if (m_received_callback)
         {

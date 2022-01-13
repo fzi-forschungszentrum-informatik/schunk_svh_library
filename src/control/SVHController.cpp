@@ -88,7 +88,7 @@ SVHController::SVHController():
   m_enable_mask(0),
   m_received_package_count(0)
 {
-  LOGGING_TRACE_C(DriverSVH, SVHController, "SVH Controller started"<< endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "SVH Controller started");
   m_firmware_info.version_major = 0;
   m_firmware_info.version_minor = 0;
 }
@@ -102,28 +102,28 @@ SVHController::~SVHController()
     m_serial_interface = NULL;
   }
 
-  LOGGING_DEBUG_C(DriverSVH, SVHController, "SVH Controller terminated" << endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "SVH Controller terminated");
 }
 
 bool SVHController::connect(const std::string &dev_name)
 {
-  LOGGING_DEBUG_C(DriverSVH, SVHController, "Connect was called, starting the serial interface..." << endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Connect was called, starting the serial interface...");
   if (m_serial_interface != NULL)
   {
     bool success = m_serial_interface->connect(dev_name);
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "Connect finished " << ((success)?"succesfully":"with an error") << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "Connect finished " << ((success)?"succesfully":"with an error"));
     return success ;
   }
   else
   {
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "Connect failed" << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "Connect failed");
     return false;
   }
 }
 
 void SVHController::disconnect()
 {
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Disconnect called, disabling all channels and closing interface..."<< endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Disconnect called, disabling all channels and closing interface...");
   if (m_serial_interface != NULL && m_serial_interface->isConnected())
   {
     // Disable all channels
@@ -134,7 +134,7 @@ void SVHController::disconnect()
   m_firmware_info.version_major = 0;
   m_firmware_info.version_minor = 0;
 
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Disconnect finished"<< endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Disconnect finished");
 }
 
 void SVHController::setControllerTarget(const SVHChannel& channel, const int32_t& position)
@@ -152,11 +152,11 @@ void SVHController::setControllerTarget(const SVHChannel& channel, const int32_t
     m_serial_interface ->sendPacket(serial_packet);
 
     // Debug Disabled as it is way to noisy
-    LOGGING_TRACE_C(DriverSVH, SVHController, "Control command was given for channel: "<< channel << "Driving motor to position: "<< position << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "Control command was given for channel: "<< channel << "Driving motor to position: "<< position);
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "Control command was given for unknown (or all) channel: "<< channel << "- ignoring request"<< endl);
+    SVH_LOG_WARN_STREAM("SVHController", "Control command was given for unknown (or all) channel: "<< channel << "- ignoring request");
   }
 }
 
@@ -172,14 +172,14 @@ void SVHController::setControllerTargetAllChannels(const std::vector<int32_t> &p
    m_serial_interface ->sendPacket(serial_packet);
 
    // Debug Disabled as it is way to noisy
-   LOGGING_TRACE_C(DriverSVH, SVHController, "Control command was given for all channels: Driving motors to positions: "<< positions[0] << " , " << positions[1] << " , " << positions[2] << " , " << positions[3] << " , " << positions[4] << " , " << positions[5] << " , " << positions[6] << " , " << positions[7] << " , " << positions[8] << " , " << endl);
+   SVH_LOG_DEBUG_STREAM("SVHController", "Control command was given for all channels: Driving motors to positions: "<< positions[0] << " , " << positions[1] << " , " << positions[2] << " , " << positions[3] << " , " << positions[4] << " , " << positions[5] << " , " << positions[6] << " , " << positions[7] << " , " << positions[8] << " , ");
   }
   // We could theoretically allow fewer channels but this leaves some questions. Are the given channels in right order?
   // was it realy intented to just give fewer positions? What to do with the ones that did not get anything?
   // Just disallowing it seems to be the most understandable decision.
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "Control command was given for all channels but with to few points. Expected at least "<< eSVH_DIMENSION << " values but only got " << positions.size() << "use the individual setTarget function for this" << endl);
+    SVH_LOG_WARN_STREAM("SVHController", "Control command was given for all channels but with to few points. Expected at least "<< eSVH_DIMENSION << " values but only got " << positions.size() << "use the individual setTarget function for this");
   }
 }
 
@@ -189,13 +189,13 @@ void SVHController::enableChannel(const SVHChannel &channel)
   SVHControllerState controller_state;
   ArrayBuilder ab(40);
 
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Enable of channel " << channel << " requested."<< endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Enable of channel " << channel << " requested.");
 
   // In case no channel was enabled we need to enable the 12V dc drivers first
   if (m_enable_mask == 0)
   {
-    LOGGING_TRACE_C(DriverSVH, SVHController, "Enable was called and no channel was previously activated, commands are sent individually......" << endl);
-    LOGGING_TRACE_C(DriverSVH, SVHController, "Sending pwm_fault and pwm_otw...(0x001F) to reset software warnings" << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "Enable was called and no channel was previously activated, commands are sent individually......");
+    SVH_LOG_DEBUG_STREAM("SVHController", "Sending pwm_fault and pwm_otw...(0x001F) to reset software warnings");
     // Reset faults and overtemperature warnings saved in the controller
     controller_state.pwm_fault = 0x001F;
     controller_state.pwm_otw   = 0x001F;
@@ -207,7 +207,7 @@ void SVHController::enableChannel(const SVHChannel &channel)
     // Small delays seem to make communication at this point more reliable although they SHOULD NOT be necessary
     std::this_thread::sleep_for(std::chrono::microseconds(2000));
 
-    LOGGING_TRACE_C(DriverSVH, SVHController, "Enabling 12V Driver (pwm_reset and pwm_active = 0x0200)..." << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "Enabling 12V Driver (pwm_reset and pwm_active = 0x0200)...");
     // enable +12v supply driver
     controller_state.pwm_reset = 0x0200;
     controller_state.pwm_active = 0x0200;
@@ -218,7 +218,7 @@ void SVHController::enableChannel(const SVHChannel &channel)
 
     std::this_thread::sleep_for(std::chrono::microseconds(2000));
 
-     LOGGING_TRACE_C(DriverSVH, SVHController, "Enabling pos_ctrl and cur_ctrl..." << endl);
+     SVH_LOG_DEBUG_STREAM("SVHController", "Enabling pos_ctrl and cur_ctrl...");
     // enable controller
     controller_state.pos_ctrl = 0x0001;
     controller_state.cur_ctrl = 0x0001;
@@ -229,13 +229,13 @@ void SVHController::enableChannel(const SVHChannel &channel)
 
     std::this_thread::sleep_for(std::chrono::microseconds(2000));
 
-    LOGGING_TRACE_C(DriverSVH, SVHController, "...Done" << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "...Done");
   }
 
   // enable actual channels (again we only accept individual channels for safety)
   if (channel >=0 && channel < eSVH_DIMENSION)
   {
-    LOGGING_TRACE_C(DriverSVH, SVHController, "Enabling motor: "<< channel << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "Enabling motor: "<< channel);
     // oring all channels to create the activation mask-> high = channel active
     m_enable_mask |= (1<<channel);
 
@@ -262,18 +262,18 @@ void SVHController::enableChannel(const SVHChannel &channel)
     m_serial_interface ->sendPacket(serial_packet);
     ab.reset(40);
 
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "Enabled channel: " << channel << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "Enabled channel: " << channel);
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHController, "Activation request for ALL or unknown channel: "<< channel << "- ignoring request"<< endl);
+    SVH_LOG_ERROR_STREAM("SVHController", "Activation request for ALL or unknown channel: "<< channel << "- ignoring request");
   }
 
 }
 
 void SVHController::disableChannel(const SVHChannel& channel)
 {
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Disable of channel " << channel << " requested."<< endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Disable of channel " << channel << " requested.");
 
   if (m_serial_interface != NULL && m_serial_interface->isConnected())
   {
@@ -294,7 +294,7 @@ void SVHController::disableChannel(const SVHChannel& channel)
       serial_packet.data = ab.array;
       m_serial_interface->sendPacket(serial_packet);
 
-      LOGGING_DEBUG_C(DriverSVH, SVHController, "Disabled all channels"<< endl);
+      SVH_LOG_DEBUG_STREAM("SVHController", "Disabled all channels");
     }
     else if (channel >=0 && channel < eSVH_DIMENSION)
     {
@@ -315,22 +315,22 @@ void SVHController::disableChannel(const SVHChannel& channel)
       serial_packet.data = ab.array;
       m_serial_interface->sendPacket(serial_packet);
 
-      LOGGING_DEBUG_C(DriverSVH, SVHController, "Disabled channel: " << channel << endl);
+      SVH_LOG_DEBUG_STREAM("SVHController", "Disabled channel: " << channel);
     }
     else
     {
-      LOGGING_WARNING_C(DriverSVH, SVHController, "Disable was requestet for unknown channel: "<< channel << "- ignoring request" << endl);
+      SVH_LOG_WARN_STREAM("SVHController", "Disable was requestet for unknown channel: "<< channel << "- ignoring request");
     }
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHController, "Disabling Channel not possible. Serial interface is not connected!" << endl);
+    SVH_LOG_ERROR_STREAM("SVHController", "Disabling Channel not possible. Serial interface is not connected!");
   }
 }
 
 void SVHController::requestControllerState()
 {
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Requesting ControllerStatefrom Hardware"<< endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Requesting ControllerStatefrom Hardware");
   SVHSerialPacket serial_packet(40,SVH_GET_CONTROLLER_STATE);
   m_serial_interface ->sendPacket(serial_packet);
 }
@@ -343,7 +343,7 @@ void SVHController::requestControllerFeedback(const SVHChannel& channel)
     m_serial_interface ->sendPacket(serial_packet);
 
     // Disabled as it spams the output to much
-    LOGGING_TRACE_C(DriverSVH, SVHController, "Controller feedback was requested for channel: "<< channel << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "Controller feedback was requested for channel: "<< channel);
 
   }
   else if (channel == eSVH_ALL)
@@ -352,17 +352,17 @@ void SVHController::requestControllerFeedback(const SVHChannel& channel)
     m_serial_interface ->sendPacket(serial_packet);
 
     // Disabled as it spams the output to much
-    LOGGING_TRACE_C(DriverSVH, SVHController, "Controller feedback was requested for all channels " << endl);
+    SVH_LOG_DEBUG_STREAM("SVHController", "Controller feedback was requested for all channels ");
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "Controller feedback was requestet for unknown channel: "<< channel << "- ignoring request"<< endl);
+    SVH_LOG_WARN_STREAM("SVHController", "Controller feedback was requestet for unknown channel: "<< channel << "- ignoring request");
   }
 }
 
 void SVHController::requestPositionSettings(const SVHChannel& channel)
 {
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Requesting PositionSettings from Hardware for channel: " << channel << endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Requesting PositionSettings from Hardware for channel: " << channel);
   SVHSerialPacket serial_packet(40,(SVH_GET_POSITION_SETTINGS| static_cast<uint8_t>(channel << 4)));
   m_serial_interface ->sendPacket(serial_packet);
 }
@@ -380,22 +380,22 @@ void SVHController::setPositionSettings(const SVHChannel& channel,const SVHPosit
     // Save already in case we dont get immediate response
     m_position_settings[channel] = position_settings;
 
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "Position controller settings where send to change channel: "<< channel << " : ");
-    LOGGING_DEBUG_C(DriverSVH, SVHController,  "wmn " << position_settings.wmn << " " << "wmx " << position_settings.wmx << " " << "dwmx "<< position_settings.dwmx << " "
+    SVH_LOG_DEBUG_STREAM("SVHController", "Position controller settings where send to change channel: "<< channel << " : ");
+    SVH_LOG_DEBUG_STREAM("SVHController",  "wmn " << position_settings.wmn << " " << "wmx " << position_settings.wmx << " " << "dwmx "<< position_settings.dwmx << " "
                                             << "ky "  << position_settings.ky  << " " << "dt "  << position_settings.dt  << " " << "imn " << position_settings.imn << " "
                                             << "imx " << position_settings.imx << " " << "kp "  << position_settings.kp  << " " << "ki "  << position_settings.ki  << " "
-                                            << "kd "  << position_settings.kd << " " << endl );
+                                            << "kd "  << position_settings.kd << " ");
 
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "Position controller settings where given for unknown channel: "<< channel << "- ignoring request"<< endl);
+    SVH_LOG_WARN_STREAM("SVHController", "Position controller settings where given for unknown channel: "<< channel << "- ignoring request");
   }
 }
 
 void SVHController::requestCurrentSettings(const SVHChannel& channel)
 {
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Requesting CurrentSettings for channel: " << channel << endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Requesting CurrentSettings for channel: " << channel);
 
   if ((channel != eSVH_ALL) && (channel >=0 && channel < eSVH_DIMENSION))
   {
@@ -404,7 +404,7 @@ void SVHController::requestCurrentSettings(const SVHChannel& channel)
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "Get Current Settings can only be requested with a specific channel, ALL or unknown channel:" << channel << "was selected " << endl);
+    SVH_LOG_WARN_STREAM("SVHController", "Get Current Settings can only be requested with a specific channel, ALL or unknown channel:" << channel << "was selected ");
   }
 }
 
@@ -421,35 +421,34 @@ void SVHController::setCurrentSettings(const SVHChannel& channel,const SVHCurren
     // Save already in case we dont get immediate response
     m_current_settings[channel] = current_settings;
 
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "Current controller settings where send to change channel: "<< channel << " : ");
-    LOGGING_DEBUG_C(DriverSVH, SVHController, "wmn "<< current_settings.wmn << " " << "wmx "<< current_settings.wmx << " " << "ky " << current_settings.ky  << " "
+    SVH_LOG_DEBUG_STREAM("SVHController", "Current controller settings where send to change channel: "<< channel << " : ");
+    SVH_LOG_DEBUG_STREAM("SVHController", "wmn "<< current_settings.wmn << " " << "wmx "<< current_settings.wmx << " " << "ky " << current_settings.ky  << " "
                                            << "dt " << current_settings.dt  << " " << "imn "<< current_settings.imn << " " << "imx "<< current_settings.imx << " "
                                            << "kp " << current_settings.kp  << " " << "ki " << current_settings.ki  << " " << "umn "<< current_settings.umn << " "
-                                           << "umx "<< current_settings.umx << endl);
+                                           << "umx "<< current_settings.umx);
 
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "Current controller settings where given for unknown channel: "<< channel << "- ignoring request"<< endl);
+    SVH_LOG_WARN_STREAM("SVHController", "Current controller settings where given for unknown channel: "<< channel << "- ignoring request");
   }
 }
 
 void SVHController::requestEncoderValues()
 {
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Requesting EncoderValues from hardware"<< endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Requesting EncoderValues from hardware");
   SVHSerialPacket serial_packet(40,SVH_GET_ENCODER_VALUES);
   m_serial_interface ->sendPacket(serial_packet);
 }
 
 void SVHController::setEncoderValues(const SVHEncoderSettings &encoder_settings)
 {
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Setting new Encoder values : ");
+  SVH_LOG_DEBUG_STREAM("SVHController", "Setting new Encoder values : ");
   for (size_t i = 0; i < encoder_settings.scalings.size(); i++)
   {
     // log stream unfortunately does not support the standard to stream operators yet
-    LOGGING_TRACE_C(DriverSVH, SVHController, "[" << (int)i << "] " << ": " <<encoder_settings.scalings[i] << " " );
+    SVH_LOG_DEBUG_STREAM("SVHController", "[" << (int)i << "] " << ": " <<encoder_settings.scalings[i] << " " );
   }
-  LOGGING_TRACE_C(DriverSVH, SVHController, endl);
 
   SVHSerialPacket serial_packet(0,SVH_SET_ENCODER_VALUES);
   ArrayBuilder ab;
@@ -463,7 +462,7 @@ void SVHController::setEncoderValues(const SVHEncoderSettings &encoder_settings)
 
 void SVHController::requestFirmwareInfo()
 {
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Requesting firmware Information from hardware" << endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Requesting firmware Information from hardware");
 
   SVHSerialPacket serial_packet(40,SVH_GET_FIRMWARE_INFO);
   m_serial_interface->sendPacket(serial_packet);
@@ -491,11 +490,11 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
         //std::cout << "Recieved: Controllerfeedback RAW Data: " << ab;
         ab >> m_controller_feedback[channel];
         // Disabled as this is spamming the output to much
-        LOGGING_TRACE_C(DriverSVH, SVHController, "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current << endl);
+        SVH_LOG_DEBUG_STREAM("SVHController", "Received a Control Feedback/Control Command packet for channel "<< channel << " Position: "<< (int)m_controller_feedback[channel].position  << " Current: "<< (int)m_controller_feedback[channel].current);
       }
       else
       {
-        LOGGING_ERROR_C(DriverSVH, SVHController, "Received a Control Feedback/Control Command packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
+        SVH_LOG_ERROR_STREAM("SVHController", "Received a Control Feedback/Control Command packet for ILLEGAL channel "<< channel << "- packet ignored!");
       }
       break;
     case SVH_GET_CONTROL_FEEDBACK_ALL:
@@ -505,7 +504,7 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
       ab >> feedback_all;
       m_controller_feedback = feedback_all.feedbacks;
       // Disabled as this is spannimg the output to much
-      LOGGING_TRACE_C(DriverSVH, SVHController, "Received a Control Feedback/Control Command packet for channel all channels "<<  endl);
+      SVH_LOG_DEBUG_STREAM("SVHController", "Received a Control Feedback/Control Command packet for channel all channels ");
       break;
     case SVH_GET_POSITION_SETTINGS:
     case SVH_SET_POSITION_SETTINGS:
@@ -513,13 +512,13 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
       {
         //std::cout << "Recieved: Postitionsettings RAW Data: " << ab; // for really intensive debugging
         ab >> m_position_settings[channel];
-        LOGGING_TRACE_C(DriverSVH, SVHController, "Received a get/set position setting packet for channel "<< channel  << endl);
-        LOGGING_TRACE_C(DriverSVH, SVHController, "wmn " << m_position_settings[channel].wmn << " "<< "wmx " << m_position_settings[channel].wmx << " "<< "dwmx "<< m_position_settings[channel].dwmx << " "<< "ky "  << m_position_settings[channel].ky  << " "<< "dt "  << m_position_settings[channel].dt  << " "<< "imn " << m_position_settings[channel].imn << " "<< "imx " << m_position_settings[channel].imx << " " << "kp "  << m_position_settings[channel].kp  << " " << "ki "  << m_position_settings[channel].ki  << " " << "kd "  << m_position_settings[channel].kd  << endl);
+        SVH_LOG_DEBUG_STREAM("SVHController", "Received a get/set position setting packet for channel "<< channel);
+        SVH_LOG_DEBUG_STREAM("SVHController", "wmn " << m_position_settings[channel].wmn << " "<< "wmx " << m_position_settings[channel].wmx << " "<< "dwmx "<< m_position_settings[channel].dwmx << " "<< "ky "  << m_position_settings[channel].ky  << " "<< "dt "  << m_position_settings[channel].dt  << " "<< "imn " << m_position_settings[channel].imn << " "<< "imx " << m_position_settings[channel].imx << " " << "kp "  << m_position_settings[channel].kp  << " " << "ki "  << m_position_settings[channel].ki  << " " << "kd "  << m_position_settings[channel].kd);
 
       }
       else
       {
-        LOGGING_ERROR_C(DriverSVH, SVHController, "Received a get/set position setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
+        SVH_LOG_ERROR_STREAM("SVHController", "Received a get/set position setting packet for ILLEGAL channel "<< channel << "- packet ignored!");
       }
       break;
     case SVH_GET_CURRENT_SETTINGS:
@@ -528,12 +527,12 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
       {
         //std::cout << "Recieved: Current Settings RAW Data: " << ab; // for really intensive debugging
         ab >> m_current_settings[channel];
-        LOGGING_TRACE_C(DriverSVH, SVHController, "Received a get/set current setting packet for channel "<< channel << endl);
-        LOGGING_TRACE_C(DriverSVH, SVHController, "wmn "<< m_current_settings[channel].wmn << " " << "wmx "<< m_current_settings[channel].wmx << " " << "ky " << m_current_settings[channel].ky  << " " << "dt " << m_current_settings[channel].dt  << " " << "imn "<< m_current_settings[channel].imn << " " << "imx "<< m_current_settings[channel].imx << " "                   << "kp " << m_current_settings[channel].kp  << " " << "ki " << m_current_settings[channel].ki  << " " << "umn "<< m_current_settings[channel].umn << " " << "umx "<< m_current_settings[channel].umx << " "<< endl);
+        SVH_LOG_DEBUG_STREAM("SVHController", "Received a get/set current setting packet for channel "<< channel);
+        SVH_LOG_DEBUG_STREAM("SVHController", "wmn "<< m_current_settings[channel].wmn << " " << "wmx "<< m_current_settings[channel].wmx << " " << "ky " << m_current_settings[channel].ky  << " " << "dt " << m_current_settings[channel].dt  << " " << "imn "<< m_current_settings[channel].imn << " " << "imx "<< m_current_settings[channel].imx << " "                   << "kp " << m_current_settings[channel].kp  << " " << "ki " << m_current_settings[channel].ki  << " " << "umn "<< m_current_settings[channel].umn << " " << "umx "<< m_current_settings[channel].umx << " ");
       }
       else
       {
-        LOGGING_ERROR_C(DriverSVH, SVHController, "Received a get/set current setting packet for ILLEGAL channel "<< channel << "- packet ignored!" << endl);
+        SVH_LOG_ERROR_STREAM("SVHController", "Received a get/set current setting packet for ILLEGAL channel "<< channel << "- packet ignored!");
       }
       break;
     case SVH_GET_CONTROLLER_STATE:
@@ -541,22 +540,21 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
         //std::cout << "Recieved: Controller State RAW Data: " << ab; // for really intensive debugging
         ab >> m_controller_state;
         //std::cout << "Received controllerState interpreded data: "<< m_controller_state << std::endl; // for really intensive debugging
-        LOGGING_TRACE_C(DriverSVH, SVHController, "Received a get/set controler state packet " << endl);
-        LOGGING_TRACE_C(DriverSVH, SVHController, "Controllerstate (NO HEX):" << "pwm_fault " << "0x" << static_cast<int>(m_controller_state.pwm_fault) << " " << "pwm_otw " << "0x" << static_cast<int>(m_controller_state.pwm_otw) << " "  << "pwm_reset " << "0x" << static_cast<int>(m_controller_state.pwm_reset) << " " << "pwm_active " << "0x" << static_cast<int>(m_controller_state.pwm_active) << " " << "pos_ctr " << "0x" <<  static_cast<int>(m_controller_state.pos_ctrl) << " " << "cur_ctrl " << "0x" << static_cast<int>(m_controller_state.cur_ctrl) << endl);
+        SVH_LOG_DEBUG_STREAM("SVHController", "Received a get/set controler state packet ");
+        SVH_LOG_DEBUG_STREAM("SVHController", "Controllerstate (NO HEX):" << "pwm_fault " << "0x" << static_cast<int>(m_controller_state.pwm_fault) << " " << "pwm_otw " << "0x" << static_cast<int>(m_controller_state.pwm_otw) << " "  << "pwm_reset " << "0x" << static_cast<int>(m_controller_state.pwm_reset) << " " << "pwm_active " << "0x" << static_cast<int>(m_controller_state.pwm_active) << " " << "pos_ctr " << "0x" <<  static_cast<int>(m_controller_state.pos_ctrl) << " " << "cur_ctrl " << "0x" << static_cast<int>(m_controller_state.cur_ctrl));
       break;
     case SVH_GET_ENCODER_VALUES:
     case SVH_SET_ENCODER_VALUES:
-        LOGGING_TRACE_C(DriverSVH, SVHController, "Received a get/set encoder settings packet " << endl);
+        SVH_LOG_DEBUG_STREAM("SVHController", "Received a get/set encoder settings packet ");
         ab >> m_encoder_settings;
       break;
     case SVH_GET_FIRMWARE_INFO:
         //std::cout << "Recieved: Firmware Settings RAW Data: " << ab; // for really intensive debugging
         ab >> m_firmware_info;
-        LOGGING_INFO(DriverSVH, "Hardware is using the following Firmware: " );
-        LOGGING_INFO(DriverSVH, m_firmware_info.svh  << " Version: " << m_firmware_info.version_major << "." << m_firmware_info.version_minor << " : " << m_firmware_info.text << endl);
+        SVH_LOG_INFO_STREAM("SVHController", "Hardware is using the following Firmware: " << m_firmware_info.svh  << " Version: " << m_firmware_info.version_major << "." << m_firmware_info.version_minor << " : " << m_firmware_info.text);
       break;
     default:
-        LOGGING_ERROR_C(DriverSVH, SVHController, "Received a Packet with unknown address: "<< (packet.address & 0x0F) << " - ignoring packet" << endl);
+        SVH_LOG_ERROR_STREAM("SVHController", "Received a Packet with unknown address: "<< (packet.address & 0x0F) << " - ignoring packet");
       break;
   }
 
@@ -571,7 +569,7 @@ bool SVHController::getControllerFeedback(const SVHChannel &channel,SVHControlle
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "GetFeedback was requested for unknown channel: "<< channel<< "- ignoring request" << endl);
+    SVH_LOG_WARN_STREAM("SVHController", "GetFeedback was requested for unknown channel: "<< channel<< "- ignoring request");
     return false;
   }
 }
@@ -590,7 +588,7 @@ bool SVHController::getPositionSettings(const SVHChannel &channel, SVHPositionSe
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "GetPositionSettings was requested for unknown channel: "<< channel<< "- ignoring request" << endl);
+    SVH_LOG_WARN_STREAM("SVHController", "GetPositionSettings was requested for unknown channel: "<< channel<< "- ignoring request");
     return false;
   }
 }
@@ -604,7 +602,7 @@ bool SVHController::getCurrentSettings(const SVHChannel &channel, SVHCurrentSett
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "GetCurrentSettings was requested for unknown channel: "<< channel<< "- ignoring request" << endl);
+    SVH_LOG_WARN_STREAM("SVHController", "GetCurrentSettings was requested for unknown channel: "<< channel<< "- ignoring request");
     return false;
   }
 }
@@ -619,7 +617,7 @@ void SVHController::resetPackageCounts()
   m_received_package_count = 0;
   // The serial interface also keeps track about these counts
   m_serial_interface->resetTransmitPackageCount();
-  LOGGING_TRACE_C(DriverSVH, SVHController, "Received package count resetted" << endl);
+  SVH_LOG_DEBUG_STREAM("SVHController", "Received package count resetted");
 }
 
 unsigned int SVHController::getSentPackageCount()
@@ -630,7 +628,7 @@ unsigned int SVHController::getSentPackageCount()
   }
   else
   {
-    LOGGING_WARNING_C(DriverSVH, SVHController, "Request for transmit packet count could not be answered as the device is not connected - ignoring request" << endl);
+    SVH_LOG_WARN_STREAM("SVHController", "Request for transmit packet count could not be answered as the device is not connected - ignoring request");
     return 0;
   }
 }

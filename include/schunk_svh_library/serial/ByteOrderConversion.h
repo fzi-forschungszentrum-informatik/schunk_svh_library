@@ -13,15 +13,13 @@
 #ifndef DRIVER_SVH_BYTE_ORDER_CONVERISON_H_INCLUDED
 #define DRIVER_SVH_BYTE_ORDER_CONVERISON_H_INCLUDED
 
-#include <icl_core/BaseTypes.h>
-#include <icl_core/Vector.h>
-
 #include "schunk_svh_library/ImportExport.h"
 
 #include <boost/predef/other/endian.h>
 #include <iostream>
 #include <iomanip>
 #include <assert.h>
+#include <vector>
 
 // For type limiting
 #include <boost/type_traits/is_arithmetic.hpp>

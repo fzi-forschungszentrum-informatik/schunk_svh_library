@@ -30,14 +30,15 @@
 #ifndef DRIVER_SVH_SVH_FINGER_MANAGER_H_INCLUDED
 #define DRIVER_SVH_SVH_FINGER_MANAGER_H_INCLUDED
 
+#include <chrono>
 #include <schunk_svh_library/ImportExport.h>
 #include <schunk_svh_library/control/SVHController.h>
-#include <schunk_svh_library/control/SVHFeedbackPollingThread.h>
 #include <schunk_svh_library/control/SVHPositionSettings.h>
 #include <schunk_svh_library/control/SVHCurrentSettings.h>
 #include <schunk_svh_library/control/SVHHomeSettings.h>
 
 #include <boost/shared_ptr.hpp>
+#include <thread>
 
 
 #ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
@@ -373,8 +374,11 @@ private:
   //! \brief pointer to svh controller
   SVHController *m_controller;
 
-  //! \brief pointer to svh controller
-  SVHFeedbackPollingThread *m_feedback_thread;
+  //! \brief Flag whether to poll feedback periodically in the feedback thread
+  std::atomic<bool> m_poll_feedback;
+
+  //! \brief Thread for polling periodic feedback from the hardware
+  std::thread m_feedback_thread;
 
   //! \brief holds the connected state
   bool m_connected;
@@ -382,8 +386,8 @@ private:
   //! Helper variable to check if feedback was printed (will be replaced by a better solution in the future)
   bool m_connection_feedback_given;
 
-  //! \brief vector storing reset flags for each finger
-  int8_t m_homing_timeout;
+  //! \brief Timeout for homing.
+  std::chrono::seconds m_homing_timeout;
 
   //! \brief limit the maximum of the force / current of the finger as a percentage of the possible maximum
   float m_max_current_percentage;
@@ -434,7 +438,7 @@ private:
   float m_reset_speed_factor;
 
   //! Time in seconds after which the a reset is aborted if no change in current is observable
-  uint32_t m_reset_timeout;
+  std::chrono::seconds m_reset_timeout;
 
   //! Vector of current controller parameters for each finger (as given by external config)
   std::vector<SVHCurrentSettings> m_current_settings;
@@ -508,6 +512,14 @@ private:
    * \return true if they are "reasonable safe". Only the most vile settings will be rejected!
    */
   bool currentSettingsAreSafe(const SVHChannel &channel,const SVHCurrentSettings &current_settings);
+
+  /**
+   * \brief Periodically poll feedback from the hardware
+   *
+   * The hardware will send data only in response to special requests. We realize constant joint position feedback
+   * for all fingers through sending these requests periodically in this function.
+   */
+  void pollFeedback();
 
   // DEBUG
   SVHControllerFeedback debug_feedback;

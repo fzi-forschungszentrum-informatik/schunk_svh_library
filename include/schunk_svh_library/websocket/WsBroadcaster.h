@@ -24,6 +24,8 @@
 #include <schunk_svh_library/websocket/LWA4PState.h>
 #include <schunk_svh_library/websocket/SVHState.h>
 
+#include <thread>
+#include <chrono>
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
 #include <boost/shared_ptr.hpp>
@@ -113,7 +115,7 @@ public:
     while (true)
     {
       robot->simulateTick();
-      boost::this_thread::sleep(boost::posix_time::milliseconds(cycle_time_ms));
+      std::this_thread::sleep_for(std::chrono::milliseconds(cycle_time_ms));
       sendState();
     }
   }

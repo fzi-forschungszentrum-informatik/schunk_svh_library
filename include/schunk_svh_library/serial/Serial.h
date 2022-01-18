@@ -20,10 +20,10 @@
 #ifndef DRIVER_SVH_SERIAL_SERIAL_H_INCLUDED
 #define DRIVER_SVH_SERIAL_SERIAL_H_INCLUDED
 
-#include <icl_core/BaseTypes.h>
+#include <string>
+#include <sys/types.h>
 
 #include "schunk_svh_library/ImportExport.h"
-#include "schunk_svh_library/Logging.h"
 #include "schunk_svh_library/serial/SerialFlags.h"
 
 #ifdef _SYSTEM_WIN32_
@@ -183,12 +183,6 @@ private:
 #ifdef _SYSTEM_POSIX_
   int file_descr;
   termios io_set_old;
-
-  bool is_lxrt_serial;
-# ifdef _SYSTEM_LXRT_
-  bool IsLXRTDeviceName(const char* device_name);
-  int tty;
-# endif
 #endif
 
   char *m_dev_name;

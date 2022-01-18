@@ -28,13 +28,15 @@
  */
 //----------------------------------------------------------------------
 #include "schunk_svh_library/serial/SVHSerialInterface.h"
-#include "schunk_svh_library/Logging.h"
+#include "schunk_svh_library/Logger.h"
 
+#include <memory>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>
 #include <boost/bind/bind.hpp>
+#include <thread>
+#include <chrono>
 
 
-using icl_core::TimeSpan;
 using driver_svh::serial::SerialFlags;
 #if BOOST_VERSION >= 106000 // Moved to namespace in boost 1.60
 using namespace boost::placeholders;
@@ -67,36 +69,27 @@ bool SVHSerialInterface::connect(const std::string &dev_name)
     // open serial device
     if (!m_serial_device->Open())
     {
-      LOGGING_ERROR_C(DriverSVH, SVHSerialInterface, "Could not open serial device: " << dev_name.c_str() << endl);
+      SVH_LOG_ERROR_STREAM("SVHSerialInterface", "Could not open serial device: " << dev_name.c_str());
       return false;
     }
   }
   else
   {
-    LOGGING_ERROR_C(DriverSVH, SVHSerialInterface, "Could not create serial device handle: " << dev_name.c_str() << endl);
+    SVH_LOG_ERROR_STREAM("SVHSerialInterface", "Could not create serial device handle: " << dev_name.c_str());
     return false;
   }
+
+  m_svh_receiver = std::make_unique<SVHReceiveThread>(
+      std::chrono::microseconds(500),
+      m_serial_device,
+      boost::bind(&SVHSerialInterface::receivedPacketCallback,this,_1,_2)
+  );
 
   // create receive thread
-  m_receive_thread.reset(new SVHReceiveThread(TimeSpan(0, 500000), m_serial_device, boost::bind(&SVHSerialInterface::receivedPacketCallback,this,_1,_2)));
-
-  if (m_receive_thread)
-  {
-    // start receive thread
-    if (!m_receive_thread->start())
-    {
-      LOGGING_ERROR_C(DriverSVH, SVHSerialInterface, "Could not start the receive thread for the serial device!" << endl);
-      return false;
-    }
-  }
-  else
-  {
-    LOGGING_ERROR_C(DriverSVH, SVHSerialInterface, "Could not create the receive thread for the serial device!" << endl);
-    return false;
-  }
+  m_receive_thread = std::thread([this]{m_svh_receiver->run(); });
 
   m_connected = true;
-  LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device  " << dev_name.c_str()  << " opened and receive thread started. Communication can now begin." << endl);
+  SVH_LOG_DEBUG_STREAM("SVHSerialInterface", "Serial device  " << dev_name.c_str()  << " opened and receive thread started. Communication can now begin.");
 
   return true;
 }
@@ -106,14 +99,14 @@ void SVHSerialInterface::close()
   m_connected = false;
 
   // cancel and delete receive packet thread
-  if (m_receive_thread)
+  if (m_svh_receiver)
   {
-    // cancel thread
-    m_receive_thread->cancel();
-
-    m_receive_thread.reset();
-
-    LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device receive thread was terminated." << endl);
+    m_svh_receiver->stop();
+  }
+  if (m_receive_thread.joinable())
+  {
+    m_receive_thread.join();
+    SVH_LOG_DEBUG_STREAM("SVHSerialInterface", "Serial device receive thread was terminated.");
   }
 
   // close and delete serial device handler
@@ -122,7 +115,7 @@ void SVHSerialInterface::close()
     m_serial_device->Close();
 
     m_serial_device.reset();
-    LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "Serial device handle was closed and terminated." << endl);
+    SVH_LOG_DEBUG_STREAM("SVHSerialInterface", "Serial device handle was closed and terminated.");
   }
 }
 
@@ -164,22 +157,13 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
       // Small delay -> THIS SHOULD NOT BE NECESSARY as the communication speed should be handable by the HW. However, it will die if this sleep is
       // not used and this may also depend on your computer speed -> This issue might stem also from the hardware and will hopefully be fixed soon.
       // 782µs are needed to send 72bytes via a baudrate of 921600
-      icl_core::os::usleep(782);
+      std::this_thread::sleep_for(std::chrono::microseconds(782));
       // Instead you could wait for the response of the packet (or on of the previous n packets). This slows down the speed to the 2-way latency, which is platform dependent
-      /*icl_core::TimeStamp start_time = icl_core::TimeStamp::now();
-      bool timeout = false;
-      while(!timeout){
-        if(uint8_t(packet.index-last_index)<8)break;
-        if ((icl_core::TimeStamp::now() - start_time).tsSec() > 1)
-        {
-            timeout = true;
-        }
-      }//*/
 
     }
     else
     {
-      LOGGING_TRACE_C(DriverSVH, SVHSerialInterface, "sendPacket failed, serial device was not properly initialized." << endl);
+      SVH_LOG_DEBUG_STREAM("SVHSerialInterface", "sendPacket failed, serial device was not properly initialized.");
       return false;
     }
 
@@ -193,7 +177,7 @@ void SVHSerialInterface::resetTransmitPackageCount()
 {
   m_packets_transmitted = 0;
   // Only the receive thread knows abotu the accurate number it has received
-  m_receive_thread->resetReceivedPackageCount();
+  m_svh_receiver->resetReceivedPackageCount();
 }
 
 void SVHSerialInterface::printPacketOnConsole(SVHSerialPacket &packet)

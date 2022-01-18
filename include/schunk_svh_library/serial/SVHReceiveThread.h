@@ -20,29 +20,28 @@
  * \date    2014-01-30
  * \date    2014-07-16
  *
- * This file contains the ReceiveThread for the serial communication.
- * In order to receive packages independently from the sending direction
- * this thread periodically polls the serial interface for new data. If data
- * is present a statemachine will evaluate the right packet structure and send the
- * data to further parsing once a complete serial packaged is received
+ * This file contains the ReceiveThread for the serial communication.  In order
+ * to receive packages independently from the sending direction, instantiate
+ * this class in client code and call its run() method in a separate thread.
+ *
+ * This class will then poll the serial interface periodically for new data. If
+ * data is present, a statemachine will evaluate the right packet structure and
+ * send the data via callback to the caller for further parsing once a complete
+ * serial packaged is received.
  */
 //----------------------------------------------------------------------
 #ifndef DRIVER_SVH_SVH_RECEIVE_THREAD_H_INCLUDED
 #define DRIVER_SVH_SVH_RECEIVE_THREAD_H_INCLUDED
 
-#include <icl_core/TimeSpan.h>
-#include <icl_core_thread/PeriodicThread.h>
 #include <schunk_svh_library/serial/Serial.h>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>
 
-#include <schunk_svh_library/Logging.h>
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
+#include <chrono>
 
-using icl_core::TimeSpan;
-using icl_core::thread::PeriodicThread;
 using driver_svh::serial::Serial;
 
 namespace driver_svh {
@@ -51,26 +50,31 @@ namespace driver_svh {
 typedef boost::function<void (const SVHSerialPacket& packet, unsigned int packet_count)> ReceivedPacketCallback;
 
 /*!
- * \brief Thread for receiving messages from the serial device.
+ * \brief Class for receiving messages from the serial device.
+ *
+ * Instantiate this class in client code and call its run() method in a separate thread.
+ * Data is passed to the caller via the provided callback.
  */
-class SVHReceiveThread : public PeriodicThread
+class SVHReceiveThread
 {
 public:
   /*!
    * \brief SVHReceiveThread Constructs a new Receivethread
-   * \param period The relative period after which the thread is
-   *               cyclically woken up.
+   * \param idle_sleep sleep time during run() if no data is available
    * \param device handle of the serial device
    * \param received_callback function to call uppon finished packet
    */
-  SVHReceiveThread(const TimeSpan& period, boost::shared_ptr<Serial> device,
+  SVHReceiveThread(const std::chrono::microseconds& idle_sleep, boost::shared_ptr<Serial> device,
                     ReceivedPacketCallback const & received_callback);
 
   //! Default DTOR
-  virtual ~SVHReceiveThread() {}
+  ~SVHReceiveThread() {}
 
-  //! run method of the thread, executes the main program
-  virtual void run();
+  //! run method of the thread, executes the main program in an infinite loop
+  void run();
+
+  //! stop the run() method
+  void stop(){m_continue = false;};
 
   //! return the count of received packets
   unsigned int receivedPacketCount() { return m_packets_received; }
@@ -81,6 +85,12 @@ public:
   void resetReceivedPackageCount() { m_packets_received = 0; }
 
 private:
+
+  //! Flag to end the run() method from external callers
+  std::atomic<bool> m_continue{true};
+
+  //! sleep time during run() if idle
+  std::chrono::microseconds m_idle_sleep;
 
   //! pointer to serial device object
   boost::shared_ptr<Serial> m_serial_device;
@@ -116,7 +126,7 @@ private:
   driver_svh::ArrayBuilder m_ab;
 
   //! packets counter
-  unsigned int m_packets_received;
+  std::atomic<unsigned int> m_packets_received;
 
   //! counter for skipped bytes in case no packet is detected
   unsigned int m_skipped_bytes;

@@ -24,14 +24,14 @@
 
 #include <schunk_svh_library/control/SVHController.h>
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
+#include <thread>
+#include <chrono>
 
 using namespace driver_svh;
 
 // testing serial interface of svh driver
 int main(int argc, const char* argv[])
 {
-  icl_core::logging::initialize();
-
   std::string serial_device_name = "/dev/ttyUSB0";
 
   SVHController controller;
@@ -94,7 +94,7 @@ int main(int argc, const char* argv[])
 
   }
 
-  icl_core::os::sleep(20);
+  std::this_thread::sleep_for(std::chrono::seconds(20));
 
   controller.disconnect();
 

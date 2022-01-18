@@ -1,17 +1,14 @@
 #include "schunk_svh_library/websocket/WsBroadcaster.h"
 
-#include <icl_core_logging/Logging.h>
 #include <json/json.h>
+#include <thread>
+#include <chrono>
 
 
 
 namespace schunk_svh_library {
 namespace websocket {
 
-DECLARE_LOG_STREAM(WebSocket);
-REGISTER_LOG_STREAM(WebSocket);
- 
-using icl_core::logging::endl;
 
 bool WsBroadcaster::checkSocket()
 {
@@ -40,7 +37,7 @@ bool WsBroadcaster::sendState()
   }
 
   // This is ugly.. but otherwise the other process is never active that reads the content of the socket and after that the messages will be parsed as one....
-  usleep(5);
+  std::this_thread::sleep_for(std::chrono::microseconds(5));
   return true;
 }
 
@@ -60,7 +57,7 @@ bool WsBroadcaster::sendHints()
   }
 
   // This is ugly.. but otherwise the other process is never active that reads the content of the socket and after that the messages will be parsed as one....
-  usleep(5);
+  std::this_thread::sleep_for(std::chrono::microseconds(5));
   return true;
 }
 

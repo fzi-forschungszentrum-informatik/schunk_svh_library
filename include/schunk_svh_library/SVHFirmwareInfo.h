@@ -27,6 +27,12 @@
 #ifndef SVHFIRMWAREINFO_H
 #define SVHFIRMWAREINFO_H
 
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
+
 namespace driver_svh {
 
 /*!

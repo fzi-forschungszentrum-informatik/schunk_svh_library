@@ -33,22 +33,23 @@
 #ifndef DRIVER_SVH_SVH_RECEIVE_THREAD_H_INCLUDED
 #define DRIVER_SVH_SVH_RECEIVE_THREAD_H_INCLUDED
 
-#include <schunk_svh_library/serial/Serial.h>
 #include <schunk_svh_library/serial/ByteOrderConversion.h>
+#include <schunk_svh_library/serial/Serial.h>
 
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
 
+#include <atomic>
+#include <chrono>
 #include <functional>
 #include <memory>
-#include <chrono>
-#include <atomic>
 
 using driver_svh::serial::Serial;
 
 namespace driver_svh {
 
 //! definition of function callback for received packages
-using ReceivedPacketCallback = std::function<void (const SVHSerialPacket& packet, unsigned int packet_count)>;
+using ReceivedPacketCallback =
+  std::function<void(const SVHSerialPacket& packet, unsigned int packet_count)>;
 
 /*!
  * \brief Class for receiving messages from the serial device.
@@ -65,8 +66,9 @@ public:
    * \param device handle of the serial device
    * \param received_callback function to call uppon finished packet
    */
-  SVHReceiveThread(const std::chrono::microseconds& idle_sleep, std::shared_ptr<Serial> device,
-                    ReceivedPacketCallback const & received_callback);
+  SVHReceiveThread(const std::chrono::microseconds& idle_sleep,
+                   std::shared_ptr<Serial> device,
+                   ReceivedPacketCallback const& received_callback);
 
   //! Default DTOR
   ~SVHReceiveThread() {}
@@ -75,18 +77,18 @@ public:
   void run();
 
   //! stop the run() method
-  void stop(){m_continue = false;};
+  void stop() { m_continue = false; };
 
   //! return the count of received packets
   unsigned int receivedPacketCount() { return m_packets_received; }
 
   /*!
-   * \brief resetReceivedPackageCount Resets the received package count to zero. This can be usefull to set all communication variables to the initial state
+   * \brief resetReceivedPackageCount Resets the received package count to zero. This can be usefull
+   * to set all communication variables to the initial state
    */
   void resetReceivedPackageCount() { m_packets_received = 0; }
 
 private:
-
   //! Flag to end the run() method from external callers
   std::atomic<bool> m_continue{true};
 
@@ -137,9 +139,8 @@ private:
 
   //! function callback for received packages
   ReceivedPacketCallback m_received_callback;
-
 };
 
-}
+} // namespace driver_svh
 
 #endif

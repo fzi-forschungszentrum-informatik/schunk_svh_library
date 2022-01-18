@@ -50,64 +50,59 @@ struct SVHFirmwareInfo
   std::string text;
 
   //! Compares two SVHFirmware objects.
-  bool operator == (const SVHFirmwareInfo& other) const
+  bool operator==(const SVHFirmwareInfo& other) const
   {
     return (version_major == other.version_major && version_minor == other.version_minor);
   }
 };
 
 //! overload stream operator to easily serialize firmware data
-inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, SVHFirmwareInfo& data)
+inline driver_svh::ArrayBuilder& operator<<(driver_svh::ArrayBuilder& ab, SVHFirmwareInfo& data)
 {
-  // Stream operator can not handle arrays (due to missing size information) to make things easy we just copy the data around. Feel free to do something else
-  // Todo: The conversion in this direction is not properly working, as the readout is working fine so far this is a fix for later.
-  // It is probably something that has to do with the data types and how that is interpreted by the arrayBuilder
+  // Stream operator can not handle arrays (due to missing size information) to make things easy we
+  // just copy the data around. Feel free to do something else Todo: The conversion in this
+  // direction is not properly working, as the readout is working fine so far this is a fix for
+  // later. It is probably something that has to do with the data types and how that is interpreted
+  // by the arrayBuilder
   std::vector<int8_t> text(48);
   std::vector<int8_t> svh(4);
-  svh.insert(svh.begin(),data.svh.begin(),data.svh.end());
-  text.insert(text.begin(),data.text.begin(),data.text.end());
+  svh.insert(svh.begin(), data.svh.begin(), data.svh.end());
+  text.insert(text.begin(), data.text.begin(), data.text.end());
 
-  ab << svh
-     << data.version_major
-     << data.version_minor
-     << text;
+  ab << svh << data.version_major << data.version_minor << text;
   return ab;
 }
 
 
-
 //! overload stream operator to easily serialize firmware data
-inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHFirmwareInfo& data)
+inline driver_svh::ArrayBuilder& operator>>(driver_svh::ArrayBuilder& ab, SVHFirmwareInfo& data)
 {
-  // Stream operator can not handle arrays (due to missing size information) to make things easy we just copy the data around. Feel free to do something else
+  // Stream operator can not handle arrays (due to missing size information) to make things easy we
+  // just copy the data around. Feel free to do something else
   std::vector<uint8_t> text(48);
   std::vector<uint8_t> svh(4);
 
-  ab >> svh
-     >> data.version_major
-     >> data.version_minor
-     >> text;
+  ab >> svh >> data.version_major >> data.version_minor >> text;
 
 
-  data.text = std::string(text.begin(),text.end());
-  data.svh = std::string(svh.begin(),svh.end());
-//  std::copy (text.begin(),text.end(),data.text);
-//  std::copy (svh.begin(),svh.end(),data.svh);
+  data.text = std::string(text.begin(), text.end());
+  data.svh  = std::string(svh.begin(), svh.end());
+  //  std::copy (text.begin(),text.end(),data.text);
+  //  std::copy (svh.begin(),svh.end(),data.svh);
 
   return ab;
 }
 
 //! Output Stream operator for easy output of the firmware information
-inline std::ostream& operator << (std::ostream& o, const SVHFirmwareInfo& fw)
+inline std::ostream& operator<<(std::ostream& o, const SVHFirmwareInfo& fw)
 {
-  o << fw.svh.c_str()  << " " << fw.version_major << "." << fw.version_minor << " : " << fw.text.c_str() << std::endl;
+  o << fw.svh.c_str() << " " << fw.version_major << "." << fw.version_minor << " : "
+    << fw.text.c_str() << std::endl;
   return o;
 }
 
 
-
-}
-
+} // namespace driver_svh
 
 
 #endif // SVHFIRMWAREINFO_H

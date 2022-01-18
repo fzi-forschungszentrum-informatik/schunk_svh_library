@@ -59,123 +59,120 @@ public:
   float kd;
 
   //! Compares two SVHPositionsetting objects.
-  bool operator == (const SVHPositionSettings& other) const
+  bool operator==(const SVHPositionSettings& other) const
   {
-    return
-      (wmn == other.wmn
-       && wmx == other.wmx
-       && dwmx == other.dwmx
-       && ky == other.ky
-       && dt == other.dt
-       && imn == other.imn
-       && imx == other.imx
-       && kp == other.kp
-       && ki == other.ki
-       && kd == other.kd);
+    return (wmn == other.wmn && wmx == other.wmx && dwmx == other.dwmx && ky == other.ky &&
+            dt == other.dt && imn == other.imn && imx == other.imx && kp == other.kp &&
+            ki == other.ki && kd == other.kd);
   }
 
   //!
-  //! \brief SVHPositionSettings Construct positions settings from a plain vector if the Vector is smaler than 10 values will be filled with 0.0
-  //! \param pos_settings Vector of floats in the order: wmn, wmx, dwmx, ky, dt, imn, imx, kp, ki , kd
+  //! \brief SVHPositionSettings Construct positions settings from a plain vector if the Vector is
+  //! smaler than 10 values will be filled with 0.0 \param pos_settings Vector of floats in the
+  //! order: wmn, wmx, dwmx, ky, dt, imn, imx, kp, ki , kd
   //!
   SVHPositionSettings(const std::vector<float>& pos_settings)
   {
     size_t size = pos_settings.size();
 
-    wmn = (size > 0) ? pos_settings[0] : 0.0;
-    wmx = (size > 1) ? pos_settings[1] : 0.0;
+    wmn  = (size > 0) ? pos_settings[0] : 0.0;
+    wmx  = (size > 1) ? pos_settings[1] : 0.0;
     dwmx = (size > 2) ? pos_settings[2] : 0.0;
-    ky  = (size > 3) ? pos_settings[3] : 0.0;
-    dt  = (size > 4) ? pos_settings[4] : 0.0;
-    imn = (size > 5) ? pos_settings[5] : 0.0;
-    imx = (size > 6) ? pos_settings[6] : 0.0;
-    kp  = (size > 7) ? pos_settings[7] : 0.0;
-    ki  = (size > 8) ? pos_settings[8] : 0.0;
-    kd  = (size > 9) ? pos_settings[9] : 0.0;
+    ky   = (size > 3) ? pos_settings[3] : 0.0;
+    dt   = (size > 4) ? pos_settings[4] : 0.0;
+    imn  = (size > 5) ? pos_settings[5] : 0.0;
+    imx  = (size > 6) ? pos_settings[6] : 0.0;
+    kp   = (size > 7) ? pos_settings[7] : 0.0;
+    ki   = (size > 8) ? pos_settings[8] : 0.0;
+    kd   = (size > 9) ? pos_settings[9] : 0.0;
   }
 
 
-
   //!
-  //! \brief SVHPositionSettings Constructs a new positition settings object to configure the position controller of a finger
-  //! \param wmn Reference signal minimum value
-  //! \param wmx Reference signal maximum value
-  //! \param dwmx Reference signal delta maximum threshold
-  //! \param ky Measurement scaling
-  //! \param dt Time base of controller
-  //! \param imn Integral windup minimum value
+  //! \brief SVHPositionSettings Constructs a new positition settings object to configure the
+  //! position controller of a finger \param wmn Reference signal minimum value \param wmx Reference
+  //! signal maximum value \param dwmx Reference signal delta maximum threshold \param ky
+  //! Measurement scaling \param dt Time base of controller \param imn Integral windup minimum value
   //! \param imx Integral windup maximum value
   //! \param kp Proportional gain
   //! \param ki Integral gain
   //! \param kd Differential gain
   //!
-  SVHPositionSettings(const float& wmn,const float& wmx,const float& dwmx,const float& ky,const float& dt,
-                      const float& imn,const float& imx,const float& kp,const float& ki,const float& kd):
-    wmn(wmn),wmx(wmx),dwmx(dwmx),ky (ky),dt (dt),imn(imn), imx(imx), kp (kp), ki (ki), kd(kd)
-  {}
+  SVHPositionSettings(const float& wmn,
+                      const float& wmx,
+                      const float& dwmx,
+                      const float& ky,
+                      const float& dt,
+                      const float& imn,
+                      const float& imx,
+                      const float& kp,
+                      const float& ki,
+                      const float& kd)
+    : wmn(wmn)
+    , wmx(wmx)
+    , dwmx(dwmx)
+    , ky(ky)
+    , dt(dt)
+    , imn(imn)
+    , imx(imx)
+    , kp(kp)
+    , ki(ki)
+    , kd(kd)
+  {
+  }
 
   //!
   //! \brief SVHPositionSettings Defaault constructor. Intitializes everything to zero
   //!
-  SVHPositionSettings():
-    wmn(0.0),wmx(0.0),dwmx(0.0),ky (0.0), dt (0.0), imn(0.0), imx(0.0), kp (0.0), ki (0.0), kd(0.0)
-  {}
-
+  SVHPositionSettings()
+    : wmn(0.0)
+    , wmx(0.0)
+    , dwmx(0.0)
+    , ky(0.0)
+    , dt(0.0)
+    , imn(0.0)
+    , imx(0.0)
+    , kp(0.0)
+    , ki(0.0)
+    , kd(0.0)
+  {
+  }
 };
 
 //! overload stream operator to easily serialize position settings data
-inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHPositionSettings& data)
+inline driver_svh::ArrayBuilder& operator<<(driver_svh::ArrayBuilder& ab,
+                                            const SVHPositionSettings& data)
 {
-  ab << data.wmn
-     << data.wmx
-     << data.dwmx
-     << data.ky
-     << data.dt
-     << data.imn
-     << data.imx
-     << data.kp
-     << data.ki
-     << data.kd;
+  ab << data.wmn << data.wmx << data.dwmx << data.ky << data.dt << data.imn << data.imx << data.kp
+     << data.ki << data.kd;
   return ab;
 }
 
 //! overload stream operator to easily deserialize position settings data
-inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHPositionSettings& data)
+inline driver_svh::ArrayBuilder& operator>>(driver_svh::ArrayBuilder& ab, SVHPositionSettings& data)
 {
-  ab >> data.wmn
-     >> data.wmx
-     >> data.dwmx
-     >> data.ky
-     >> data.dt
-     >> data.imn
-     >> data.imx
-     >> data.kp
-     >> data.ki
-     >> data.kd;
+  ab >> data.wmn >> data.wmx >> data.dwmx >> data.ky >> data.dt >> data.imn >> data.imx >>
+    data.kp >> data.ki >> data.kd;
   return ab;
 }
 
 //! Output stream operator to easily print position settings
-inline std::ostream& operator << (std::ostream& o, const SVHPositionSettings& ps)
+inline std::ostream& operator<<(std::ostream& o, const SVHPositionSettings& ps)
 {
   o << "wmn " << ps.wmn << " "
     << "wmx " << ps.wmx << " "
-    << "dwmx "<< ps.dwmx << " "
-    << "ky "  << ps.ky  << " "
-    << "dt "  << ps.dt  << " "
+    << "dwmx " << ps.dwmx << " "
+    << "ky " << ps.ky << " "
+    << "dt " << ps.dt << " "
     << "imn " << ps.imn << " "
     << "imx " << ps.imx << " "
-    << "kp "  << ps.kp  << " "
-    << "ki "  << ps.ki  << " "
-    << "kd "  << ps.kd << " "
-    << std::endl;
+    << "kp " << ps.kp << " "
+    << "ki " << ps.ki << " "
+    << "kd " << ps.kd << " " << std::endl;
   return o;
 }
 
 
-
-
-
-}
+} // namespace driver_svh
 
 #endif // SVHPOSITIONSETTINGS_H

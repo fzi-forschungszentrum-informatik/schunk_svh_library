@@ -16,8 +16,8 @@
 #ifndef LWA4PSTATE_H
 #define LWA4PSTATE_H
 
-#include <schunk_svh_library/websocket/RobotState.h>
 #include <schunk_svh_library/ImportExport.h>
+#include <schunk_svh_library/websocket/RobotState.h>
 
 namespace schunk_svh_library {
 namespace websocket {
@@ -25,7 +25,6 @@ namespace websocket {
 class DRIVER_SVH_IMPORT_EXPORT LWA4PState : public RobotState
 {
 public:
-
   enum MovementState
   {
     eST_DEACTIVATED,
@@ -54,15 +53,14 @@ public:
    */
   virtual std::string getStateJSON();
 
-  virtual void setMovementState(const int &movement_state);
+  virtual void setMovementState(const int& movement_state);
 
 private:
   //! Current movement state of the whole robot
   MovementState m_movement_state;
-
-
 };
 
-}} // End of NS
+} // namespace websocket
+} // namespace schunk_svh_library
 
 #endif // LWA4PSTATE_H

@@ -46,14 +46,15 @@ struct SVHControllerFeedback
    * \brief standard constructor
    * \param _position Intitial position value, defaults to 0
    * \param _current Initital current value, defaults to 0
-  **/
-  SVHControllerFeedback(const int32_t& _position = 0,const int16_t& _current = 0):
-    position(_position),
-    current(_current)
-  {}
+   **/
+  SVHControllerFeedback(const int32_t& _position = 0, const int16_t& _current = 0)
+    : position(_position)
+    , current(_current)
+  {
+  }
 
   //! Compares two SVHControllerFeedback objects.
-  bool operator == (const SVHControllerFeedback& other) const
+  bool operator==(const SVHControllerFeedback& other) const
   {
     return (position == other.position && current == other.current);
   }
@@ -68,22 +69,24 @@ struct SVHControllerFeedbackAllChannels
   std::vector<SVHControllerFeedback> feedbacks;
 
   /*!
-   * \brief Constructs a SVHControllerFeedbackAllChannels data structure from explicit ffedback elements
-   * \param _feedback0 Feedback for the Thumb_Flexion
-   * \param _feedback1 Feedback for the Thumb_Opposition
-   * \param _feedback2 Feedback for the Index_Finger_Distal
-   * \param _feedback3 Feedback for the Index_Finger_Proximal
-   * \param _feedback4 Feedback for the Middle_Finger_Distal
+   * \brief Constructs a SVHControllerFeedbackAllChannels data structure from explicit ffedback
+   * elements \param _feedback0 Feedback for the Thumb_Flexion \param _feedback1 Feedback for the
+   * Thumb_Opposition \param _feedback2 Feedback for the Index_Finger_Distal \param _feedback3
+   * Feedback for the Index_Finger_Proximal \param _feedback4 Feedback for the Middle_Finger_Distal
    * \param _feedback5 Feedback for the Middle_Finger_Proximal
    * \param _feedback6 Feedback for the Ring_Finger
    * \param _feedback7 Feedback for the Pinky
    * \param _feedback8 Feedback for the Finger_Spread
    */
-  SVHControllerFeedbackAllChannels(const SVHControllerFeedback& _feedback0,const SVHControllerFeedback& _feedback1,
-                                    const SVHControllerFeedback& _feedback2,const SVHControllerFeedback& _feedback3,
-                                    const SVHControllerFeedback& _feedback4,const SVHControllerFeedback& _feedback5,
-                                    const SVHControllerFeedback& _feedback6,const SVHControllerFeedback& _feedback7,
-                                    const SVHControllerFeedback& _feedback8)
+  SVHControllerFeedbackAllChannels(const SVHControllerFeedback& _feedback0,
+                                   const SVHControllerFeedback& _feedback1,
+                                   const SVHControllerFeedback& _feedback2,
+                                   const SVHControllerFeedback& _feedback3,
+                                   const SVHControllerFeedback& _feedback4,
+                                   const SVHControllerFeedback& _feedback5,
+                                   const SVHControllerFeedback& _feedback6,
+                                   const SVHControllerFeedback& _feedback7,
+                                   const SVHControllerFeedback& _feedback8)
   {
     feedbacks.push_back(_feedback0);
     feedbacks.push_back(_feedback1);
@@ -99,47 +102,51 @@ struct SVHControllerFeedbackAllChannels
   /*!
    * \brief Creates a SVHControllerFeedbackAllChannels structure from a vector
    * \param _feedbacks Vector filled with SVHControllerFeedback elements.
-   * \note Alhough it is possible to create a feedback vector with more than 9 elements, that would be rather pointles as we only have 9 chanels less than 9 channels will result in only partial feedback
+   * \note Alhough it is possible to create a feedback vector with more than 9 elements, that would
+   * be rather pointles as we only have 9 chanels less than 9 channels will result in only partial
+   * feedback
    */
   SVHControllerFeedbackAllChannels(std::vector<SVHControllerFeedback> _feedbacks)
   {
-    feedbacks.insert(feedbacks.begin(),_feedbacks.begin(),_feedbacks.end());
+    feedbacks.insert(feedbacks.begin(), _feedbacks.begin(), _feedbacks.end());
   }
 
   /*!
-   * \brief Constructs an empty SVHControllerFeedbackAllChannels objects, prefilled with 9 default channel feedbacks, mainly usefull for deserialization
+   * \brief Constructs an empty SVHControllerFeedbackAllChannels objects, prefilled with 9 default
+   * channel feedbacks, mainly usefull for deserialization
    */
-  SVHControllerFeedbackAllChannels():
-    feedbacks(9)
-  { }
+  SVHControllerFeedbackAllChannels()
+    : feedbacks(9)
+  {
+  }
 
 
   //! Compares two SVHControllerFeedbackAllChannels objects.
-  bool operator == (const SVHControllerFeedbackAllChannels& other) const
+  bool operator==(const SVHControllerFeedbackAllChannels& other) const
   {
     return (feedbacks == other.feedbacks);
   }
 };
 
 //! Overload stream operator to easily serialize feedback data
-inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab,const SVHControllerFeedback& data)
+inline driver_svh::ArrayBuilder& operator<<(driver_svh::ArrayBuilder& ab,
+                                            const SVHControllerFeedback& data)
 {
-  ab << data.position
-     << data.current;
+  ab << data.position << data.current;
   return ab;
 }
 
 
 //! Overload stream operator to easily deserialize feedback data
-inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHControllerFeedback& data)
+inline driver_svh::ArrayBuilder& operator>>(driver_svh::ArrayBuilder& ab,
+                                            SVHControllerFeedback& data)
 {
-  ab >> data.position
-     >> data.current;
+  ab >> data.position >> data.current;
   return ab;
 }
 
 //! Output stream operator for easy output of feedback data
-inline std::ostream& operator << (std::ostream& o, const SVHControllerFeedback& cf)
+inline std::ostream& operator<<(std::ostream& o, const SVHControllerFeedback& cf)
 {
   o << "Pos: " << cf.position << " Cur: " << cf.current << std::endl;
   return o;
@@ -147,15 +154,21 @@ inline std::ostream& operator << (std::ostream& o, const SVHControllerFeedback& 
 
 
 //! Overload stream operator to easily serialize all channel feedback data
-inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab,SVHControllerFeedbackAllChannels& data)
+inline driver_svh::ArrayBuilder& operator<<(driver_svh::ArrayBuilder& ab,
+                                            SVHControllerFeedbackAllChannels& data)
 {
-  // The Data is transmitted not channel by channel but rather position first, Currents afterwards for all channels
-  for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  // The Data is transmitted not channel by channel but rather position first, Currents afterwards
+  // for all channels
+  for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin();
+       it != data.feedbacks.end();
+       ++it)
   {
     ab << it->position;
   }
 
-  for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin();
+       it != data.feedbacks.end();
+       ++it)
   {
     ab << it->current;
   }
@@ -164,15 +177,21 @@ inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab,SVHCo
 
 
 //! Overload stream operator to easily deserialize all channel feedback data
-inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHControllerFeedbackAllChannels& data)
+inline driver_svh::ArrayBuilder& operator>>(driver_svh::ArrayBuilder& ab,
+                                            SVHControllerFeedbackAllChannels& data)
 {
-  // The Data is transmitted not channel by channel but rather position first, Currents afterwards for all channels
-  for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  // The Data is transmitted not channel by channel but rather position first, Currents afterwards
+  // for all channels
+  for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin();
+       it != data.feedbacks.end();
+       ++it)
   {
     ab >> it->position;
   }
 
-  for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin() ; it != data.feedbacks.end(); ++it)
+  for (std::vector<SVHControllerFeedback>::iterator it = data.feedbacks.begin();
+       it != data.feedbacks.end();
+       ++it)
   {
     ab >> it->current;
   }
@@ -180,18 +199,20 @@ inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHC
 }
 
 //! Output stream operator for easy output of all channel feedback data
-inline std::ostream& operator << (std::ostream& o, const SVHControllerFeedbackAllChannels& cf)
+inline std::ostream& operator<<(std::ostream& o, const SVHControllerFeedbackAllChannels& cf)
 {
-  o << "Feedbacks: " ;
+  o << "Feedbacks: ";
   unsigned int i = 0;
-  for (std::vector<SVHControllerFeedback>::const_iterator it = cf.feedbacks.begin() ; it != cf.feedbacks.end(); ++it,++i)
+  for (std::vector<SVHControllerFeedback>::const_iterator it = cf.feedbacks.begin();
+       it != cf.feedbacks.end();
+       ++it, ++i)
   {
-    o << "Chan " << i << " : "<< *it;
+    o << "Chan " << i << " : " << *it;
   }
   o << std::endl;
   return o;
 }
 
-}
+} // namespace driver_svh
 
 #endif // SVHCONTROLLERFEEDBACK_H

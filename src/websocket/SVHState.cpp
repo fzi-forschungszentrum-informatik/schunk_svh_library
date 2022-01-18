@@ -22,21 +22,20 @@ namespace schunk_svh_library {
 namespace websocket {
 
 //! Description for enum matching:
-const std::string SVHState::m_joint_descriptions[]= {
-  "thumb_flexion",
-  "thumb_opposition", // wrist
-  "index_distal",
-  "index_proximal",
-  "middle_distal",
-  "middle_proximal",
-  "ring",
-  "pinky",
-  "spread"
-};
+const std::string SVHState::m_joint_descriptions[] = {"thumb_flexion",
+                                                      "thumb_opposition", // wrist
+                                                      "index_distal",
+                                                      "index_proximal",
+                                                      "middle_distal",
+                                                      "middle_proximal",
+                                                      "ring",
+                                                      "pinky",
+                                                      "spread"};
 
 
-SVHState::SVHState():RobotState(),
-  m_movement_state(eST_DEACTIVATED)
+SVHState::SVHState()
+  : RobotState()
+  , m_movement_state(eST_DEACTIVATED)
 {
 }
 
@@ -49,37 +48,38 @@ std::string SVHState::getStateJSON()
   message["type"] = "hand";
   switch (m_movement_state)
   {
-  case eST_DEACTIVATED:
+    case eST_DEACTIVATED:
       message["state"] = "deactivated";
-    break;
-  case eST_RESETTING:
+      break;
+    case eST_RESETTING:
       message["state"] = "resetting";
-    break;
-  case eST_RESETTED:
-    message["state"] = "resetted, waiting for activation";
-    break;
-  case eST_FAULT: message["state"] = "fault";
-    break;
-  case eST_ENABLED:
+      break;
+    case eST_RESETTED:
+      message["state"] = "resetted, waiting for activation";
+      break;
+    case eST_FAULT:
+      message["state"] = "fault";
+      break;
+    case eST_ENABLED:
       message["state"] = "enabled";
-    break;
-  case eST_PARTIALLY_ENABLED:
-    message["state"] = "partially enabled";
-     break;
-  default:
-    message["state"] = "unknown";
+      break;
+    case eST_PARTIALLY_ENABLED:
+      message["state"] = "partially enabled";
+      break;
+    default:
+      message["state"] = "unknown";
   };
 
-  for (jnt_value_map::iterator it=m_joints.begin(); it != m_joints.end(); it++)
+  for (jnt_value_map::iterator it = m_joints.begin(); it != m_joints.end(); it++)
   {
     Json::Value joint;
-    //joint["id"] = (unsigned int)i++;
-    joint["id"] = (unsigned int)it->first;
+    // joint["id"] = (unsigned int)i++;
+    joint["id"]       = (unsigned int)it->first;
     joint["position"] = it->second.position;
-    joint["speed"] = it->second.velocity;
-    joint["enabled"] = it->second.enabled;
-    joint["homed"] = it->second.homed;
-    joint["error"] = it->second.error;
+    joint["speed"]    = it->second.velocity;
+    joint["enabled"]  = it->second.enabled;
+    joint["homed"]    = it->second.homed;
+    joint["error"]    = it->second.error;
 
     message["data"].append(joint);
   }
@@ -95,10 +95,11 @@ std::string SVHState::getStateJSON()
 }
 
 
-void SVHState::setMovementState(const int &movement_state)
+void SVHState::setMovementState(const int& movement_state)
 {
   m_movement_state = static_cast<MovementState>(movement_state);
 }
 
 
-}} // NS end
+} // namespace websocket
+} // namespace schunk_svh_library

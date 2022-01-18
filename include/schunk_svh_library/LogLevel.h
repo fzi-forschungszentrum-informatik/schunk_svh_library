@@ -33,19 +33,14 @@ inline std::string logLevelToString(const LogLevel level)
   {
     case LogLevel::DEBUG:
       return "DEBUG";
-      break;
     case LogLevel::INFO:
       return "INFO";
-      break;
     case LogLevel::WARN:
       return "WARN";
-      break;
     case LogLevel::ERROR:
       return "ERROR";
-      break;
     case LogLevel::FATAL:
       return "FATAL";
-      break;
     default:
       return "NONE";
   }

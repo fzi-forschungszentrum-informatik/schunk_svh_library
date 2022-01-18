@@ -32,8 +32,6 @@ using namespace driver_svh;
 // testing serial interface of svh driver
 int main(int argc, const char* argv[])
 {
-  icl_core::logging::initialize();
-
   std::string serial_device_name = "/dev/ttyUSB0";
 
   SVHFingerManager finger_manager;

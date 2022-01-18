@@ -1,6 +1,5 @@
 #include "schunk_svh_library/websocket/WsBroadcaster.h"
 
-#include <icl_core_logging/Logging.h>
 #include <json/json.h>
 #include <thread>
 #include <chrono>
@@ -10,10 +9,6 @@
 namespace schunk_svh_library {
 namespace websocket {
 
-DECLARE_LOG_STREAM(WebSocket);
-REGISTER_LOG_STREAM(WebSocket);
- 
-using icl_core::logging::endl;
 
 bool WsBroadcaster::checkSocket()
 {

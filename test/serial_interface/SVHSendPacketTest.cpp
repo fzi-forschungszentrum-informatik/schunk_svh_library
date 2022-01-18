@@ -36,8 +36,6 @@ using driver_svh::serial::SerialFlags;
 // testing serial interface of svh driver
 int main(int argc, const char* argv[])
 {
-  icl_core::logging::initialize();
-
   std::string serial_device_name = "/dev/ttyUSB0";
 
   SVHSerialInterface serial_com(NULL);

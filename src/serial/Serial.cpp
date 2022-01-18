@@ -21,6 +21,7 @@
 // Not functional with Mac OS X (UH)
 
 #include "schunk_svh_library/serial/Serial.h"
+#include "schunk_svh_library/Logger.h"
 
 #include <cassert>
 #include <algorithm>
@@ -91,7 +92,7 @@ namespace serial {
       if ((file_descr = open(m_dev_name, O_RDWR | O_NONBLOCK)) < 0)
       {
         m_status = -errno;
-        LOGGING_DEBUG_C(DriverSVH, Serial, "Cannot open serial device '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << endl);
+        SVH_LOG_DEBUG_STREAM("Serial", "Cannot open serial device '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status));
         //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Cannot open serial device '%s'. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
         return false;
       }
@@ -102,7 +103,7 @@ namespace serial {
       if (tcgetattr(file_descr, &io_set_old) < 0)
       {
         m_status = -errno;
-        LOGGING_DEBUG_C(DriverSVH, Serial,  "Cannot get serial device m_status '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << endl);
+        SVH_LOG_DEBUG_STREAM("Serial",  "Cannot get serial device m_status '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status));
         //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Cannot get serial device m_status '%s'. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
         return false;
       }
@@ -124,7 +125,7 @@ namespace serial {
       if (tcsetattr(file_descr, TCSANOW, &io_set_new) < 0)
       {
         m_status = -errno;
-        LOGGING_DEBUG_C(DriverSVH, Serial, "Serial(" << m_dev_name << ") Error>> tcsetattr failed. Status (" << m_status << ":" << strerror(-m_status) << endl);
+        SVH_LOG_DEBUG_STREAM("Serial", "Serial(" << m_dev_name << ") Error>> tcsetattr failed. Status (" << m_status << ":" << strerror(-m_status));
         //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Serial(%s) Error>> tcsetattr failed. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
         return false;
       }
@@ -133,7 +134,7 @@ namespace serial {
 
       if (m_serial_flags.getModemControlFlags()!=SerialFlags::eMCF_UNDEFINED)
       {
-        LOGGING_DEBUG_C(DriverSVH, Serial, "Serial(" << m_dev_name << ") setting hardware modem control flags to 0x" << m_serial_flags.getModemControlFlags() << endl);
+        SVH_LOG_DEBUG_STREAM("Serial", "Serial(" << m_dev_name << ") setting hardware modem control flags to 0x" << m_serial_flags.getModemControlFlags());
         //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Serial(%s) setting hardware modem control flags to 0x%x\n", m_dev_name, m_serial_flags.getModemControlFlags());
         int modem_control_flags=0;
         if (m_serial_flags.getModemControlFlags() & SerialFlags::eMCF_DTR)
@@ -159,7 +160,7 @@ namespace serial {
     if (m_com == INVALID_HANDLE_VALUE)
     {
       m_status = GetLastError();
-      LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> open port failed (" << StatusText().c_str() << ")." << endl);
+      SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> open port failed (" << StatusText().c_str() << ").");
       //WARNINGMSG("Serial(%s): ERROR>> open port failed (%s).\n", m_dev_name, StatusText().c_str());
     }
 
@@ -169,7 +170,7 @@ namespace serial {
       if (!SetupComm(m_com, 0x4000, 0x4000))
       {
         m_status = GetLastError();
-        LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> SetupComm failed (" << StatusText().c_str() << ")." << endl);
+        SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> SetupComm failed (" << StatusText().c_str() << ").");
         //WARNINGMSG("Serial(%s): ERROR>> SetupComm failed (%s).\n", m_dev_name, StatusText().c_str());
       }
     }
@@ -182,7 +183,7 @@ namespace serial {
       if (!GetCommState(m_com, &dcb))
       {
         m_status = GetLastError();
-        LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> GetCommState failed (" << StatusText().c_str() << ")." << endl);
+        SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> GetCommState failed (" << StatusText().c_str() << ").");
         //WARNINGMSG("Serial(%s): ERROR>> GetCommState failed (%s).\n", m_dev_name, StatusText().c_str());
       }
     }
@@ -194,7 +195,7 @@ namespace serial {
       if (!SetCommState(m_com, &dcb))
       {
         m_status = GetLastError();
-        LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> SetCommState failed (" << StatusText().c_str() << ")." << endl);
+        SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> SetCommState failed (" << StatusText().c_str() << ").");
         //WARNINGMSG("Serial(%s): ERROR>> SetCommState failed (%s).\n", m_dev_name, StatusText().c_str());
         return false;
       }
@@ -236,7 +237,7 @@ namespace serial {
       if (tcgetattr(file_descr, &io_set) < 0)
       {
         m_status = -errno;
-        LOGGING_DEBUG_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): Error>> tcgetattr failed. Status (" << m_status << ":" << strerror(-m_status) << endl);
+        SVH_LOG_DEBUG_STREAM("Serial", "Serial(" << m_dev_name << "): Error>> tcgetattr failed. Status (" << m_status << ":" << strerror(-m_status));
         //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Serial Error>> tcgetattr (%s) failed. m_status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
       }
       else
@@ -250,12 +251,12 @@ namespace serial {
         if (tcsetattr(file_descr, TCSANOW, &io_set) < 0)
         {
           m_status = -errno;
-          LOGGING_DEBUG_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): Error>> tcsetattr failed. Status (" << m_status << ":" << strerror(-m_status) << endl);
+          SVH_LOG_DEBUG_STREAM("Serial", "Serial(" << m_dev_name << "): Error>> tcsetattr failed. Status (" << m_status << ":" << strerror(-m_status));
           //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Serial(%s) Error>> tcsetattr failed. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
         }
         else
         {
-          LOGGING_INFO_C(DriverSVH, Serial, "Serial:ChangeBaudrate " << speed << " successful." << endl);
+          SVH_LOG_INFO_STREAM("Serial", "Serial:ChangeBaudrate " << speed << " successful.");
           //INFOMSG("Serial:ChangeBaudrate %i successful\n", speed);
           m_status = 0;
         }
@@ -266,7 +267,7 @@ namespace serial {
   #endif
 
   #ifdef _SYSTEM_DARWIN_
-    LOGGING_WARNING_C(DriverSVH, Serial, "Serial:changeBaudrate() >> to be implemented" << endl);
+    SVH_LOG_WARN_STREAM("Serial", "Serial:changeBaudrate() >> to be implemented");
     //WARNINGMSG("Serial:changeBaudrate() >> to be implemented\n");
     return -1;
   #endif
@@ -279,7 +280,7 @@ namespace serial {
         || !PurgeComm(m_com, PURGE_TXCLEAR))
     {
       m_status = GetLastError();
-      LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> PurgeComm failed (" << StatusText().c_str() << ")." << endl);
+      SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> PurgeComm failed (" << StatusText().c_str() << ").");
       //WARNINGMSG("Serial(%s): ERROR>> PurgeComm failed (%s).\n", m_dev_name, StatusText().c_str());
     }
 
@@ -291,7 +292,7 @@ namespace serial {
       if (!GetCommState(m_com, &dcb))
       {
         m_status = GetLastError();
-        LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> GetCommState failed (" << StatusText().c_str() << ")." << endl);
+        SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> GetCommState failed (" << StatusText().c_str() << ").");
         //WARNINGMSG("Serial(%s): ERROR>> GetCommState failed (%s).\n", m_dev_name, StatusText().c_str());
       }
     }
@@ -303,7 +304,7 @@ namespace serial {
       if (!SetCommState(m_com, &dcb))
       {
         m_status = GetLastError();
-        LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> SetCommState failed (" << StatusText().c_str() << ")." << endl);
+        SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> SetCommState failed (" << StatusText().c_str() << ").");
         //WARNINGMSG("Serial(%s): ERROR>> SetCommState failed (%s).\n", m_dev_name, StatusText().c_str());
       }
     }
@@ -325,7 +326,7 @@ namespace serial {
     else
     {
       m_status = GetLastError();
-      LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> PurgeComm failed (" << StatusText().c_str() << ")." << endl);
+      SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> PurgeComm failed (" << StatusText().c_str() << ").");
       //WARNINGMSG("Serial(%s): ERROR>> PurgeComm failed (%s).\n", m_dev_name, StatusText().c_str());
     }
 
@@ -334,7 +335,7 @@ namespace serial {
     // could not test for LXRT device, so return -1 to be on the safe side
     if (tcflush(file_descr, TCIFLUSH) != 0)
     {
-      LOGGING_WARNING_C(DriverSVH, Serial, "tcflush failed :(" << endl);
+      SVH_LOG_WARN_STREAM("Serial", "tcflush failed :(");
       return -1;
     }
   #else
@@ -356,7 +357,7 @@ namespace serial {
     else
     {
       m_status = GetLastError();
-      LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> PurgeComm failed (" << StatusText().c_str() << ")." << endl);
+      SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> PurgeComm failed (" << StatusText().c_str() << ").");
       //WARNINGMSG("Serial(%s): ERROR>> PurgeComm failed (%s).\n", m_dev_name, StatusText().c_str());
     }
 
@@ -365,7 +366,7 @@ namespace serial {
     // could not test for LXRT device, so return -1 to be on the safe side
     if (tcflush(file_descr, TCOFLUSH) != 0)
     {
-      LOGGING_WARNING_C(DriverSVH, Serial, "tcflush failed :(" << endl);
+      SVH_LOG_WARN_STREAM("Serial", "tcflush failed :(");
       return -1;
     }
   #else
@@ -387,7 +388,7 @@ namespace serial {
       if ((bytes_out = write(file_descr, (char*)data, size)) < 0)
       {
         m_status = -errno;
-        LOGGING_DEBUG_C(DriverSVH, Serial, "Serial(" << m_dev_name << ":" << m_dev_name << "): Error on writing. Status (" << m_status << ":" << strerror(-m_status) << ")." << endl);
+        SVH_LOG_DEBUG_STREAM("Serial", "Serial(" << m_dev_name << ":" << m_dev_name << "): Error on writing. Status (" << m_status << ":" << strerror(-m_status) << ").");
         //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Serial(%s) Error on writing. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
       }
       else
@@ -406,7 +407,7 @@ namespace serial {
     if (!WriteFile(m_com, data, size, &bytes_written, NULL))
     {
       m_status = GetLastError();
-      LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> could not write data (" << StatusText().c_str() << ")." << endl);
+      SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> could not write data (" << StatusText().c_str() << ").");
       //WARNINGMSG("Serial(%s): ERROR>> could not write data (%s).\n", m_dev_name, StatusText().c_str());
     }
     else
@@ -467,7 +468,7 @@ namespace serial {
             if ((bytes_read_inc = read(file_descr, &buffer[bytes_read], size - bytes_read)) < 0)
             {
               m_status = -errno;
-              LOGGING_DEBUG_C(DriverSVH, Serial, "Error on reading '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << ")" << endl);
+              SVH_LOG_DEBUG_STREAM("Serial", "Error on reading '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << ")");
               //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Error on reading '%s'. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
               return m_status;
             }
@@ -489,7 +490,7 @@ namespace serial {
             if (ioctl(file_descr, FIONREAD, &bytes_read_inc) < 0)
             {
               m_status = -errno;
-              LOGGING_DEBUG_C(DriverSVH, Serial, "Error on ioctl FIONREAD '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << ")" << endl);
+              SVH_LOG_DEBUG_STREAM("Serial", "Error on ioctl FIONREAD '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << ")");
               //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Error on ioctl FIONREAD '%s'. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
               return m_status;
             }
@@ -501,7 +502,7 @@ namespace serial {
                 if ((bytes_read = read(file_descr, buffer, size)) < 0)
                 {
                   m_status = -errno;
-                  LOGGING_DEBUG_C(DriverSVH, Serial, "Error on read '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << ")" << endl);
+                  SVH_LOG_DEBUG_STREAM("Serial", "Error on read '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << ")");
                   //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Error on read '%s'. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
                   return m_status;
                 }
@@ -518,7 +519,7 @@ namespace serial {
         else if (select_return < 0)
         {
           m_status = -errno;
-          LOGGING_DEBUG_C(DriverSVH, Serial, "Error on select '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << ")" << endl);
+          SVH_LOG_DEBUG_STREAM("Serial", "Error on select '" << m_dev_name << "'. Status (" << m_status << ":" << strerror(-m_status) << ")");
           //DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Error on select '%s'. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
           return m_status;
         }
@@ -533,7 +534,7 @@ namespace serial {
 
 
   #ifdef _SYSTEM_DARWIN_
-    LOGGING_WARNING_C(DriverSVH, Serial, "Serial:Read() >> to be implemented!" << endl);
+    SVH_LOG_WARN_STREAM("Serial", "Serial:Read() >> to be implemented!");
     //WARNINGMSG("Serial:Read() >> to be implemented\n");
     return 0;
   #endif
@@ -553,7 +554,7 @@ namespace serial {
     if (!SetCommTimeouts(m_com, &timeout))
     {
       m_status = GetLastError();
-      LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> setting read timeout failed (" << StatusText().c_str() << ")" << endl);
+      SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> setting read timeout failed (" << StatusText().c_str() << ")");
       //WARNINGMSG("Serial(%s): ERROR>> setting read timeout failed (%s).\n", m_dev_name, StatusText().c_str());
     }
 
@@ -584,7 +585,7 @@ namespace serial {
           if (error != ERROR_TIMEOUT)
           {
             m_status = error;
-            LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> error during read (" << StatusText().c_str() << ")" << endl);
+            SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> error during read (" << StatusText().c_str() << ")");
             //WARNINGMSG("Serial(%s): ERROR>> error during read (%s).\n", m_dev_name, StatusText().c_str());
           }
         }
@@ -595,7 +596,7 @@ namespace serial {
       if (m_status == 0 && !return_on_less_data && bytes_remaining && now >= end_time)
       {
         m_status = ERROR_TIMEOUT;
-        LOGGING_WARNING_C(DriverSVH, Serial, "Serial(" << m_dev_name << "): ERROR>> error during read (" << StatusText().c_str() << ")" << endl);
+        SVH_LOG_WARN_STREAM("Serial", "Serial(" << m_dev_name << "): ERROR>> error during read (" << StatusText().c_str() << ")");
         //WARNINGMSG("Serial(%s): ERROR>> error during read (%s).\n", m_dev_name, StatusText().c_str());
       }
     }
@@ -674,14 +675,14 @@ namespace serial {
         if (tcsetattr(file_descr, TCSANOW, &io_set_old) < 0)
         {
           m_status = -errno;
-          LOGGING_DEBUG_C(DriverSVH, Serial, "Serial(" << m_dev_name << ") Error>> tcsetattr failed. Status (" << m_status << ":" << strerror(-m_status) << ")" << endl);
+          SVH_LOG_DEBUG_STREAM("Serial", "Serial(" << m_dev_name << ") Error>> tcsetattr failed. Status (" << m_status << ":" << strerror(-m_status) << ")");
           //DEBUGMSG(DD_SYSTEM, DL_CREATE, "Serial(%s) Error>> tcsetattr failed. Status (%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
         }
         // close device
         if (close(file_descr) < 0)
         {
           m_status = -errno;
-          LOGGING_DEBUG_C(DriverSVH, Serial, "Serial>> Error closing serial " << m_dev_name << ". Status (" << m_status << ":" << strerror(-m_status) << ")" << endl);
+          SVH_LOG_DEBUG_STREAM("Serial", "Serial>> Error closing serial " << m_dev_name << ". Status (" << m_status << ":" << strerror(-m_status) << ")");
           //DEBUGMSG(DD_SYSTEM, DL_CREATE, "Serial>> Error closing serial %s. Status(%i:%s)\n", m_dev_name, m_status, strerror(-m_status));
         }
       }

@@ -94,7 +94,7 @@ inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHF
 //! Output Stream operator for easy output of the firmware information
 inline std::ostream& operator << (std::ostream& o, const SVHFirmwareInfo& fw)
 {
-  o << fw.svh.c_str()  << " " << fw.version_major << "." << fw.version_minor << " : " << fw.text.c_str() << endl;
+  o << fw.svh.c_str()  << " " << fw.version_major << "." << fw.version_minor << " : " << fw.text.c_str() << std::endl;
   return o;
 }
 

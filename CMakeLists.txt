@@ -164,7 +164,7 @@ target_link_libraries(test_svh_receive
         svh-serial
         )
 add_test(NAME test_svh_receive COMMAND test_svh_receive)
-set_tests_properties(test_svh_receive PROPERTIES TIMEOUT 10) 
+set_tests_properties(test_svh_receive PROPERTIES TIMEOUT 10)
 
 # --------------------------------------------------------------------------------
 

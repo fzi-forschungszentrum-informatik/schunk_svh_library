@@ -22,10 +22,10 @@
  */
 //----------------------------------------------------------------------
 
+#include <chrono>
 #include <schunk_svh_library/control/SVHFingerManager.h>
 #include <schunk_svh_library/serial/SVHSerialPacket.h>
 #include <thread>
-#include <chrono>
 
 using namespace driver_svh;
 
@@ -63,5 +63,4 @@ int main(int argc, const char* argv[])
 
     finger_manager.disconnect();
   }
-
 }

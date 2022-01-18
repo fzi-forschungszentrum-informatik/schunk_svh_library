@@ -27,17 +27,17 @@
 #include "schunk_svh_library/serial/SerialFlags.h"
 
 #ifdef _SYSTEM_WIN32_
-typedef unsigned int   speed_t;
+typedef unsigned int speed_t;
 typedef int ssize_t;
 #endif
 
 #ifdef _SYSTEM_POSIX_
-# include <unistd.h>
-# ifdef _SYSTEM_DARWIN_
-#  include <termios.h>
-# else
-#  include <termio.h>
-# endif
+#  include <unistd.h>
+#  ifdef _SYSTEM_DARWIN_
+#    include <termios.h>
+#  else
+#    include <termio.h>
+#  endif
 #endif
 
 namespace driver_svh {
@@ -105,7 +105,7 @@ public:
    */
   bool Open(const SerialFlags& flags)
   {
-    m_serial_flags=flags;
+    m_serial_flags = flags;
     return Open();
   }
 
@@ -129,7 +129,7 @@ public:
   /*!
     Write data to serial out.
    */
-  ssize_t Write(const void *data, ssize_t size);
+  ssize_t Write(const void* data, ssize_t size);
   /*!
     Read data from device. This function waits until \param time us passed or
     the respected number of bytes are received via serial line.
@@ -138,7 +138,7 @@ public:
     If the parameter is false, data is only read from serial line, if at least
     \param size bytes are available.
    */
-  ssize_t Read(void *data, ssize_t size, unsigned long time = 100, bool return_on_less_data = true);
+  ssize_t Read(void* data, ssize_t size, unsigned long time = 100, bool return_on_less_data = true);
   /*!
     All routines return a negavtiv number on error. Then the global errno is
     stored into a private variable. Use this funtion to ask for this value.
@@ -146,14 +146,11 @@ public:
     succesful opening of the device by calling this function. It returns 0, if
     no error occured.
    */
-  int Status() const
-  {
-    return m_status;
-  }
+  int Status() const { return m_status; }
 
   std::string StatusText() const;
 
-  const char* DeviceName()const { return m_dev_name;}
+  const char* DeviceName() const { return m_dev_name; }
 
   /*!
     Return the file descriptor of the serial class
@@ -170,9 +167,9 @@ public:
 private:
   // Forbid copying.
   Serial(const Serial&);
-  Serial& operator = (const Serial&);
+  Serial& operator=(const Serial&);
 
-  void DumpData(void *data, size_t length);
+  void DumpData(void* data, size_t length);
 
 #ifdef _SYSTEM_WIN32_
   HANDLE m_com;
@@ -185,13 +182,12 @@ private:
   termios io_set_old;
 #endif
 
-  char *m_dev_name;
+  char* m_dev_name;
   SerialFlags m_serial_flags;
   int m_status;
-
 };
 
-}
-}
+} // namespace serial
+} // namespace driver_svh
 
 #endif

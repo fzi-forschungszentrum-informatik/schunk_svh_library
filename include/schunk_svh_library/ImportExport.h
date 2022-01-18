@@ -26,21 +26,21 @@
 #define DRIVER_SVH_IMPORT_EXPORT_H_INCLUDED
 
 #if defined(_SYSTEM_WIN32_) && !defined(_IC_STATIC_)
-#  pragma warning ( disable : 4251 )
+#  pragma warning(disable : 4251)
 
-# if defined DRIVER_SVH_EXPORT_SYMBOLS
-#  define DRIVER_SVH_IMPORT_EXPORT __declspec(dllexport)
-# else
-#  define DRIVER_SVH_IMPORT_EXPORT __declspec(dllimport)
-# endif
+#  if defined DRIVER_SVH_EXPORT_SYMBOLS
+#    define DRIVER_SVH_IMPORT_EXPORT __declspec(dllexport)
+#  else
+#    define DRIVER_SVH_IMPORT_EXPORT __declspec(dllimport)
+#  endif
 
 #elif defined(__GNUC__) && (__GNUC__ > 3) && !defined(_IC_STATIC_)
 
-# define DRIVER_SVH_IMPORT_EXPORT __attribute__ ((visibility("default")))
+#  define DRIVER_SVH_IMPORT_EXPORT __attribute__((visibility("default")))
 
 #else
 
-# define DRIVER_SVH_IMPORT_EXPORT
+#  define DRIVER_SVH_IMPORT_EXPORT
 
 #endif
 

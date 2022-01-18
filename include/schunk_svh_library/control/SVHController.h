@@ -31,30 +31,32 @@
  * channel wise. The iteration of channels is done in the finger controller.
  *
  * Request and Get principle: As the communication with the hand had some issues with the bandwith
- * there are two types of function calls. The request functions tell the driver to actually request the data
- * from the hardware. The get functions just get the last received value from the controller without actually
- * querrying the hardware. This might be changed in further releases.
+ * there are two types of function calls. The request functions tell the driver to actually request
+ * the data from the hardware. The get functions just get the last received value from the
+ * controller without actually querrying the hardware. This might be changed in further releases.
  */
 //----------------------------------------------------------------------
 #ifndef DRIVER_SVH_SVH_CONTROLLER_H_INCLUDED
 #define DRIVER_SVH_SVH_CONTROLLER_H_INCLUDED
 
 #include <schunk_svh_library/ImportExport.h>
-#include <schunk_svh_library/serial/SVHSerialInterface.h>
-#include <schunk_svh_library/serial/SVHReceiveThread.h>
+#include <schunk_svh_library/SVHFirmwareInfo.h>
 #include <schunk_svh_library/control/SVHControlCommand.h>
 #include <schunk_svh_library/control/SVHControllerFeedback.h>
-#include <schunk_svh_library/control/SVHCurrentSettings.h>
-#include <schunk_svh_library/SVHFirmwareInfo.h>
-#include <schunk_svh_library/control/SVHPositionSettings.h>
 #include <schunk_svh_library/control/SVHControllerState.h>
+#include <schunk_svh_library/control/SVHCurrentSettings.h>
 #include <schunk_svh_library/control/SVHEncoderSettings.h>
+#include <schunk_svh_library/control/SVHPositionSettings.h>
+#include <schunk_svh_library/serial/SVHReceiveThread.h>
+#include <schunk_svh_library/serial/SVHSerialInterface.h>
 
 namespace driver_svh {
 
-//! Channel indicates which motor to use in command calls. WARNING: DO NOT CHANGE THE ORDER OF THESE as it represents the hardware mapping
-enum{
-  eSVH_ALL = -1,   // this should be used with care as not all functions support it yet
+//! Channel indicates which motor to use in command calls. WARNING: DO NOT CHANGE THE ORDER OF THESE
+//! as it represents the hardware mapping
+enum
+{
+  eSVH_ALL           = -1, // this should be used with care as not all functions support it yet
   eSVH_THUMB_FLEXION = 0,
   eSVH_THUMB_OPPOSITION, // wrist
   eSVH_INDEX_FINGER_DISTAL,
@@ -64,7 +66,7 @@ enum{
   eSVH_RING_FINGER,
   eSVH_PINKY,
   eSVH_FINGER_SPREAD,
-  eSVH_DIMENSION //9
+  eSVH_DIMENSION // 9
 } typedef SVHChannel;
 
 /*!
@@ -77,7 +79,7 @@ enum{
 class DRIVER_SVH_IMPORT_EXPORT SVHController
 {
 public:
-  //!Constructs a controller class for the SCHUNK five finger hand.
+  //! Constructs a controller class for the SCHUNK five finger hand.
   SVHController();
 
   /*! SCHUNK five finger hand destructor
@@ -90,7 +92,7 @@ public:
    * \param dev_name System handle (filename in linux) to the device
    * \return true if connect was successfull
    */
-  bool connect(const std::string &dev_name);
+  bool connect(const std::string& dev_name);
 
   //! disconnect serial device
   void disconnect();
@@ -100,7 +102,7 @@ public:
    * \param channel Motorchanel to set the target for
    * \param position Target position for the channel given in encoder Ticks
    */
-  void setControllerTarget(const SVHChannel& channel, const int32_t &position);
+  void setControllerTarget(const SVHChannel& channel, const int32_t& position);
 
   /*!
    * \brief Setting new position controller target for all fingers
@@ -142,7 +144,7 @@ public:
    * \param channel Motor the new position controller settings will be applied to
    * \param position_settings new settings of the position controller
    */
-  void setPositionSettings(const SVHChannel& channel,const SVHPositionSettings& position_settings);
+  void setPositionSettings(const SVHChannel& channel, const SVHPositionSettings& position_settings);
 
   /*!
    * \brief request the settings of the current controller for a specific channel
@@ -155,7 +157,7 @@ public:
    * \param channel Motor the new current controller settings will be applied to
    * \param current_settings new settings of the current controller
    */
-  void setCurrentSettings(const SVHChannel& channel,const SVHCurrentSettings& current_settings);
+  void setCurrentSettings(const SVHChannel& channel, const SVHCurrentSettings& current_settings);
 
   /*!
    * \brief read out the mutipliers for the encoders from the hardware
@@ -176,8 +178,8 @@ public:
 
   /*!
    * \brief callback function for interpretation of packages
-   * \param packet SerialPacket containing the raw data, integrity should have been checked by SerialInterface
-   * \param packet_count count of received packets
+   * \param packet SerialPacket containing the raw data, integrity should have been checked by
+   * SerialInterface \param packet_count count of received packets
    */
   void receivedPacketCallback(const SVHSerialPacket& packet, unsigned int packet_count);
 
@@ -187,69 +189,70 @@ public:
    * \param ControllerFeedback (current, encoder position) of the specified channel
    * \return true if the feedback could be read, false otherwise
    *
-   * Controllerfeedback (crurrent,channel) is stored/updated in the controller once it is send by the hardware.
-   * This is the case once a controlCommand has been send or the feedback has
+   * Controllerfeedback (crurrent,channel) is stored/updated in the controller once it is send by
+   * the hardware. This is the case once a controlCommand has been send or the feedback has
    * specifically been requested by using the getControllerFeedback() function
    *
    */
-   bool getControllerFeedback(const SVHChannel &channel,SVHControllerFeedback& controller_feedback);
+  bool getControllerFeedback(const SVHChannel& channel, SVHControllerFeedback& controller_feedback);
 
-   /*!
-    * \brief request the latest stored positionsettings from the controller
-    * \param channel Motor to get the positionsettings for
-    * \param position_settings position settings to be returned
-    * \return true if the request was succesfull false otherwise
-    */
-   bool getPositionSettings(const SVHChannel &channel,SVHPositionSettings& position_settings);
+  /*!
+   * \brief request the latest stored positionsettings from the controller
+   * \param channel Motor to get the positionsettings for
+   * \param position_settings position settings to be returned
+   * \return true if the request was succesfull false otherwise
+   */
+  bool getPositionSettings(const SVHChannel& channel, SVHPositionSettings& position_settings);
 
-   /*!
-    * \brief request the latest stored currentsettings from the controller
-    * \param channel Motor to get the currentsettings for
-    * \param position_settings current settings to be returned
-    * \return true if the request was succesfull false otherwise
-    */
-   bool getCurrentSettings(const SVHChannel &channel,SVHCurrentSettings& current_settings);
+  /*!
+   * \brief request the latest stored currentsettings from the controller
+   * \param channel Motor to get the currentsettings for
+   * \param position_settings current settings to be returned
+   * \return true if the request was succesfull false otherwise
+   */
+  bool getCurrentSettings(const SVHChannel& channel, SVHCurrentSettings& current_settings);
 
-   /*!
-    * \brief get the latest stored Firmware information from the controller (NOT THE HARDWARE)
-    * \return the Firmware information
-    */
-   SVHFirmwareInfo getFirmwareInfo();
+  /*!
+   * \brief get the latest stored Firmware information from the controller (NOT THE HARDWARE)
+   * \return the Firmware information
+   */
+  SVHFirmwareInfo getFirmwareInfo();
 
-   /*!
-    * \brief requests the number of sent packages. Request ist transferred to the serial interface that knows about this count
-    * \return number of packages correctly sent
-    */
-   unsigned int getSentPackageCount();
+  /*!
+   * \brief requests the number of sent packages. Request ist transferred to the serial interface
+   * that knows about this count \return number of packages correctly sent
+   */
+  unsigned int getSentPackageCount();
 
-   /*!
-    * \brief request the number of correctly received packages. This number is refreshed every time the serialinterace calls the receivedPacket callback
-    * \return number of packages correctly received
-    */
-   unsigned int getReceivedPackageCount();
+  /*!
+   * \brief request the number of correctly received packages. This number is refreshed every time
+   * the serialinterace calls the receivedPacket callback \return number of packages correctly
+   * received
+   */
+  unsigned int getReceivedPackageCount();
 
-   /*!
-    * \brief resetPackageCounts sets the sent and reveived package counts to zero
-    */
-   void resetPackageCounts();
+  /*!
+   * \brief resetPackageCounts sets the sent and reveived package counts to zero
+   */
+  void resetPackageCounts();
 
-   /*!
-    * \brief Check if a channel was enabled
-    * \param channel to check
-    * \return True if an enable has been send to the hardware
-    */
-   bool isEnabled(const SVHChannel &channel);
+  /*!
+   * \brief Check if a channel was enabled
+   * \param channel to check
+   * \return True if an enable has been send to the hardware
+   */
+  bool isEnabled(const SVHChannel& channel);
 
-   //! Description values to get the corresponding string value to a channel enum
-   static const char * m_channel_description[];
+  //! Description values to get the corresponding string value to a channel enum
+  static const char* m_channel_description[];
 
-   //! Effort multipliers to calculate the torque of the motors for the individual channels
-   static const float channel_effort_constants[9][2];
+  //! Effort multipliers to calculate the torque of the motors for the individual channels
+  static const float channel_effort_constants[9][2];
 
-   //! Get all currently available controllerfeedbacks
-   void getControllerFeedbackAllChannels(SVHControllerFeedbackAllChannels &controller_feedback);
+  //! Get all currently available controllerfeedbacks
+  void getControllerFeedbackAllChannels(SVHControllerFeedbackAllChannels& controller_feedback);
+
 private:
-
   // Data Structures for holding configurations and feedback of the Controller
 
   //! vector of current controller parameters for each finger
@@ -273,19 +276,16 @@ private:
   // Hardware control
 
   //! Serial interface for transmission and reveibing of data packets
-  SVHSerialInterface * m_serial_interface;
+  SVHSerialInterface* m_serial_interface;
 
   //! Bitmask to tell which fingers are enabled
   uint16_t m_enable_mask;
 
-  //! store how many packages where actually received. Updated every time the receivepacket callback is called
+  //! store how many packages where actually received. Updated every time the receivepacket callback
+  //! is called
   unsigned int m_received_package_count;
-
-
-
-
 };
 
-}
+} // namespace driver_svh
 
 #endif

@@ -29,11 +29,12 @@ namespace websocket {
  */
 class WsbCallback
 {
-  public:
-    virtual ~WsbCallback() {}
-    virtual void onWSBClientMessage(std::string msg) = 0;
+public:
+  virtual ~WsbCallback() {}
+  virtual void onWSBClientMessage(std::string msg) = 0;
 };
 
-}}
+} // namespace websocket
+} // namespace schunk_svh_library
 
 #endif

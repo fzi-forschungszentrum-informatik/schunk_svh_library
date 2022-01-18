@@ -30,31 +30,34 @@
 
 namespace driver_svh {
 
-driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHSerialPacket& data)
+driver_svh::ArrayBuilder& operator<<(driver_svh::ArrayBuilder& ab, const SVHSerialPacket& data)
 {
   ab << data.index << data.address << static_cast<uint16_t>(data.data.size()) << data.data;
   return ab;
 }
 
-driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHSerialPacket& data)
+driver_svh::ArrayBuilder& operator>>(driver_svh::ArrayBuilder& ab, SVHSerialPacket& data)
 {
   // Disregard the size when deserializing as we get that anyway
-  uint16_t size ;
-   ab >> data.index >> data.address >> size >> data.data;
+  uint16_t size;
+  ab >> data.index >> data.address >> size >> data.data;
   return ab;
 }
 
-std::ostream& operator << (std::ostream& o, const SVHSerialPacket& sp)
+std::ostream& operator<<(std::ostream& o, const SVHSerialPacket& sp)
 {
-  o << "index: " << static_cast<int>(sp.index) << " address: " << "0x" << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(sp.address) << " Data: ";
+  o << "index: " << static_cast<int>(sp.index) << " address: "
+    << "0x" << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(sp.address)
+    << " Data: ";
   for (size_t i = 0; i < sp.data.size(); i++)
   {
-    o << "0x" << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(sp.data[i]) << " ";
+    o << "0x" << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(sp.data[i])
+      << " ";
   }
-  // Reset Output stream to decimal output .. otherwise it may confuse people and the stream operators have the tendency to hang on to these hints
-  std::cout << std::dec ;
+  // Reset Output stream to decimal output .. otherwise it may confuse people and the stream
+  // operators have the tendency to hang on to these hints
+  std::cout << std::dec;
   return o;
 }
 
-}
-
+} // namespace driver_svh

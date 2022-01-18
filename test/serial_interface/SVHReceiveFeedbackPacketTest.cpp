@@ -22,12 +22,12 @@
  */
 //----------------------------------------------------------------------
 
-#include <schunk_svh_library/serial/ByteOrderConversion.h>
-#include <schunk_svh_library/control/SVHPositionSettings.h>
-#include <schunk_svh_library/control/SVHControllerFeedback.h>
-#include <schunk_svh_library/control/SVHController.h>
-#include <schunk_svh_library/serial/SVHSerialPacket.h>
 #include <boost/bind/bind.hpp>
+#include <schunk_svh_library/control/SVHController.h>
+#include <schunk_svh_library/control/SVHControllerFeedback.h>
+#include <schunk_svh_library/control/SVHPositionSettings.h>
+#include <schunk_svh_library/serial/ByteOrderConversion.h>
+#include <schunk_svh_library/serial/SVHSerialPacket.h>
 
 using driver_svh::ArrayBuilder;
 using namespace driver_svh;
@@ -40,19 +40,22 @@ void receivedPacketCallback(const SVHSerialPacket& packet, unsigned int packet_c
   std::cout << "Received new packet with number " << packet_count << std::endl;
 
   // Extract Channel
-  uint8_t channel = (packet.address >> 4 ) & 0x0F;
+  uint8_t channel = (packet.address >> 4) & 0x0F;
   // Prepare Data for conversion
   ArrayBuilder ab;
   ab.appendWithoutConversion(packet.data);
 
   std::cout << "channel = " << static_cast<int>(channel) << std::endl;
 
-  if ((packet.address & 0x0F) == SVH_SET_CONTROL_COMMAND) // || ((packet.address & 0x0F) == SVH_SET_CONTROL_COMMAND)
+  if ((packet.address & 0x0F) ==
+      SVH_SET_CONTROL_COMMAND) // || ((packet.address & 0x0F) == SVH_SET_CONTROL_COMMAND)
   {
     SVHControllerFeedback controller_feedback;
 
     ab >> controller_feedback;
-    SVH_LOG_INFO_STREAM("SVHController", "Received a Control Feedback/Control Command packet for channel "<< channel);
+    SVH_LOG_INFO_STREAM("SVHController",
+                        "Received a Control Feedback/Control Command packet for channel "
+                          << channel);
 
     std::cout << "Controller Feedback " << controller_feedback << std::endl;
   }
@@ -65,12 +68,12 @@ int main(int argc, const char* argv[])
 
   std::string serial_device_name = "/dev/ttyUSB0";
 
-  SVHSerialInterface serial_com(boost::bind(&receivedPacketCallback,_1,_2));
+  SVHSerialInterface serial_com(boost::bind(&receivedPacketCallback, _1, _2));
   serial_com.connect(serial_device_name);
 
   while (true)
-  { }
+  {
+  }
 
   serial_com.close();
 }
-

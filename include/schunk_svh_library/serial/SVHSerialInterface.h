@@ -34,11 +34,10 @@
 // Windows declarations
 #include <schunk_svh_library/ImportExport.h>
 
-#include <schunk_svh_library/serial/SVHSerialPacket.h>
+#include <memory>
 #include <schunk_svh_library/serial/SVHReceiveThread.h>
+#include <schunk_svh_library/serial/SVHSerialPacket.h>
 #include <schunk_svh_library/serial/Serial.h>
-#include <memory>
-#include <memory>
 #include <thread>
 
 using driver_svh::serial::Serial;
@@ -52,10 +51,10 @@ class DRIVER_SVH_IMPORT_EXPORT SVHSerialInterface
 {
 public:
   //!
-  //! \brief Constructs a serial interface class for basic communication with the SCHUNK five finger hand.
-  //! \param received_packet_callback function to call whenever a packet was received
+  //! \brief Constructs a serial interface class for basic communication with the SCHUNK five finger
+  //! hand. \param received_packet_callback function to call whenever a packet was received
   //!
-  SVHSerialInterface(const ReceivedPacketCallback &received_packet_callback);
+  SVHSerialInterface(const ReceivedPacketCallback& received_packet_callback);
 
   //! Default DTOR
   ~SVHSerialInterface();
@@ -65,7 +64,7 @@ public:
   //! \param dev_name Filehandle of the device i.e. dev/ttyUSB0
   //! \return bool true if connection was succesfull
   //!
-  bool connect(const std::string &dev_name);
+  bool connect(const std::string& dev_name);
 
   //!
   //! \brief canceling receive thread and closing connection to serial port
@@ -83,7 +82,7 @@ public:
   //! \param packet the prepared Serial Packet
   //! \return true if successful
   //!
-  bool sendPacket(SVHSerialPacket &packet);
+  bool sendPacket(SVHSerialPacket& packet);
 
   //!
   //! \brief get number of transmitted packets
@@ -97,10 +96,11 @@ public:
   void resetTransmitPackageCount();
 
   /*!
-   * \brief printPacketOnConsole is a pure helper function to show what raw data is actually sent. This is not meant for any productive use other than understand whats going on.
-   * \param packet the prepared Serial Packet(without header information and such)
+   * \brief printPacketOnConsole is a pure helper function to show what raw data is actually sent.
+   * This is not meant for any productive use other than understand whats going on. \param packet
+   * the prepared Serial Packet(without header information and such)
    */
-  void printPacketOnConsole(SVHSerialPacket &packet);
+  void printPacketOnConsole(SVHSerialPacket& packet);
 
 private:
   void receivedPacketCallback(const SVHSerialPacket& packet, unsigned int packet_count);
@@ -114,7 +114,7 @@ private:
   std::shared_ptr<Serial> m_serial_device;
 
   //! cecksum calculation
-  void calcCheckSum(uint8_t &check_sum1, uint8_t &check_sum2, const SVHSerialPacket& packet);
+  void calcCheckSum(uint8_t& check_sum1, uint8_t& check_sum2, const SVHSerialPacket& packet);
 
   //! thread for receiving serial packets
   std::thread m_receive_thread;
@@ -132,6 +132,6 @@ private:
   unsigned int m_dummy_packets_printed;
 };
 
-}
+} // namespace driver_svh
 
 #endif

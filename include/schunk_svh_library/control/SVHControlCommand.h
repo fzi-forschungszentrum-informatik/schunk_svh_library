@@ -33,7 +33,8 @@ namespace driver_svh {
 
 /*!
  * \class SVHControlCommand
- * \brief ControlCommands are given as a single target position for the position controller (given in ticks)
+ * \brief ControlCommands are given as a single target position for the position controller (given
+ * in ticks)
  */
 struct SVHControlCommand
 {
@@ -44,16 +45,13 @@ struct SVHControlCommand
    * \brief Constructs a new control command to comandeer the position of the fingers
    * \param _position target position given in encoder ticks defaults to 0 if none is given
    **/
-  SVHControlCommand(const int32_t& _position = 0):
-    position(_position)
-  {}
-
-  //! Compares two SVHControlCommand objects.
-  bool operator == (const SVHControlCommand& other) const
+  SVHControlCommand(const int32_t& _position = 0)
+    : position(_position)
   {
-    return (position == other.position);
   }
 
+  //! Compares two SVHControlCommand objects.
+  bool operator==(const SVHControlCommand& other) const { return (position == other.position); }
 };
 
 /*!
@@ -76,10 +74,16 @@ struct SVHControlCommandAllChannels
    * \param _position6 Target position for the Ring_Finger
    * \param _position7 Target position for the Pinky
    * \param _position8 Target position for the Finger_Spread
-  **/
-  SVHControlCommandAllChannels(const int32_t& _position0,const int32_t& _position1,const int32_t& _position2,
-                                const int32_t& _position3,const int32_t& _position4,const int32_t& _position5,
-                                const int32_t& _position6,const int32_t& _position7,const int32_t& _position8)
+   **/
+  SVHControlCommandAllChannels(const int32_t& _position0,
+                               const int32_t& _position1,
+                               const int32_t& _position2,
+                               const int32_t& _position3,
+                               const int32_t& _position4,
+                               const int32_t& _position5,
+                               const int32_t& _position6,
+                               const int32_t& _position7,
+                               const int32_t& _position8)
   {
     commands.push_back(SVHControlCommand(_position0));
     commands.push_back(SVHControlCommand(_position1));
@@ -93,24 +97,25 @@ struct SVHControlCommandAllChannels
   }
 
   /*!
-   * \brief Construct a control command for all channels from a vector. Only the first 9 Values are used
-   * \param positions vector of position values. Only the first 9 values are evaluated
+   * \brief Construct a control command for all channels from a vector. Only the first 9 Values are
+   * used \param positions vector of position values. Only the first 9 values are evaluated
    */
   SVHControlCommandAllChannels(const std::vector<int32_t>& positions)
   {
-    commands.insert(commands.begin(),positions.begin(),positions.begin()+9);
+    commands.insert(commands.begin(), positions.begin(), positions.begin() + 9);
   }
 
   /*!
-   * \brief Constructs an empty SVHControlCommandAllChannels structure pre filled with 9 empty SVHControlCommands.
-   *        Mainly usefull for deserialisation
+   * \brief Constructs an empty SVHControlCommandAllChannels structure pre filled with 9 empty
+   * SVHControlCommands. Mainly usefull for deserialisation
    */
-  SVHControlCommandAllChannels():
-    commands(9,SVHControlCommand())
-  { }
+  SVHControlCommandAllChannels()
+    : commands(9, SVHControlCommand())
+  {
+  }
 
   //! Compares two SVHControlCommand objects.
-  bool operator == (const SVHControlCommandAllChannels& other) const
+  bool operator==(const SVHControlCommandAllChannels& other) const
   {
     return (commands == other.commands);
   }
@@ -119,7 +124,8 @@ struct SVHControlCommandAllChannels
 
 //! overload stream operator to easily serialize control commands for one channel
 //! slightly uneccessary at this point but put in anayway for the time it`s needed
-inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHControlCommand& data)
+inline driver_svh::ArrayBuilder& operator<<(driver_svh::ArrayBuilder& ab,
+                                            const SVHControlCommand& data)
 {
   ab << data.position;
   return ab;
@@ -127,24 +133,27 @@ inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, cons
 
 
 //! overload stream operator to easily deserialize control commands for one channel
-inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHControlCommand& data)
+inline driver_svh::ArrayBuilder& operator>>(driver_svh::ArrayBuilder& ab, SVHControlCommand& data)
 {
   ab >> data.position;
   return ab;
 }
 
 //! Output Stream operator for fast debugging
-inline std::ostream& operator << (std::ostream& o, const SVHControlCommand& cc)
+inline std::ostream& operator<<(std::ostream& o, const SVHControlCommand& cc)
 {
   o << "Pos: " << cc.position << std::endl;
   return o;
 }
 
 //! overload stream operator to easily serialize control commands for all channels
-inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, const SVHControlCommandAllChannels& data)
+inline driver_svh::ArrayBuilder& operator<<(driver_svh::ArrayBuilder& ab,
+                                            const SVHControlCommandAllChannels& data)
 {
   // We could also just give the whole vector in ...
-  for (std::vector<SVHControlCommand>::const_iterator it = data.commands.begin() ; it != data.commands.end(); ++it)
+  for (std::vector<SVHControlCommand>::const_iterator it = data.commands.begin();
+       it != data.commands.end();
+       ++it)
   {
     ab << *it;
   }
@@ -153,9 +162,12 @@ inline driver_svh::ArrayBuilder& operator << (driver_svh::ArrayBuilder& ab, cons
 
 
 //! overload stream operator to easily deserialize control commands for all channels
-inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHControlCommandAllChannels& data)
+inline driver_svh::ArrayBuilder& operator>>(driver_svh::ArrayBuilder& ab,
+                                            SVHControlCommandAllChannels& data)
 {
-  for (std::vector<SVHControlCommand>::iterator it = data.commands.begin() ; it != data.commands.end(); ++it)
+  for (std::vector<SVHControlCommand>::iterator it = data.commands.begin();
+       it != data.commands.end();
+       ++it)
   {
     ab >> *it;
   }
@@ -164,18 +176,20 @@ inline driver_svh::ArrayBuilder& operator >> (driver_svh::ArrayBuilder& ab, SVHC
 
 
 //! Output Stream operator of all channels control command
-inline std::ostream& operator << (std::ostream& o, const SVHControlCommandAllChannels& cc)
+inline std::ostream& operator<<(std::ostream& o, const SVHControlCommandAllChannels& cc)
 {
-  o << "Commands: " ;
+  o << "Commands: ";
   unsigned int i = 0;
-  for (std::vector<SVHControlCommand>::const_iterator it = cc.commands.begin() ; it != cc.commands.end(); ++it)
+  for (std::vector<SVHControlCommand>::const_iterator it = cc.commands.begin();
+       it != cc.commands.end();
+       ++it)
   {
-    o << "Chan " << i << " : "<< *it;
+    o << "Chan " << i << " : " << *it;
     ++i;
   }
   o << std::endl;
   return o;
 }
-}
+} // namespace driver_svh
 
 #endif // SVHCONTROLCOMMAND_H

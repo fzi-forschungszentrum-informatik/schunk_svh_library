@@ -1,0 +1,17 @@
+include:
+  - project: 'continuous_integration/ci_scripts'
+    ref: master
+    file: '/gitlab-ci-yml/catkin_pipeline.yml'
+
+pre-commit:
+  image: ids-git.fzi.de:5555/continuous_integration/ci_docker_images/ubuntu_20.04_workstation
+  stage: check
+  variables:
+    PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
+  script:
+    - apt-get update && apt-get install -y clang-format-10
+    - pip install pre-commit
+    - pre-commit run -a
+  cache:
+    paths:
+      - ${PRE_COMMIT_HOME}

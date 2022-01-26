@@ -93,8 +93,8 @@ endif()
 # Tests
 # --------------------------------------------------------------------------------
 add_executable(test_driver_svh
-        test/driver_svh/ByteOrderConversionTest.cpp
         test/driver_svh/MainTest.cpp
+        test/driver_svh/ByteOrderConversionTest.cpp
         test/driver_svh/SVHDriverTest.cpp
         )
 target_include_directories(test_driver_svh PUBLIC
@@ -107,6 +107,7 @@ target_link_libraries(test_driver_svh
 target_compile_definitions(test_driver_svh PUBLIC
         -D_SYSTEM_LINUX_
         -D_SYSTEM_POSIX_
+        -DBOOST_TEST_DYN_LINK
         )
 add_test(NAME test_driver_svh COMMAND test_driver_svh)
 

@@ -61,7 +61,6 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool>& disable_mask,
   , m_diagnostic_position_maximum(eSVH_DIMENSION, 0)
   , m_diagnostic_position_minimum(eSVH_DIMENSION, 0)
   , m_diagnostic_deadlock(eSVH_DIMENSION, 0)
-  , m_movement_state(eST_DEACTIVATED)
   , m_reset_speed_factor(0.2)
   , m_reset_timeout(reset_timeout)
   , m_current_settings(eSVH_DIMENSION)
@@ -71,24 +70,6 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool>& disable_mask,
   , m_home_settings(eSVH_DIMENSION)
   , m_serial_device("/dev/ttyUSB0")
 {
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-  m_ws_broadcaster = std::shared_ptr<schunk_svh_library::websocket::WsBroadcaster>(
-    new schunk_svh_library::websocket::WsBroadcaster(
-      schunk_svh_library::websocket::WsBroadcaster::eRT_SVH));
-  if (m_ws_broadcaster)
-  {
-    // Register a custom handler for received JSON Messages
-    m_ws_broadcaster->registerHintCallback(
-      std::bind(&SVHFingerManager::receivedHintMessage, this, std::placeholders::_1));
-
-    m_ws_broadcaster->robot->setInputToRadFactor(1);
-    m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);
-    m_ws_broadcaster->sendHints(); // Hints are updated Manually
-    m_ws_broadcaster->sendState(); // Initial send in case someone is waiting for it
-  }
-#endif
-
-
   // load home position default parameters
   setDefaultHomeSettings();
 
@@ -113,13 +94,6 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool>& disable_mask,
                           "Joint: "
                             << m_controller->m_channel_description[i]
                             << " was disabled as per user request. It will not do anything!");
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-      if (m_ws_broadcaster)
-      {
-        m_ws_broadcaster->robot->setHint(eHT_CHANNEL_SWITCHED_OF);
-        m_ws_broadcaster->sendHints(); // Hints are updated Manually
-      }
-#endif
     }
   }
 
@@ -153,17 +127,6 @@ bool SVHFingerManager::connect(const std::string& dev_name, const unsigned int& 
 {
   SVH_LOG_DEBUG_STREAM("SVHFingerManager",
                        "Finger manager is trying to connect to the Hardware...");
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-  // Reset the connection specific hints and give it a go again.
-  if (m_ws_broadcaster)
-  {
-    m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
-    m_ws_broadcaster->robot->clearHint(eHT_DEVICE_NOT_FOUND);
-    m_ws_broadcaster->robot->clearHint(eHT_CONNECTION_FAILED);
-    m_ws_broadcaster->sendHints(); // Hints are updated Manually
-  }
-#endif
 
   // Save device handle for next use
   m_serial_device = dev_name;
@@ -234,13 +197,6 @@ bool SVHFingerManager::connect(const std::string& dev_name, const unsigned int& 
                                  "Connection timeout! Could not connect to SCHUNK five finger hand."
                                    << "Send packages = " << send_count
                                    << ", received packages = " << received_count);
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-            if (m_ws_broadcaster)
-            {
-              m_ws_broadcaster->robot->setHint(eHT_CONNECTION_FAILED);
-              m_ws_broadcaster->sendHints(); // Hints are updated Manually
-            }
-#endif
           }
           std::this_thread::sleep_for(std::chrono::microseconds(50000));
         }
@@ -279,22 +235,6 @@ bool SVHFingerManager::connect(const std::string& dev_name, const unsigned int& 
 
       if (m_connected)
       {
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
-        if (m_ws_broadcaster)
-        {
-          // Intitial connection, any failures regarding the connection must be gone so we can
-          // safely clear them all
-          m_ws_broadcaster->robot->clearHint(eHT_CONNECTION_FAILED);
-          m_ws_broadcaster->robot->clearHint(eHT_NOT_CONNECTED);
-          m_ws_broadcaster->robot->clearHint(eHT_DEVICE_NOT_FOUND);
-          // Next up, resetting, so give a hint for that
-          m_ws_broadcaster->robot->setHint(eHT_NOT_RESETTED);
-          m_ws_broadcaster
-            ->sendHints(); // Needs to be called if not done by the feedback polling thread
-        }
-#endif
-
         // Request firmware information once at the beginning, it will print out on the console
         m_controller->requestFirmwareInfo();
 
@@ -317,13 +257,6 @@ bool SVHFingerManager::connect(const std::string& dev_name, const unsigned int& 
     }
     else
     {
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-      if (m_ws_broadcaster)
-      {
-        m_ws_broadcaster->robot->setHint(eHT_DEVICE_NOT_FOUND);
-        m_ws_broadcaster->sendHints(); // Hints are updated Manually
-      }
-#endif
       SVH_LOG_ERROR_STREAM("SVHFingerManager", "Connection FAILED! Device could NOT be opened");
     }
   }
@@ -351,16 +284,6 @@ void SVHFingerManager::disconnect()
   {
     m_controller->disconnect();
   }
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-  // Connection hint is always true when no connection is established :)
-  if (m_ws_broadcaster)
-  {
-    m_ws_broadcaster->robot->clearAllHints();
-    m_ws_broadcaster->robot->setHint(eHT_NOT_CONNECTED);
-    m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
-  }
-#endif
 }
 
 //! reset function for a single finger
@@ -391,35 +314,12 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
         reset_all_success = reset_all_success && reset_success;
       }
 
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-      // In case we still told the user that this was an issue, it is clearly resolved now.
-      if (reset_all_success && m_ws_broadcaster)
-      {
-        m_ws_broadcaster->robot->clearHint(eHT_RESET_FAILED);
-        m_ws_broadcaster->robot->clearHint(eHT_NOT_RESETTED);
-        m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
-      }
-#endif
-
       return reset_all_success;
     }
     else if (channel > eSVH_ALL && eSVH_ALL < eSVH_DIMENSION)
     {
       m_diagnostic_encoder_state[channel] = false;
       m_diagnostic_current_state[channel] = false;
-      // Tell the websockets
-      MovementState last_movement_state = m_movement_state;
-      setMovementState(eST_RESETTING);
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-      if (m_ws_broadcaster)
-      {
-        m_ws_broadcaster->robot->setJointEnabled(false, channel);
-        m_ws_broadcaster->robot->setJointHomed(false, channel);
-      }
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
 
       SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Start homing channel " << channel);
 
@@ -558,14 +458,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
             SVH_LOG_ERROR_STREAM("SVHFingerManager",
                                  "Timeout: Aborted finding home position for channel " << channel);
             // Timeout could mean serious hardware issues or just plain wrong settings
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
-            if (m_ws_broadcaster)
-            {
-              m_ws_broadcaster->robot->setHint(eHT_RESET_FAILED);
-              m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
-            }
-#endif
             return false;
           }
 
@@ -688,31 +580,6 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
         reset_all_success == reset_all_success&& m_is_homed[channel];
       }
 
-      if (reset_all_success)
-      {
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-        // In case we still told the user that this was an issue, it is clearly resolved now.
-        if (m_ws_broadcaster)
-        {
-          m_ws_broadcaster->robot->clearHint(eHT_RESET_FAILED);
-          m_ws_broadcaster->robot->clearHint(eHT_NOT_RESETTED);
-          m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
-        }
-#endif
-        setMovementState(eST_RESETTED);
-      }
-      else
-      {
-        setMovementState(last_movement_state);
-      }
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-      if (m_ws_broadcaster)
-      {
-        m_ws_broadcaster->robot->setJointHomed(true, channel);
-      }
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
       SVH_LOG_INFO_STREAM("SVHFingerManager", "Successfully homed channel " << channel);
 
       return true;
@@ -788,19 +655,6 @@ bool SVHFingerManager::enableChannel(const SVHChannel& channel)
       {
         m_controller->enableChannel(channel);
       }
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-      if (m_ws_broadcaster)
-      {
-        m_ws_broadcaster->robot->setJointEnabled(true, channel);
-      }
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
-      setMovementState(eST_PARTIALLY_ENABLED);
-      if (isEnabled(eSVH_ALL))
-      {
-        setMovementState(eST_ENABLED);
-      }
     }
     return true;
   }
@@ -823,15 +677,6 @@ void SVHFingerManager::disableChannel(const SVHChannel& channel)
       m_controller->disableChannel(channel);
     }
 
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-    if (m_ws_broadcaster)
-    {
-      m_ws_broadcaster->robot->setJointEnabled(false, channel);
-    }
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
-    setMovementState(eST_PARTIALLY_ENABLED);
-
     bool all_disabled = true;
     for (size_t i = 0; i < eSVH_DIMENSION; ++i)
     {
@@ -839,10 +684,6 @@ void SVHFingerManager::disableChannel(const SVHChannel& channel)
       // answer that they are enabled
       all_disabled =
         all_disabled && (m_is_switched_off[channel] || !isEnabled(static_cast<SVHChannel>(i)));
-    }
-    if (all_disabled)
-    {
-      setMovementState(eST_DEACTIVATED);
     }
   }
 }
@@ -900,94 +741,6 @@ bool SVHFingerManager::getPosition(const SVHChannel& channel, double& position)
     return false;
   }
 }
-
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-void SVHFingerManager::receivedHintMessage(const int& hint)
-{
-  SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Received a special command to clear error :" << hint);
-  switch (hint)
-  {
-    case eHT_DEVICE_NOT_FOUND:
-      SVH_LOG_DEBUG_STREAM("SVHFingerManager",
-                           "Retrying connection with device handle: " << m_serial_device);
-      connect(m_serial_device);
-      break;
-    case eHT_CONNECTION_FAILED:
-      SVH_LOG_DEBUG_STREAM("SVHFingerManager",
-                           "Retrying connection with device handle: " << m_serial_device);
-      connect(m_serial_device);
-      break;
-    case eHT_NOT_RESETTED:
-      SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Resetting ALL fingers ");
-      resetChannel(eSVH_ALL);
-      break;
-    case eHT_NOT_CONNECTED:
-      SVH_LOG_DEBUG_STREAM("SVHFingerManager",
-                           "Retrying connection with device handle: " << m_serial_device);
-      connect(m_serial_device);
-      break;
-    case eHT_RESET_FAILED:
-      SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Resetting ALL fingers ");
-      resetChannel(eSVH_ALL);
-      break;
-    case eHT_CHANNEL_SWITCHED_OF:
-      SVH_LOG_DEBUG_STREAM("SVHFingerManager",
-                           "No specific action associated with command" << hint);
-      break;
-    case eHT_DANGEROUS_CURRENTS:
-      SVH_LOG_DEBUG_STREAM("SVHFingerManager",
-                           "No specific action associated with command" << hint);
-      break;
-    default:
-      SVH_LOG_ERROR_STREAM(
-        "SVHFingerManager",
-        "Special error clearing command "
-          << hint
-          << " could not be mapped. No action is taken please contact support if this happens.");
-      break;
-  }
-}
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-void SVHFingerManager::updateWebSocket()
-{
-  if (m_ws_broadcaster)
-  {
-    double position;
-    // double current // will be implemented in future releases
-    for (size_t i = 0; i < eSVH_DIMENSION; ++i)
-    {
-      // NOTE: Although the call to getPosition and current cann fail due to multiple reason, the
-      // only one we would encounter with these calls is a non-homed finger. So it is quite safe to
-      // assume that the finger is NOT homed if these calls fail and we can do without multiple
-      // acces to the homed variable
-
-      if (isHomed(static_cast<SVHChannel>(i)) &&
-          getPosition(static_cast<SVHChannel>(i), position)) // && (getCurrent(i,current))
-      {
-        m_ws_broadcaster->robot->setJointPosition(position, i);
-        // m_ws_broadcaster>robot>setJointCurrent(current,i); // will be implemented in future
-        // releases
-      }
-      else
-      {
-        m_ws_broadcaster->robot->setJointHomed(false, i);
-      }
-
-      // One of the few places we actually need to call the sendstate as this function is
-      // periodically called by the feedback polling thread
-      if (!m_ws_broadcaster->sendState())
-      {
-        // SVH_LOG_INFO_STREAM("SVHFingerManager", "Can't send ws_broadcaster state - reconnect
-        // pending...");
-      }
-    }
-  }
-}
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
 
 // returns actual current value for given channel
 bool SVHFingerManager::getCurrent(const SVHChannel& channel, double& current)
@@ -1222,18 +975,6 @@ bool SVHFingerManager::isHomed(const SVHChannel& channel)
   }
 }
 
-void SVHFingerManager::setMovementState(const SVHFingerManager::MovementState& state)
-{
-  m_movement_state = state;
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-  if (m_ws_broadcaster)
-  {
-    m_ws_broadcaster->robot->setMovementState(state);
-  }
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-}
-
 bool SVHFingerManager::getCurrentSettings(const SVHChannel& channel,
                                           SVHCurrentSettings& current_settings)
 {
@@ -1335,13 +1076,6 @@ bool SVHFingerManager::setCurrentSettings(const SVHChannel& channel,
       SVH_LOG_ERROR_STREAM("SVHFingerManager",
                            "WARNING!!! Current Controller Params for channel "
                              << channel << " would be dangerous! Currents are limited!!!");
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-      if (m_ws_broadcaster)
-      {
-        m_ws_broadcaster->robot->setHint(eHT_DANGEROUS_CURRENTS);
-        m_ws_broadcaster->sendHints(); // Hints are Transmitted Manually
-      }
-#endif
       return false;
     }
 
@@ -1891,10 +1625,6 @@ void SVHFingerManager::pollFeedback()
     if (isConnected())
     {
       requestControllerFeedback(eSVH_ALL);
-
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-      m_finger_manager->updateWebSocket();
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
     }
     else
     {

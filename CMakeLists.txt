@@ -12,9 +12,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # System dependencies
 find_package(Threads REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(JSONCPP REQUIRED jsoncpp)
-pkg_check_modules(ZMQ REQUIRED libzmq)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 # --------------------------------------------------------------------------------
@@ -52,7 +49,6 @@ target_include_directories(svh-library PUBLIC
 
 target_link_libraries(svh-library PUBLIC
         svh-serial
-        svh-websocket
         )
 
 
@@ -92,29 +88,6 @@ endif()
 
 # --------------------------------------------------------------------------------
 
-add_library(svh-websocket SHARED
-        src/websocket/ZMQClient.cpp
-        src/websocket/RobotState.cpp
-        src/websocket/LWA4PState.cpp
-        src/websocket/SVHState.cpp
-        src/websocket/WsBroadcaster.cpp
-        )
-
-add_library(Schunk::svh-websocket ALIAS svh-websocket)
-
-target_include_directories(svh-websocket PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-        ${JSONCPP_INCLUDE_DIRS}
-        )
-
-target_link_libraries(svh-websocket PUBLIC
-        ${JSONCPP_LIBRARIES}
-        ${ZMQ_LIBRARIES}
-        )
-
-target_compile_definitions(svh-websocket PUBLIC
-        )
 
 # --------------------------------------------------------------------------------
 # Tests
@@ -218,7 +191,6 @@ enable_testing()
 install(TARGETS
         svh-library
         svh-serial
-        svh-websocket
         EXPORT schunk_svh_library_targets
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib

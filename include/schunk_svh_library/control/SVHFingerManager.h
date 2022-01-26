@@ -41,21 +41,6 @@
 #include <thread>
 
 
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-#  include <schunk_svh_library/websocket/WsBroadcaster.h>
-#else
-// Forward Deklaration of the WsBroadcaster
-// This is not needed for normal driver operation
-// but might be added later. To keep the interface the same
-// a forward declaration becomes necessary
-namespace schunk_svh_library {
-namespace websocket {
-class WsBroadcaster;
-}
-} // namespace schunk_svh_library
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
-
 namespace driver_svh {
 
 /*! This class manages controller parameters and the finger reset.
@@ -63,21 +48,6 @@ namespace driver_svh {
 class DRIVER_SVH_IMPORT_EXPORT SVHFingerManager
 {
 public:
-  /*!
-   * \brief The MovementState enum indicated the overall state of the hand. Currently only used for
-   * updating the status websocket
-   */
-  enum MovementState
-  {
-    eST_DEACTIVATED,
-    eST_RESETTING,
-    eST_RESETTED,
-    eST_ENABLED,
-    eST_PARTIALLY_ENABLED,
-    eST_FAULT,
-    eST_DIMENSION
-  };
-
   /*!
    * \brief The Hints enum provides mapping to hints that can be sent to the web-diagnostic
    * interface
@@ -215,14 +185,6 @@ public:
   //!
   bool isHomed(const SVHChannel& channel);
 
-  /*!
-   * \brief setMovementState Updates the movement state of the overll hand indicating the overall
-   * status \param state current movement state \note this is only used for monitoring purposes at
-   * the moment, driverwise there is no need to call it but it is used by web frontends
-   */
-  void setMovementState(const MovementState& state);
-
-
   //! requests the current controller state to be updated
   //! @note This is a debuging function. Should not be called by users
   void requestControllerState();
@@ -354,32 +316,11 @@ public:
                                   const unsigned int& _retry_count = 3);
 
 
-#ifdef _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-  /*!
-   * \brief updateWebSocket Will gather the current state of the hand and send it out via websocket
-   * \note this function will NOT update everything as it would be to much overhead to ask every
-   * single time if a finger is enabled or not. Things that happen only sometimes will be updated in
-   * the corresponding functions (enable, diable, reset and so on) this function is meant to be used
-   * for the periodically changing states
-   */
-  void updateWebSocket();
-
-  /*!
-   * \brief receivedHintMessage Parser for received Hint commands (via callback from the
-   * broadcaster) \param int the HintCommand received from the websocket
-   */
-  void receivedHintMessage(const int& hint);
-
-#endif // _SCHUNK_SVH_LIBRARY_WEBSOCKET_
-
   // ----------------------------------------------------------------------
   // ---- private functions and varaibles
   // ----------------------------------------------------------------------
 
 private:
-  //! \brief Websocket handle for updating diagnostic backend (OPTIONAL)
-  std::shared_ptr<schunk_svh_library::websocket::WsBroadcaster> m_ws_broadcaster;
-
   //! \brief pointer to svh controller
   SVHController* m_controller;
 
@@ -442,9 +383,6 @@ private:
 
   //! \brief vectors storing diagnostic information, diagnostics deadlock
   std::vector<double> m_diagnostic_deadlock;
-
-  //! Overall movement State to indicate what the hand is doing at the moment
-  MovementState m_movement_state;
 
   //! Factor for determining the finger speed during reset. Only 0.0-1.0 is allowed
   float m_reset_speed_factor;

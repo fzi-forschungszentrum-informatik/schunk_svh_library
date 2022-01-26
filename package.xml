@@ -17,6 +17,9 @@
   <url type="bugtracker">https://github.com/fzi-forschungszentrum-informatik/schunk_svh_library/issues</url>
   <url type="repository">https://github.com/fzi-forschungszentrum-informatik/schunk_svh_library</url>
 
+  <build_depend>boost</build_depend>
+  <test_depend>boost</test_depend>
+
   <buildtool_depend>cmake</buildtool_depend>
 
   <exec_depend condition="$ROS_VERSION == 1">catkin</exec_depend>

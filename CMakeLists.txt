@@ -215,3 +215,19 @@ install(FILES schunk_svh_libraryConfig.cmake
 install(DIRECTORY include/schunk_svh_library
   DESTINATION include
   FILES_MATCHING PATTERN "*.h")
+
+#### Begin import ####
+# Imported from ros-industrial/ros_industrial_cmake_boilerplate
+# https://github.com/ros-industrial/ros_industrial_cmake_boilerplate/blob/master/ros_industrial_cmake_boilerplate/cmake/cmake_tools.cmake
+# Copyright (C) 2018 by George Cave - gcave@stablecoder.ca
+# Copyright (c) 2020, Southwest Research Institute
+# Licensed under Apache-2.0 license
+
+# Allows Colcon to find non-Ament packages when using workspace underlays
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv "prepend-non-duplicate;AMENT_PREFIX_PATH;")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ros_package_path.dsv "prepend-non-duplicate;ROS_PACKAGE_PATH;")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ros_package_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
+#### End import ####

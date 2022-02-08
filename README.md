@@ -4,13 +4,6 @@ TODO:
 
 ## Installation
 
-Make sure that `cmake` finds IC-related exports with
-setting an environment variable in the shell for cmake (adjust to your setup):
-
-```bash
-export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/home/scherzin/src/robot_folders/checkout/schunk_svh_ros1/ic_workspace/export
-```
-
 Start an *out of source build* in the parent folder of this package with
 ```bash
 mkdir build && cd build

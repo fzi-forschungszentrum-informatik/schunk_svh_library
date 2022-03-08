@@ -21,7 +21,7 @@ industrial_ci_foxy:
   extends: .industrial_ci
   variables:
     ROS_DISTRO: "foxy"
-    DO_TEST: "${TEST_FOXY}"
+    DO_TEST: "false"
     CLANG_TIDY: "true"
   except:
     variables:

@@ -49,43 +49,43 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool>& disable_mask,
   , m_connection_feedback_given(false)
   , m_homing_timeout(10)
   , m_ticks2rad(0)
-  , m_position_min(E_SVH_DIMENSION, 0)
-  , m_position_max(E_SVH_DIMENSION, 0)
-  , m_position_home(E_SVH_DIMENSION, 0)
-  , m_is_homed(E_SVH_DIMENSION, false)
-  , m_is_switched_off(E_SVH_DIMENSION, false)
-  , m_diagnostic_encoder_state(E_SVH_DIMENSION, false)
-  , m_diagnostic_current_state(E_SVH_DIMENSION, false)
-  , m_diagnostic_current_maximum(E_SVH_DIMENSION, 0)
-  , m_diagnostic_current_minimum(E_SVH_DIMENSION, 0)
-  , m_diagnostic_position_maximum(E_SVH_DIMENSION, 0)
-  , m_diagnostic_position_minimum(E_SVH_DIMENSION, 0)
-  , m_diagnostic_deadlock(E_SVH_DIMENSION, 0)
+  , m_position_min(SVH_DIMENSION, 0)
+  , m_position_max(SVH_DIMENSION, 0)
+  , m_position_home(SVH_DIMENSION, 0)
+  , m_is_homed(SVH_DIMENSION, false)
+  , m_is_switched_off(SVH_DIMENSION, false)
+  , m_diagnostic_encoder_state(SVH_DIMENSION, false)
+  , m_diagnostic_current_state(SVH_DIMENSION, false)
+  , m_diagnostic_current_maximum(SVH_DIMENSION, 0)
+  , m_diagnostic_current_minimum(SVH_DIMENSION, 0)
+  , m_diagnostic_position_maximum(SVH_DIMENSION, 0)
+  , m_diagnostic_position_minimum(SVH_DIMENSION, 0)
+  , m_diagnostic_deadlock(SVH_DIMENSION, 0)
   , m_reset_speed_factor(0.2)
   , m_reset_timeout(reset_timeout)
-  , m_current_settings(E_SVH_DIMENSION)
-  , m_current_settings_given(E_SVH_DIMENSION, false)
-  , m_position_settings(E_SVH_DIMENSION)
-  , m_position_settings_given(E_SVH_DIMENSION, false)
-  , m_home_settings(E_SVH_DIMENSION)
+  , m_current_settings(SVH_DIMENSION)
+  , m_current_settings_given(SVH_DIMENSION, false)
+  , m_position_settings(SVH_DIMENSION)
+  , m_position_settings_given(SVH_DIMENSION, false)
+  , m_home_settings(SVH_DIMENSION)
   , m_serial_device("/dev/ttyUSB0")
 {
   // load home position default parameters
   setDefaultHomeSettings();
 
   // set default reset order of all channels
-  m_reset_order.resize(E_SVH_DIMENSION);
-  m_reset_order[0] = E_SVH_INDEX_FINGER_PROXIMAL;
-  m_reset_order[1] = E_SVH_MIDDLE_FINGER_PROXIMAL;
-  m_reset_order[2] = E_SVH_THUMB_OPPOSITION;
-  m_reset_order[3] = E_SVH_THUMB_FLEXION;
-  m_reset_order[4] = E_SVH_FINGER_SPREAD;
-  m_reset_order[5] = E_SVH_MIDDLE_FINGER_DISTAL;
-  m_reset_order[6] = E_SVH_INDEX_FINGER_DISTAL;
-  m_reset_order[7] = E_SVH_RING_FINGER;
-  m_reset_order[8] = E_SVH_PINKY;
+  m_reset_order.resize(SVH_DIMENSION);
+  m_reset_order[0] = SVH_INDEX_FINGER_PROXIMAL;
+  m_reset_order[1] = SVH_MIDDLE_FINGER_PROXIMAL;
+  m_reset_order[2] = SVH_THUMB_OPPOSITION;
+  m_reset_order[3] = SVH_THUMB_FLEXION;
+  m_reset_order[4] = SVH_FINGER_SPREAD;
+  m_reset_order[5] = SVH_MIDDLE_FINGER_DISTAL;
+  m_reset_order[6] = SVH_INDEX_FINGER_DISTAL;
+  m_reset_order[7] = SVH_RING_FINGER;
+  m_reset_order[8] = SVH_PINKY;
 
-  for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+  for (size_t i = 0; i < SVH_DIMENSION; ++i)
   {
     m_is_switched_off[i] = disable_mask[i];
     if (m_is_switched_off[i])
@@ -97,13 +97,13 @@ SVHFingerManager::SVHFingerManager(const std::vector<bool>& disable_mask,
     }
   }
 
-  m_diagnostic_encoder_state.resize(E_SVH_DIMENSION, false);
-  m_diagnostic_current_state.resize(E_SVH_DIMENSION, false);
-  m_diagnostic_current_maximum.resize(E_SVH_DIMENSION, 0.0);
-  m_diagnostic_current_minimum.resize(E_SVH_DIMENSION, 0.0);
-  m_diagnostic_position_maximum.resize(E_SVH_DIMENSION, 0.0);
-  m_diagnostic_position_minimum.resize(E_SVH_DIMENSION, 0.0);
-  m_diagnostic_deadlock.resize(E_SVH_DIMENSION, 0.0);
+  m_diagnostic_encoder_state.resize(SVH_DIMENSION, false);
+  m_diagnostic_current_state.resize(SVH_DIMENSION, false);
+  m_diagnostic_current_maximum.resize(SVH_DIMENSION, 0.0);
+  m_diagnostic_current_minimum.resize(SVH_DIMENSION, 0.0);
+  m_diagnostic_position_maximum.resize(SVH_DIMENSION, 0.0);
+  m_diagnostic_position_minimum.resize(SVH_DIMENSION, 0.0);
+  m_diagnostic_deadlock.resize(SVH_DIMENSION, 0.0);
 
   m_firmware_info.version_major = 0;
   m_firmware_info.version_minor = 0;
@@ -153,10 +153,10 @@ bool SVHFingerManager::connect(const std::string& dev_name, const unsigned int& 
         // load default current settings
         std::vector<SVHCurrentSettings> current_settings = getDefaultCurrentSettings();
 
-        m_controller->disableChannel(E_SVH_ALL);
+        m_controller->disableChannel(SVH_ALL);
 
         // initialize all channels
-        for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+        for (size_t i = 0; i < SVH_DIMENSION; ++i)
         {
           // request controller feedback to have a valid starting point
           m_controller->requestControllerFeedback(static_cast<SVHChannel>(i));
@@ -292,10 +292,10 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
   if (m_connected)
   {
     // reset all channels
-    if (channel == E_SVH_ALL)
+    if (channel == SVH_ALL)
     {
       bool reset_all_success = true;
-      for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+      for (size_t i = 0; i < SVH_DIMENSION; ++i)
       {
         // try three times to reset each finger
         size_t max_reset_counter = 3;
@@ -316,7 +316,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
 
       return reset_all_success;
     }
-    else if (channel > E_SVH_ALL && E_SVH_ALL < E_SVH_DIMENSION)
+    else if (channel > SVH_ALL && SVH_ALL < SVH_DIMENSION)
     {
       m_diagnostic_encoder_state[channel] = false;
       m_diagnostic_current_state[channel] = false;
@@ -454,7 +454,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
           // check for time out: Abort, if position does not change after homing timeout.
           if ((std::chrono::high_resolution_clock::now() - start_time) > m_homing_timeout)
           {
-            m_controller->disableChannel(E_SVH_ALL);
+            m_controller->disableChannel(SVH_ALL);
             SVH_LOG_ERROR_STREAM("SVHFingerManager",
                                  "Timeout: Aborted finding home position for channel " << channel);
             // Timeout could mean serious hardware issues or just plain wrong settings
@@ -558,7 +558,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
           }
         }
 
-        m_controller->disableChannel(E_SVH_ALL);
+        m_controller->disableChannel(SVH_ALL);
         // std::this_thread::sleep_for(std::chrono::microseconds(8000));
         SVH_LOG_DEBUG_STREAM("SVHFingerManager",
                              "Restoring default position values for controller of channel "
@@ -575,7 +575,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
 
       // Check if this reset has trigger the reset of all the Fingers
       bool reset_all_success = true;
-      for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+      for (size_t i = 0; i < SVH_DIMENSION; ++i)
       {
         reset_all_success == reset_all_success&& m_is_homed[channel];
       }
@@ -602,7 +602,7 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
 bool SVHFingerManager::getDiagnosticStatus(const SVHChannel& channel,
                                            struct DiagnosticState& diagnostic_status)
 {
-  if (channel >= 0 && channel < E_SVH_DIMENSION)
+  if (channel >= 0 && channel < SVH_DIMENSION)
   {
     diagnostic_status.diagnostic_encoder_state    = m_diagnostic_encoder_state[channel];
     diagnostic_status.diagnostic_motor_state      = m_diagnostic_current_state[channel];
@@ -628,9 +628,9 @@ bool SVHFingerManager::enableChannel(const SVHChannel& channel)
 {
   if (isConnected() && isHomed(channel))
   {
-    if (channel == E_SVH_ALL)
+    if (channel == SVH_ALL)
     {
-      for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+      for (size_t i = 0; i < SVH_DIMENSION; ++i)
       {
         // Just for safety, enable channels in the same order as we have resetted them (otherwise
         // developers might geht confused)
@@ -642,7 +642,7 @@ bool SVHFingerManager::enableChannel(const SVHChannel& channel)
         }
       }
     }
-    else if (channel > E_SVH_ALL && E_SVH_ALL < E_SVH_DIMENSION)
+    else if (channel > SVH_ALL && SVH_ALL < SVH_DIMENSION)
     {
       // Note: This part is another one of these places where the names can lead to confusion. I am
       // sorry about that Switched off is a logical term. The user has chosen NOT to use this
@@ -663,9 +663,9 @@ bool SVHFingerManager::enableChannel(const SVHChannel& channel)
 
 void SVHFingerManager::disableChannel(const SVHChannel& channel)
 {
-  if (channel == E_SVH_ALL)
+  if (channel == SVH_ALL)
   {
-    for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+    for (size_t i = 0; i < SVH_DIMENSION; ++i)
     {
       disableChannel(static_cast<SVHChannel>(i));
     }
@@ -678,7 +678,7 @@ void SVHFingerManager::disableChannel(const SVHChannel& channel)
     }
 
     bool all_disabled = true;
-    for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+    for (size_t i = 0; i < SVH_DIMENSION; ++i)
     {
       // Again only check channels that are not switched off. Switched off channels will always
       // answer that they are enabled
@@ -706,7 +706,7 @@ bool SVHFingerManager::requestControllerFeedback(const SVHChannel& channel)
 bool SVHFingerManager::getPosition(const SVHChannel& channel, double& position)
 {
   SVHControllerFeedback controller_feedback;
-  if ((channel >= 0 && channel < E_SVH_DIMENSION) && isHomed(channel) &&
+  if ((channel >= 0 && channel < SVH_DIMENSION) && isHomed(channel) &&
       m_controller->getControllerFeedback(channel, controller_feedback))
   {
     // Switched off channels will always remain at zero position as the tics we get back migh be
@@ -746,7 +746,7 @@ bool SVHFingerManager::getPosition(const SVHChannel& channel, double& position)
 bool SVHFingerManager::getCurrent(const SVHChannel& channel, double& current)
 {
   SVHControllerFeedback controller_feedback;
-  if ((channel >= 0 && channel < E_SVH_DIMENSION) && isHomed(channel) &&
+  if ((channel >= 0 && channel < SVH_DIMENSION) && isHomed(channel) &&
       m_controller->getControllerFeedback(channel, controller_feedback))
   {
     current = controller_feedback.current;
@@ -765,13 +765,13 @@ bool SVHFingerManager::setAllTargetPositions(const std::vector<double>& position
   if (isConnected())
   {
     // check size of position vector
-    if (positions.size() == E_SVH_DIMENSION)
+    if (positions.size() == SVH_DIMENSION)
     {
       // create target positions vector
-      std::vector<int32_t> target_positions(E_SVH_DIMENSION, 0);
+      std::vector<int32_t> target_positions(SVH_DIMENSION, 0);
 
       bool reject_command = false;
-      for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+      for (size_t i = 0; i < SVH_DIMENSION; ++i)
       {
         SVHChannel channel = static_cast<SVHChannel>(i);
 
@@ -809,7 +809,7 @@ bool SVHFingerManager::setAllTargetPositions(const std::vector<double>& position
     {
       SVH_LOG_WARN_STREAM("SVHFingerManager",
                           "Size of target position vector wrong: size = "
-                            << positions.size() << " expected size = " << (int)E_SVH_DIMENSION);
+                            << positions.size() << " expected size = " << (int)SVH_DIMENSION);
       return false;
     }
   }
@@ -830,7 +830,7 @@ bool SVHFingerManager::setTargetPosition(const SVHChannel& channel, double posit
 {
   if (isConnected())
   {
-    if (channel >= 0 && channel < E_SVH_DIMENSION)
+    if (channel >= 0 && channel < SVH_DIMENSION)
     {
       if (m_is_switched_off[channel])
       {
@@ -903,10 +903,10 @@ bool SVHFingerManager::setTargetPosition(const SVHChannel& channel, double posit
 // return enable flag
 bool SVHFingerManager::isEnabled(const SVHChannel& channel)
 {
-  if (channel == E_SVH_ALL)
+  if (channel == SVH_ALL)
   {
     bool all_enabled = true;
-    for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+    for (size_t i = 0; i < SVH_DIMENSION; ++i)
     {
       all_enabled = all_enabled && isEnabled(static_cast<SVHChannel>(i));
       // disabled for now, to noisy
@@ -920,7 +920,7 @@ bool SVHFingerManager::isEnabled(const SVHChannel& channel)
 
     return all_enabled;
   }
-  else if (channel >= 0 && channel < E_SVH_DIMENSION)
+  else if (channel >= 0 && channel < SVH_DIMENSION)
   {
     // Switched off Channels will aways be reported as enabled to simulate everything is fine.
     // Others need to ask the controller if the channel is realy switched on Note: i can see that
@@ -944,10 +944,10 @@ bool SVHFingerManager::isEnabled(const SVHChannel& channel)
 
 bool SVHFingerManager::isHomed(const SVHChannel& channel)
 {
-  if (channel == E_SVH_ALL)
+  if (channel == SVH_ALL)
   {
     bool all_homed = true;
-    for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+    for (size_t i = 0; i < SVH_DIMENSION; ++i)
     {
       all_homed = all_homed && isHomed(static_cast<SVHChannel>(i));
       if (!isHomed(static_cast<SVHChannel>(i)))
@@ -961,7 +961,7 @@ bool SVHFingerManager::isHomed(const SVHChannel& channel)
 
     return all_homed;
   }
-  else if (channel >= 0 && channel < E_SVH_DIMENSION)
+  else if (channel >= 0 && channel < SVH_DIMENSION)
   {
     // Channels that are switched off will always be reported as homed to simulate everything is
     // fine. Others have to check
@@ -978,7 +978,7 @@ bool SVHFingerManager::isHomed(const SVHChannel& channel)
 bool SVHFingerManager::getCurrentSettings(const SVHChannel& channel,
                                           SVHCurrentSettings& current_settings)
 {
-  if (channel >= 0 && channel < E_SVH_DIMENSION)
+  if (channel >= 0 && channel < SVH_DIMENSION)
   {
     return m_controller->getCurrentSettings(channel, current_settings);
   }
@@ -994,7 +994,7 @@ bool SVHFingerManager::getCurrentSettings(const SVHChannel& channel,
 bool SVHFingerManager::getPositionSettings(const SVHChannel& channel,
                                            SVHPositionSettings& position_settings)
 {
-  if (channel >= 0 && channel < E_SVH_DIMENSION)
+  if (channel >= 0 && channel < SVH_DIMENSION)
   {
     return m_controller->getPositionSettings(channel, position_settings);
   }
@@ -1009,7 +1009,7 @@ bool SVHFingerManager::getPositionSettings(const SVHChannel& channel,
 
 bool SVHFingerManager::getHomeSettings(const SVHChannel& channel, SVHHomeSettings& home_settings)
 {
-  if (channel >= 0 && channel < E_SVH_DIMENSION)
+  if (channel >= 0 && channel < SVH_DIMENSION)
   {
     home_settings = m_home_settings[channel];
     return true;
@@ -1027,7 +1027,7 @@ bool SVHFingerManager::currentSettingsAreSafe(const SVHChannel& channel,
 {
   bool settings_are_safe = false;
 
-  if (!isEnabled(E_SVH_ALL))
+  if (!isEnabled(SVH_ALL))
   {
     SVH_LOG_DEBUG_STREAM("SVHFingerManager", "Fingers are not all enabled -> no safety tests");
     // befor the fingers are homed no finger-data are valid
@@ -1066,7 +1066,7 @@ bool SVHFingerManager::currentSettingsAreSafe(const SVHChannel& channel,
 bool SVHFingerManager::setCurrentSettings(const SVHChannel& channel,
                                           const SVHCurrentSettings& current_settings)
 {
-  if (channel >= 0 && channel < E_SVH_DIMENSION)
+  if (channel >= 0 && channel < SVH_DIMENSION)
   {
     // For now we will prefent current settings with more current than possible
     if (!currentSettingsAreSafe(channel, current_settings))
@@ -1103,7 +1103,7 @@ bool SVHFingerManager::setCurrentSettings(const SVHChannel& channel,
 bool SVHFingerManager::setPositionSettings(const SVHChannel& channel,
                                            const SVHPositionSettings& position_settings)
 {
-  if (channel >= 0 && channel < E_SVH_DIMENSION)
+  if (channel >= 0 && channel < SVH_DIMENSION)
   {
     // First of save the values
     m_position_settings[channel]       = position_settings;
@@ -1130,7 +1130,7 @@ bool SVHFingerManager::setPositionSettings(const SVHChannel& channel,
 bool SVHFingerManager::setHomeSettings(const SVHChannel& channel,
                                        const driver_svh::SVHHomeSettings& home_settings)
 {
-  if (channel >= 0 && channel < E_SVH_DIMENSION)
+  if (channel >= 0 && channel < SVH_DIMENSION)
   {
     // First of save the values
     m_home_settings[channel] = home_settings;
@@ -1165,9 +1165,9 @@ bool SVHFingerManager::setHomeSettings(const SVHChannel& channel,
 bool SVHFingerManager::resetDiagnosticData(const SVHChannel& channel)
 {
   // reset all channels
-  if (channel == E_SVH_ALL)
+  if (channel == SVH_ALL)
   {
-    for (size_t i = 0; i <= E_SVH_DIMENSION; ++i)
+    for (size_t i = 0; i <= SVH_DIMENSION; ++i)
     {
       m_diagnostic_encoder_state[i]    = false;
       m_diagnostic_current_state[i]    = false;
@@ -1183,7 +1183,7 @@ bool SVHFingerManager::resetDiagnosticData(const SVHChannel& channel)
   }
   else
   {
-    if (channel > 0 && channel <= E_SVH_DIMENSION)
+    if (channel > 0 && channel <= SVH_DIMENSION)
     {
       m_diagnostic_encoder_state[channel]    = false;
       m_diagnostic_current_state[channel]    = false;
@@ -1212,31 +1212,30 @@ void SVHFingerManager::setDefaultHomeSettings()
   // All values are based on the hardware description for maximum tics and maximum allowable range
   // of movements direction, minimum offset, maximum offset, idle position, range in rad,
   // resetcurrent(factor)
-  m_home_settings[E_SVH_THUMB_FLEXION] =
+  m_home_settings[SVH_THUMB_FLEXION] =
     SVHHomeSettings(+1, -175.0e3f, -5.0e3f, -15.0e3f, 0.97, 0.75); // thumb flexion
   // Conservative value
   // m_home_settings[eSVH_THUMB_OPPOSITION]       =  SVHHomeSettings(+1, -105.0e3f,  -5.0e3f,
   // -15.0e3f, 0.99, 0.75); // thumb opposition
   // Value using the complete movemment range
-  m_home_settings[E_SVH_THUMB_OPPOSITION] =
+  m_home_settings[SVH_THUMB_OPPOSITION] =
     SVHHomeSettings(+1, -150.0e3f, -5.0e3f, -15.0e3f, 0.99, 0.75); // thumb opposition
-  m_home_settings[E_SVH_INDEX_FINGER_DISTAL] =
+  m_home_settings[SVH_INDEX_FINGER_DISTAL] =
     SVHHomeSettings(+1, -47.0e3f, -2.0e3f, -8.0e3f, 1.33, 0.75); // index finger distal joint
-  m_home_settings[E_SVH_INDEX_FINGER_PROXIMAL] =
+  m_home_settings[SVH_INDEX_FINGER_PROXIMAL] =
     SVHHomeSettings(-1, 2.0e3f, 42.0e3f, 8.0e3f, 0.8, 0.75); // index finger proximal joint
-  m_home_settings[E_SVH_MIDDLE_FINGER_DISTAL] =
+  m_home_settings[SVH_MIDDLE_FINGER_DISTAL] =
     SVHHomeSettings(+1, -47.0e3f, -2.0e3f, -8.0e3f, 1.33, 0.75); // middle finger distal joint
-  m_home_settings[E_SVH_MIDDLE_FINGER_PROXIMAL] =
+  m_home_settings[SVH_MIDDLE_FINGER_PROXIMAL] =
     SVHHomeSettings(-1, 2.0e3f, 42.0e3f, 8.0e3f, 0.8, 0.75); // middle finger proximal joint
-  m_home_settings[E_SVH_RING_FINGER] =
+  m_home_settings[SVH_RING_FINGER] =
     SVHHomeSettings(+1, -47.0e3f, -2.0e3f, -8.0e3f, 0.98, 0.75); // ring finger
-  m_home_settings[E_SVH_PINKY] =
-    SVHHomeSettings(+1, -47.0e3f, -2.0e3f, -8.0e3f, 0.98, 0.75); // pinky
-  m_home_settings[E_SVH_FINGER_SPREAD] =
+  m_home_settings[SVH_PINKY] = SVHHomeSettings(+1, -47.0e3f, -2.0e3f, -8.0e3f, 0.98, 0.75); // pinky
+  m_home_settings[SVH_FINGER_SPREAD] =
     SVHHomeSettings(+1, -47.0e3f, -2.0e3f, -25.0e3f, 0.58, 0.4); // finger spread
 
-  m_ticks2rad.resize(E_SVH_DIMENSION, 0.0);
-  for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+  m_ticks2rad.resize(SVH_DIMENSION, 0.0);
+  for (size_t i = 0; i < SVH_DIMENSION; ++i)
   {
     float range_ticks = m_home_settings[i].maximum_offset - m_home_settings[i].minimum_offset;
     m_ticks2rad[i] = m_home_settings[i].range_rad / range_ticks * (-m_home_settings[i].direction);
@@ -1249,7 +1248,7 @@ std::vector<SVHCurrentSettings> SVHFingerManager::getDefaultCurrentSettings()
   // BEWARE! Only change these values if you know what you are doing !! Setting wrong values could
   // damage the hardware!!!
 
-  std::vector<SVHCurrentSettings> current_settings(E_SVH_DIMENSION);
+  std::vector<SVHCurrentSettings> current_settings(SVH_DIMENSION);
 
 
   // curr min, Curr max,ky(error output scaling),dt(time base),imn (integral windup min), imx
@@ -1269,37 +1268,35 @@ std::vector<SVHCurrentSettings> SVHFingerManager::getDefaultCurrentSettings()
     -500.0f, 500.0f, 0.405f, 4e-6f, -4.0f, 4.0f, 0.7f, 60.0f, -255.0f, 255.0f);
 
 
-  current_settings[E_SVH_THUMB_FLEXION] = m_current_settings_given[E_SVH_THUMB_FLEXION]
-                                            ? m_current_settings[E_SVH_THUMB_FLEXION]
-                                            : cur_set_thumb; // thumb flexion
-  current_settings[E_SVH_THUMB_OPPOSITION] = m_current_settings_given[E_SVH_THUMB_OPPOSITION]
-                                               ? m_current_settings[E_SVH_THUMB_OPPOSITION]
-                                               : cur_set_thumb_opposition; // thumb opposition
-  current_settings[E_SVH_INDEX_FINGER_DISTAL] =
-    m_current_settings_given[E_SVH_INDEX_FINGER_DISTAL]
-      ? m_current_settings[E_SVH_INDEX_FINGER_DISTAL]
-      : cur_set_distal_joint; // index finger distal joint
-  current_settings[E_SVH_INDEX_FINGER_PROXIMAL] =
-    m_current_settings_given[E_SVH_INDEX_FINGER_PROXIMAL]
-      ? m_current_settings[E_SVH_INDEX_FINGER_PROXIMAL]
+  current_settings[SVH_THUMB_FLEXION] = m_current_settings_given[SVH_THUMB_FLEXION]
+                                          ? m_current_settings[SVH_THUMB_FLEXION]
+                                          : cur_set_thumb; // thumb flexion
+  current_settings[SVH_THUMB_OPPOSITION] = m_current_settings_given[SVH_THUMB_OPPOSITION]
+                                             ? m_current_settings[SVH_THUMB_OPPOSITION]
+                                             : cur_set_thumb_opposition; // thumb opposition
+  current_settings[SVH_INDEX_FINGER_DISTAL] = m_current_settings_given[SVH_INDEX_FINGER_DISTAL]
+                                                ? m_current_settings[SVH_INDEX_FINGER_DISTAL]
+                                                : cur_set_distal_joint; // index finger distal joint
+  current_settings[SVH_INDEX_FINGER_PROXIMAL] =
+    m_current_settings_given[SVH_INDEX_FINGER_PROXIMAL]
+      ? m_current_settings[SVH_INDEX_FINGER_PROXIMAL]
       : cur_set_proximal_joint; // index finger proximal joint
-  current_settings[E_SVH_MIDDLE_FINGER_DISTAL] =
-    m_current_settings_given[E_SVH_MIDDLE_FINGER_DISTAL]
-      ? m_current_settings[E_SVH_MIDDLE_FINGER_DISTAL]
+  current_settings[SVH_MIDDLE_FINGER_DISTAL] =
+    m_current_settings_given[SVH_MIDDLE_FINGER_DISTAL]
+      ? m_current_settings[SVH_MIDDLE_FINGER_DISTAL]
       : cur_set_distal_joint; // middle finger distal joint
-  current_settings[E_SVH_MIDDLE_FINGER_PROXIMAL] =
-    m_current_settings_given[E_SVH_MIDDLE_FINGER_PROXIMAL]
-      ? m_current_settings[E_SVH_MIDDLE_FINGER_PROXIMAL]
+  current_settings[SVH_MIDDLE_FINGER_PROXIMAL] =
+    m_current_settings_given[SVH_MIDDLE_FINGER_PROXIMAL]
+      ? m_current_settings[SVH_MIDDLE_FINGER_PROXIMAL]
       : cur_set_proximal_joint; // middle finger proximal joint
-  current_settings[E_SVH_RING_FINGER] = m_current_settings_given[E_SVH_RING_FINGER]
-                                          ? m_current_settings[E_SVH_RING_FINGER]
-                                          : cur_set_outer_joint; // ring finger
-  current_settings[E_SVH_PINKY] = m_current_settings_given[E_SVH_PINKY]
-                                    ? m_current_settings[E_SVH_PINKY]
-                                    : cur_set_outer_joint; // pinky
-  current_settings[E_SVH_FINGER_SPREAD] = m_current_settings_given[E_SVH_FINGER_SPREAD]
-                                            ? m_current_settings[E_SVH_FINGER_SPREAD]
-                                            : cur_set_finger_spread; // finger spread
+  current_settings[SVH_RING_FINGER] = m_current_settings_given[SVH_RING_FINGER]
+                                        ? m_current_settings[SVH_RING_FINGER]
+                                        : cur_set_outer_joint; // ring finger
+  current_settings[SVH_PINKY] = m_current_settings_given[SVH_PINKY] ? m_current_settings[SVH_PINKY]
+                                                                    : cur_set_outer_joint; // pinky
+  current_settings[SVH_FINGER_SPREAD] = m_current_settings_given[SVH_FINGER_SPREAD]
+                                          ? m_current_settings[SVH_FINGER_SPREAD]
+                                          : cur_set_finger_spread; // finger spread
 
   return current_settings;
 }
@@ -1310,7 +1307,7 @@ std::vector<SVHCurrentSettings> SVHFingerManager::getDefaultCurrentSettings()
 //!
 std::vector<SVHPositionSettings> SVHFingerManager::getDefaultPositionSettings(const bool& reset)
 {
-  std::vector<SVHPositionSettings> position_settings(E_SVH_DIMENSION);
+  std::vector<SVHPositionSettings> position_settings(SVH_DIMENSION);
 
   // Original conservative settings
   //  SVHPositionSettings pos_set_thumb = {-1.0e6f, 1.0e6f,  3.4e3f, 1.00f, 1e-3f, -500.0f, 500.0f,
@@ -1358,42 +1355,42 @@ std::vector<SVHPositionSettings> SVHFingerManager::getDefaultPositionSettings(co
 
 
   // Return either the default values or the ones given from outside
-  position_settings[E_SVH_THUMB_FLEXION] = m_position_settings_given[E_SVH_THUMB_FLEXION]
-                                             ? m_position_settings[E_SVH_THUMB_FLEXION]
-                                             : pos_set_thumb_flexion; // thumb flexion
-  position_settings[E_SVH_THUMB_OPPOSITION] = m_position_settings_given[E_SVH_THUMB_OPPOSITION]
-                                                ? m_position_settings[E_SVH_THUMB_OPPOSITION]
-                                                : pos_set_thumb_opposition; // thumb opposition
-  position_settings[E_SVH_INDEX_FINGER_DISTAL] =
-    m_position_settings_given[E_SVH_INDEX_FINGER_DISTAL]
-      ? m_position_settings[E_SVH_INDEX_FINGER_DISTAL]
+  position_settings[SVH_THUMB_FLEXION] = m_position_settings_given[SVH_THUMB_FLEXION]
+                                           ? m_position_settings[SVH_THUMB_FLEXION]
+                                           : pos_set_thumb_flexion; // thumb flexion
+  position_settings[SVH_THUMB_OPPOSITION] = m_position_settings_given[SVH_THUMB_OPPOSITION]
+                                              ? m_position_settings[SVH_THUMB_OPPOSITION]
+                                              : pos_set_thumb_opposition; // thumb opposition
+  position_settings[SVH_INDEX_FINGER_DISTAL] =
+    m_position_settings_given[SVH_INDEX_FINGER_DISTAL]
+      ? m_position_settings[SVH_INDEX_FINGER_DISTAL]
       : pos_set_finger_index_distal; // index finger distal joint
-  position_settings[E_SVH_INDEX_FINGER_PROXIMAL] =
-    m_position_settings_given[E_SVH_INDEX_FINGER_PROXIMAL]
-      ? m_position_settings[E_SVH_INDEX_FINGER_PROXIMAL]
+  position_settings[SVH_INDEX_FINGER_PROXIMAL] =
+    m_position_settings_given[SVH_INDEX_FINGER_PROXIMAL]
+      ? m_position_settings[SVH_INDEX_FINGER_PROXIMAL]
       : pos_set_finger_index_proximal; // index finger proximal joint
-  position_settings[E_SVH_MIDDLE_FINGER_DISTAL] =
-    m_position_settings_given[E_SVH_MIDDLE_FINGER_DISTAL]
-      ? m_position_settings[E_SVH_MIDDLE_FINGER_DISTAL]
+  position_settings[SVH_MIDDLE_FINGER_DISTAL] =
+    m_position_settings_given[SVH_MIDDLE_FINGER_DISTAL]
+      ? m_position_settings[SVH_MIDDLE_FINGER_DISTAL]
       : pos_set_finger_middle_distal; // middle finger distal joint
-  position_settings[E_SVH_MIDDLE_FINGER_PROXIMAL] =
-    m_position_settings_given[E_SVH_MIDDLE_FINGER_PROXIMAL]
-      ? m_position_settings[E_SVH_MIDDLE_FINGER_PROXIMAL]
+  position_settings[SVH_MIDDLE_FINGER_PROXIMAL] =
+    m_position_settings_given[SVH_MIDDLE_FINGER_PROXIMAL]
+      ? m_position_settings[SVH_MIDDLE_FINGER_PROXIMAL]
       : pos_set_finger_middle_proximal; // middle finger proximal joint
-  position_settings[E_SVH_RING_FINGER] = m_position_settings_given[E_SVH_RING_FINGER]
-                                           ? m_position_settings[E_SVH_RING_FINGER]
-                                           : pos_set_finger_ring; // ring finger
-  position_settings[E_SVH_PINKY] = m_position_settings_given[E_SVH_PINKY]
-                                     ? m_position_settings[E_SVH_PINKY]
-                                     : pos_set_finger_pinky; // pinky
-  position_settings[E_SVH_FINGER_SPREAD] = m_position_settings_given[E_SVH_FINGER_SPREAD]
-                                             ? m_position_settings[E_SVH_FINGER_SPREAD]
-                                             : pos_set_spread; // finger spread
+  position_settings[SVH_RING_FINGER] = m_position_settings_given[SVH_RING_FINGER]
+                                         ? m_position_settings[SVH_RING_FINGER]
+                                         : pos_set_finger_ring; // ring finger
+  position_settings[SVH_PINKY] = m_position_settings_given[SVH_PINKY]
+                                   ? m_position_settings[SVH_PINKY]
+                                   : pos_set_finger_pinky; // pinky
+  position_settings[SVH_FINGER_SPREAD] = m_position_settings_given[SVH_FINGER_SPREAD]
+                                           ? m_position_settings[SVH_FINGER_SPREAD]
+                                           : pos_set_spread; // finger spread
 
   // Modify the reset speed in case these position settings are meant to be used during the reset
   if (reset)
   {
-    for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+    for (size_t i = 0; i < SVH_DIMENSION; ++i)
     {
       position_settings[i].dwmx = position_settings[i].dwmx * m_reset_speed_factor;
     }
@@ -1624,7 +1621,7 @@ void SVHFingerManager::pollFeedback()
   {
     if (isConnected())
     {
-      requestControllerFeedback(E_SVH_ALL);
+      requestControllerFeedback(SVH_ALL);
     }
     else
     {

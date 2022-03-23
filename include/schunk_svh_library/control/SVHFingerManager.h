@@ -54,14 +54,14 @@ public:
    */
   enum Hints
   {
-    E_HT_DEVICE_NOT_FOUND,    /* ttyUSBx could not be found */
-    E_HT_CONNECTION_FAILED,   /* ttyUSB could be opened but communication failed */
-    E_HT_NOT_RESETTED,        /* the fingers of the hand are not resetted */
-    E_HT_NOT_CONNECTED,       /* simply never called connect */
-    E_HT_RESET_FAILED,        /* timeout during reset -> this is a serious failure */
-    E_HT_CHANNEL_SWITCHED_OF, /* Not realy a problem, however a hint worth noting */
-    E_HT_DANGEROUS_CURRENTS,  /* Current Values are set to dangerous levels */
-    E_HT_DIMENSION            /* dummy entry indicating the size, not used as status */
+    HT_DEVICE_NOT_FOUND,    /* ttyUSBx could not be found */
+    HT_CONNECTION_FAILED,   /* ttyUSB could be opened but communication failed */
+    HT_NOT_RESETTED,        /* the fingers of the hand are not resetted */
+    HT_NOT_CONNECTED,       /* simply never called connect */
+    HT_RESET_FAILED,        /* timeout during reset -> this is a serious failure */
+    HT_CHANNEL_SWITCHED_OF, /* Not realy a problem, however a hint worth noting */
+    HT_DANGEROUS_CURRENTS,  /* Current Values are set to dangerous levels */
+    HT_DIMENSION            /* dummy entry indicating the size, not used as status */
   };
 
   struct DiagnosticState

@@ -45,35 +45,35 @@ unsigned long SerialFlags::cFlags() const
 
   switch (m_data_bits)
   {
-    case E_DB_5: {
+    case DB_5: {
       cflags |= CS5;
       break;
     }
-    case E_DB_6: {
+    case DB_6: {
       cflags |= CS6;
       break;
     }
-    case E_DB_7: {
+    case DB_7: {
       cflags |= CS7;
       break;
     }
-    case E_DB_8: {
+    case DB_8: {
       cflags |= CS8;
       break;
     }
   }
 
-  if (m_stop_bits == E_SB_2)
+  if (m_stop_bits == SB_2)
   {
     cflags |= CSTOPB;
   }
 
-  if (m_parity != E_P_NONE)
+  if (m_parity != P_NONE)
   {
     cflags |= PARENB;
   }
 
-  if (m_parity == E_P_ODD)
+  if (m_parity == P_ODD)
   {
     cflags |= PARODD;
   }
@@ -81,7 +81,7 @@ unsigned long SerialFlags::cFlags() const
   cflags |= cFlags(m_baud_rate);
 
 
-  if (m_flow_control == E_FC_FLOW)
+  if (m_flow_control == FC_FLOW)
   {
     cflags |= CRTSCTS;
   }
@@ -108,45 +108,45 @@ unsigned long SerialFlags::cFlags(BaudRate baud_rate)
 {
   switch (baud_rate)
   {
-    case SerialFlags::E_BR_50:
+    case SerialFlags::BR_50:
       return B50;
-    case SerialFlags::E_BR_75:
+    case SerialFlags::BR_75:
       return B75;
-    case SerialFlags::E_BR_110:
+    case SerialFlags::BR_110:
       return B110;
-    case SerialFlags::E_BR_134:
+    case SerialFlags::BR_134:
       return B134;
-    case SerialFlags::E_BR_150:
+    case SerialFlags::BR_150:
       return B150;
-    case SerialFlags::E_BR_200:
+    case SerialFlags::BR_200:
       return B200;
-    case SerialFlags::E_BR_300:
+    case SerialFlags::BR_300:
       return B300;
-    case SerialFlags::E_BR_600:
+    case SerialFlags::BR_600:
       return B600;
-    case SerialFlags::E_BR_1200:
+    case SerialFlags::BR_1200:
       return B1200;
-    case SerialFlags::E_BR_1800:
+    case SerialFlags::BR_1800:
       return B1800;
-    case SerialFlags::E_BR_2400:
+    case SerialFlags::BR_2400:
       return B2400;
-    case SerialFlags::E_BR_4800:
+    case SerialFlags::BR_4800:
       return B4800;
-    case SerialFlags::E_BR_9600:
+    case SerialFlags::BR_9600:
       return B9600;
-    case SerialFlags::E_BR_19200:
+    case SerialFlags::BR_19200:
       return B19200;
-    case SerialFlags::E_BR_38400:
+    case SerialFlags::BR_38400:
       return B38400;
-    case SerialFlags::E_BR_57600:
+    case SerialFlags::BR_57600:
       return B57600;
-    case SerialFlags::E_BR_115200:
+    case SerialFlags::BR_115200:
       return B115200;
-    case SerialFlags::E_BR_230400:
+    case SerialFlags::BR_230400:
       return B230400;
-    case SerialFlags::E_BR_500000:
+    case SerialFlags::BR_500000:
       return B500000;
-    case SerialFlags::E_BR_921600:
+    case SerialFlags::BR_921600:
       return B921600;
     default:
       return B0;

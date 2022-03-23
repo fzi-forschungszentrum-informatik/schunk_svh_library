@@ -46,7 +46,7 @@ int main(int argc, const char* argv[])
 
   // build feedback serial packet for sending
   ArrayBuilder packet;
-  SVHChannel channel = E_SVH_PINKY;
+  SVHChannel channel = SVH_PINKY;
   SVHSerialPacket test_serial_packet(40,
                                      SVH_SET_CONTROL_COMMAND | static_cast<uint8_t>(channel << 4));
   SVHControllerFeedback test_controller_feedback(0, 140);

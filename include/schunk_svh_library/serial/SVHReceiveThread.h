@@ -101,15 +101,15 @@ private:
   //! enum for receive packet state machine states
   enum
   {
-    E_RS_HEADE_R1,
-    E_RS_HEADE_R2,
-    E_RS_INDEX,
-    E_RS_ADDRESS,
-    E_RS_LENGT_H1,
-    E_RS_LENGT_H2,
-    E_RS_DATA,
-    E_RS_CHECKSU_M1,
-    E_RS_CHECKSU_M2
+    RS_HEADE_R1,
+    RS_HEADE_R2,
+    RS_INDEX,
+    RS_ADDRESS,
+    RS_LENGT_H1,
+    RS_LENGT_H2,
+    RS_DATA,
+    RS_CHECKSU_M1,
+    RS_CHECKSU_M2
   } typedef tState;
 
   //! current state of the state machine

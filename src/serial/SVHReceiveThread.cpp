@@ -42,7 +42,7 @@ SVHReceiveThread::SVHReceiveThread(const std::chrono::microseconds& idle_sleep,
                                    ReceivedPacketCallback const& received_callback)
   : m_idle_sleep(idle_sleep)
   , m_serial_device(device)
-  , m_received_state(E_RS_HEADE_R1)
+  , m_received_state(RS_HEADE_R1)
   , m_length(0)
   , m_data(0, 0)
   , m_ab(0)
@@ -117,10 +117,10 @@ bool SVHReceiveThread::receiveData()
 
   switch (m_received_state)
   {
-    case E_RS_HEADE_R1: {
+    case RS_HEADE_R1: {
       if (data_byte == PACKET_HEADER1)
       {
-        m_received_state = E_RS_HEADE_R2;
+        m_received_state = RS_HEADE_R2;
       }
       else
       {
@@ -128,74 +128,74 @@ bool SVHReceiveThread::receiveData()
       }
       break;
     }
-    case E_RS_HEADE_R2: {
+    case RS_HEADE_R2: {
       switch (data_byte)
       {
         case PACKET_HEADER2: {
-          m_received_state = E_RS_INDEX;
+          m_received_state = RS_INDEX;
           break;
         }
         case PACKET_HEADER1: {
-          m_received_state = E_RS_HEADE_R2;
+          m_received_state = RS_HEADE_R2;
           m_skipped_bytes++;
           break;
         }
         default: {
-          m_received_state = E_RS_HEADE_R1;
+          m_received_state = RS_HEADE_R1;
           m_skipped_bytes += 2;
           break;
         }
       }
       break;
     }
-    case E_RS_INDEX: {
+    case RS_INDEX: {
       // Reset Array Builder for each fresh packet
       m_ab.reset(0);
 
       // Data bytes are not cenverted in endianess at this point
       m_ab.appendWithoutConversion(data_byte);
-      m_received_state = E_RS_ADDRESS;
+      m_received_state = RS_ADDRESS;
       break;
     }
-    case E_RS_ADDRESS: {
+    case RS_ADDRESS: {
       // get the address
       m_ab.appendWithoutConversion(data_byte);
-      m_received_state = E_RS_LENGT_H1;
+      m_received_state = RS_LENGT_H1;
       break;
     }
-    case E_RS_LENGT_H1: {
+    case RS_LENGT_H1: {
       // get payload length
       m_ab.appendWithoutConversion(data_byte);
-      m_received_state = E_RS_LENGT_H2;
+      m_received_state = RS_LENGT_H2;
       break;
     }
-    case E_RS_LENGT_H2: {
+    case RS_LENGT_H2: {
       // get payload length
       m_ab.appendWithoutConversion(data_byte);
       m_length         = m_ab.readBack<uint16_t>();
-      m_received_state = E_RS_DATA;
+      m_received_state = RS_DATA;
       m_data.clear();
       m_data.reserve(m_length);
       break;
     }
-    case E_RS_DATA: {
+    case RS_DATA: {
       // get the payload itself
       // Some conversion due to legacy hardware calls
       m_data.push_back(data_byte);
       m_ab.appendWithoutConversion(data_byte);
       if (m_data.size() >= m_length)
       {
-        m_received_state = E_RS_CHECKSU_M1;
+        m_received_state = RS_CHECKSU_M1;
       }
       break;
     }
-    case E_RS_CHECKSU_M1: {
+    case RS_CHECKSU_M1: {
       m_checksum1      = data_byte;
       m_checksum2      = 0;
-      m_received_state = E_RS_CHECKSU_M2;
+      m_received_state = RS_CHECKSU_M2;
       break;
     }
-    case E_RS_CHECKSU_M2: {
+    case RS_CHECKSU_M2: {
       m_checksum2       = data_byte;
       uint8_t checksum1 = m_checksum1;
       uint8_t checksum2 = m_checksum2;
@@ -230,11 +230,11 @@ bool SVHReceiveThread::receiveData()
           m_received_callback(received_packet, m_packets_received);
         }
 
-        m_received_state = E_RS_HEADE_R1;
+        m_received_state = RS_HEADE_R1;
       }
       else
       {
-        m_received_state = E_RS_HEADE_R1;
+        m_received_state = RS_HEADE_R1;
 
         SVHSerialPacket received_packet(m_length);
         m_ab >> received_packet;

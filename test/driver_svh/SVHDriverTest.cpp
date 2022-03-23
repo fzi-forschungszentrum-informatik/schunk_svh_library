@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(ControllerreceiveFeedback)
   // Create Structures
   SVHController controller;
   ArrayBuilder packet;
-  SVHChannel channel = E_SVH_INDEX_FINGER_DISTAL;
+  SVHChannel channel = SVH_INDEX_FINGER_DISTAL;
   SVHSerialPacket test_serial_packet(64,
                                      SVH_SET_CONTROL_COMMAND | static_cast<uint8_t>(channel << 4));
   SVHControllerFeedback test_controller_feedback(23, 42);

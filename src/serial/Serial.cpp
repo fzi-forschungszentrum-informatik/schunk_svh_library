@@ -141,7 +141,7 @@ bool Serial::open()
     else
       m_status = 0;
 
-    if (m_serial_flags.getModemControlFlags() != SerialFlags::E_MCF_UNDEFINED)
+    if (m_serial_flags.getModemControlFlags() != SerialFlags::MCF_UNDEFINED)
     {
       SVH_LOG_DEBUG_STREAM("Serial",
                            "Serial(" << m_dev_name << ") setting hardware modem control flags to 0x"
@@ -149,11 +149,11 @@ bool Serial::open()
       // DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Serial(%s) setting hardware modem control flags to 0x%x\n",
       // m_dev_name, m_serial_flags.getModemControlFlags());
       int modem_control_flags = 0;
-      if (m_serial_flags.getModemControlFlags() & SerialFlags::E_MCF_DTR)
+      if (m_serial_flags.getModemControlFlags() & SerialFlags::MCF_DTR)
       {
         modem_control_flags |= TIOCM_DTR;
       }
-      if (m_serial_flags.getModemControlFlags() & SerialFlags::E_MCF_RTS)
+      if (m_serial_flags.getModemControlFlags() & SerialFlags::MCF_RTS)
       {
         modem_control_flags |= TIOCM_RTS;
       }

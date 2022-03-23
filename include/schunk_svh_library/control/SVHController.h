@@ -56,17 +56,17 @@ namespace driver_svh {
 //! as it represents the hardware mapping
 enum
 {
-  E_SVH_ALL           = -1, // this should be used with care as not all functions support it yet
-  E_SVH_THUMB_FLEXION = 0,
-  E_SVH_THUMB_OPPOSITION, // wrist
-  E_SVH_INDEX_FINGER_DISTAL,
-  E_SVH_INDEX_FINGER_PROXIMAL,
-  E_SVH_MIDDLE_FINGER_DISTAL,
-  E_SVH_MIDDLE_FINGER_PROXIMAL,
-  E_SVH_RING_FINGER,
-  E_SVH_PINKY,
-  E_SVH_FINGER_SPREAD,
-  E_SVH_DIMENSION // 9
+  SVH_ALL           = -1, // this should be used with care as not all functions support it yet
+  SVH_THUMB_FLEXION = 0,
+  SVH_THUMB_OPPOSITION, // wrist
+  SVH_INDEX_FINGER_DISTAL,
+  SVH_INDEX_FINGER_PROXIMAL,
+  SVH_MIDDLE_FINGER_DISTAL,
+  SVH_MIDDLE_FINGER_PROXIMAL,
+  SVH_RING_FINGER,
+  SVH_PINKY,
+  SVH_FINGER_SPREAD,
+  SVH_DIMENSION // 9
 } typedef SVHChannel;
 
 /*!

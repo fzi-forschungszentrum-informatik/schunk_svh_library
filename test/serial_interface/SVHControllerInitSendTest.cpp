@@ -38,7 +38,7 @@ int main(int argc, const char* argv[])
   controller.connect(serial_device_name);
 
   // initilize default position settings
-  std::vector<SVHPositionSettings> default_position_settings(E_SVH_DIMENSION);
+  std::vector<SVHPositionSettings> default_position_settings(SVH_DIMENSION);
   SVHPositionSettings pos_set_thumb(
     -1.0e6f, 1.0e6f, 3.4e3f, 1.00f, 1e-3f, -500.0f, 500.0f, 0.5f, 0.05f, 0.0f);
   SVHPositionSettings pos_set_finger(
@@ -57,7 +57,7 @@ int main(int argc, const char* argv[])
   default_position_settings[8] = pos_set_spread; // finger spread
 
   // initilize default current settings
-  std::vector<SVHCurrentSettings> default_current_settings(E_SVH_DIMENSION);
+  std::vector<SVHCurrentSettings> default_current_settings(SVH_DIMENSION);
   SVHCurrentSettings cur_set_thumb(
     -191.0f, 191.0f, 0.405f, 4e-6f, -300.0f, 300.0f, 0.850f, 85.0f, -254.0f, 254.0f);
   SVHCurrentSettings cur_set_distal_joint(
@@ -80,7 +80,7 @@ int main(int argc, const char* argv[])
   controller.requestFirmwareInfo();
 
   // initialize all channels
-  for (size_t i = 0; i < E_SVH_DIMENSION; ++i)
+  for (size_t i = 0; i < SVH_DIMENSION; ++i)
   {
     SVHChannel channel = SVHChannel(i);
 

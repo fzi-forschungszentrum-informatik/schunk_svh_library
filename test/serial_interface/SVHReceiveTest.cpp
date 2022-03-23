@@ -34,8 +34,8 @@ int main(int argc, const char* argv[])
 {
   std::string serial_device_name = "/dev/ttyUSB1";
 
-  Serial* serial_device = new Serial(serial_device_name.c_str(),
-                                     SerialFlags(SerialFlags::E_BR_921600, SerialFlags::E_DB_8));
+  Serial* serial_device =
+    new Serial(serial_device_name.c_str(), SerialFlags(SerialFlags::BR_921600, SerialFlags::DB_8));
   serial_device->open();
 
   uint8_t data = 0;

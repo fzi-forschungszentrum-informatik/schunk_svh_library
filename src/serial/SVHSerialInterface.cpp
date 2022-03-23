@@ -60,7 +60,7 @@ bool SVHSerialInterface::connect(const std::string& dev_name)
 
   // create serial device
   m_serial_device.reset(
-    new Serial(dev_name.c_str(), SerialFlags(SerialFlags::E_BR_921600, SerialFlags::E_DB_8)));
+    new Serial(dev_name.c_str(), SerialFlags(SerialFlags::BR_921600, SerialFlags::DB_8)));
 
   if (m_serial_device)
   {

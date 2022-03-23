@@ -1,6 +1,8 @@
 # Schunk SVH Library
 
-TODO:
+This is a standalone C++ library to control the Schunk SVH 5-finger hand.
+It provides a hardware abstraction for driver development.
+Users can develop custom wrappers on top in their preferred robotics framework.
 
 ## Installation
 

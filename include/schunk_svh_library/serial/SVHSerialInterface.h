@@ -108,7 +108,7 @@ private:
   //! serial device connected state
   bool m_connected;
 
-  uint8_t last_index;
+  uint8_t m_last_index;
 
   //! pointer to serial interface object
   std::shared_ptr<Serial> m_serial_device;

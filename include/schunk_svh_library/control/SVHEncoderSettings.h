@@ -46,8 +46,8 @@ struct SVHEncoderSettings
    * \brief SVHEncoderSettings Default CTOR will assign 9x1 to the scalings if no argument is given
    * \param _scaling scaling to use for the encoders (everyone is scaled the same)
    */
-  SVHEncoderSettings(uint32_t _scaling = 1)
-    : scalings(9, _scaling)
+  SVHEncoderSettings(uint32_t scaling = 1)
+    : scalings(9, scaling)
   {
   }
 

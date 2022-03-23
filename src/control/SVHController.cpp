@@ -62,7 +62,7 @@ const char* SVHController::m_channel_description[] = {"Thumb_Flexion",
                                                       NULL};
 
 //! Values are given in N/mA to be directly compatible to current output of the driver
-const float SVHController::channel_effort_constants[][2] = {
+const float SVHController::CHANNEL_EFFORT_CONSTANTS[][2] = {
   // a, b         // y = a*x + b with y = effort and x = current
   0.015,
   -1.543, // Thumb Flexion
@@ -85,10 +85,10 @@ const float SVHController::channel_effort_constants[][2] = {
 };
 
 SVHController::SVHController()
-  : m_current_settings(eSVH_DIMENSION)
+  : m_current_settings(E_SVH_DIMENSION)
   , // Vectors have to be filled with objects for correct deserialization
-  m_position_settings(eSVH_DIMENSION)
-  , m_controller_feedback(eSVH_DIMENSION)
+  m_position_settings(E_SVH_DIMENSION)
+  , m_controller_feedback(E_SVH_DIMENSION)
   , m_serial_interface(new SVHSerialInterface(std::bind(
       &SVHController::receivedPacketCallback, this, std::placeholders::_1, std::placeholders::_2)))
   , m_enable_mask(0)
@@ -135,7 +135,7 @@ void SVHController::disconnect()
   if (m_serial_interface != NULL && m_serial_interface->isConnected())
   {
     // Disable all channels
-    disableChannel(eSVH_ALL);
+    disableChannel(E_SVH_ALL);
     m_serial_interface->close();
   }
   // Reset the Firmware version, so we get always the current version on a reconnect or 0.0 on
@@ -150,7 +150,7 @@ void SVHController::setControllerTarget(const SVHChannel& channel, const int32_t
 {
   // No Sanity Checks for out of bounds positions at this point as the finger manager has already
   // handled these
-  if ((channel != eSVH_ALL) && (channel >= 0 && channel < eSVH_DIMENSION))
+  if ((channel != E_SVH_ALL) && (channel >= 0 && channel < E_SVH_DIMENSION))
   {
     // The channel is encoded in the index byte
     SVHSerialPacket serial_packet(0, SVH_SET_CONTROL_COMMAND | static_cast<uint8_t>(channel << 4));
@@ -177,7 +177,7 @@ void SVHController::setControllerTarget(const SVHChannel& channel, const int32_t
 
 void SVHController::setControllerTargetAllChannels(const std::vector<int32_t>& positions)
 {
-  if (positions.size() >= eSVH_DIMENSION)
+  if (positions.size() >= E_SVH_DIMENSION)
   {
     SVHSerialPacket serial_packet(0, SVH_SET_CONTROL_COMMAND_ALL);
     SVHControlCommandAllChannels control_command(positions);
@@ -203,7 +203,7 @@ void SVHController::setControllerTargetAllChannels(const std::vector<int32_t>& p
     SVH_LOG_WARN_STREAM(
       "SVHController",
       "Control command was given for all channels but with to few points. Expected at least "
-        << eSVH_DIMENSION << " values but only got " << positions.size()
+        << E_SVH_DIMENSION << " values but only got " << positions.size()
         << "use the individual setTarget function for this");
   }
 }
@@ -263,7 +263,7 @@ void SVHController::enableChannel(const SVHChannel& channel)
   }
 
   // enable actual channels (again we only accept individual channels for safety)
-  if (channel >= 0 && channel < eSVH_DIMENSION)
+  if (channel >= 0 && channel < E_SVH_DIMENSION)
   {
     SVH_LOG_DEBUG_STREAM("SVHController", "Enabling motor: " << channel);
     // oring all channels to create the activation mask-> high = channel active
@@ -315,7 +315,7 @@ void SVHController::disableChannel(const SVHChannel& channel)
     ArrayBuilder ab(40);
 
     // we just accept it at this point because it makes no difference in the calls
-    if (channel == eSVH_ALL)
+    if (channel == E_SVH_ALL)
     {
       m_enable_mask              = 0;
       controller_state.pwm_fault = 0x001F;
@@ -328,7 +328,7 @@ void SVHController::disableChannel(const SVHChannel& channel)
 
       SVH_LOG_DEBUG_STREAM("SVHController", "Disabled all channels");
     }
-    else if (channel >= 0 && channel < eSVH_DIMENSION)
+    else if (channel >= 0 && channel < E_SVH_DIMENSION)
     {
       controller_state.pwm_fault = 0x001F;
       controller_state.pwm_otw   = 0x001F;
@@ -372,7 +372,7 @@ void SVHController::requestControllerState()
 
 void SVHController::requestControllerFeedback(const SVHChannel& channel)
 {
-  if ((channel != eSVH_ALL) && (channel >= 0 && channel < eSVH_DIMENSION))
+  if ((channel != E_SVH_ALL) && (channel >= 0 && channel < E_SVH_DIMENSION))
   {
     SVHSerialPacket serial_packet(40,
                                   SVH_GET_CONTROL_FEEDBACK | static_cast<uint8_t>(channel << 4));
@@ -382,7 +382,7 @@ void SVHController::requestControllerFeedback(const SVHChannel& channel)
     SVH_LOG_DEBUG_STREAM("SVHController",
                          "Controller feedback was requested for channel: " << channel);
   }
-  else if (channel == eSVH_ALL)
+  else if (channel == E_SVH_ALL)
   {
     SVHSerialPacket serial_packet(40, SVH_GET_CONTROL_FEEDBACK_ALL);
     m_serial_interface->sendPacket(serial_packet);
@@ -410,7 +410,7 @@ void SVHController::requestPositionSettings(const SVHChannel& channel)
 void SVHController::setPositionSettings(const SVHChannel& channel,
                                         const SVHPositionSettings& position_settings)
 {
-  if ((channel != eSVH_ALL) && (channel >= 0 && channel < eSVH_DIMENSION))
+  if ((channel != E_SVH_ALL) && (channel >= 0 && channel < E_SVH_DIMENSION))
   {
     SVHSerialPacket serial_packet(0,
                                   SVH_SET_POSITION_SETTINGS | static_cast<uint8_t>(channel << 4));
@@ -449,7 +449,7 @@ void SVHController::requestCurrentSettings(const SVHChannel& channel)
 {
   SVH_LOG_DEBUG_STREAM("SVHController", "Requesting CurrentSettings for channel: " << channel);
 
-  if ((channel != eSVH_ALL) && (channel >= 0 && channel < eSVH_DIMENSION))
+  if ((channel != E_SVH_ALL) && (channel >= 0 && channel < E_SVH_DIMENSION))
   {
     SVHSerialPacket serial_packet(40,
                                   (SVH_GET_CURRENT_SETTINGS | static_cast<uint8_t>(channel << 4)));
@@ -467,7 +467,7 @@ void SVHController::requestCurrentSettings(const SVHChannel& channel)
 void SVHController::setCurrentSettings(const SVHChannel& channel,
                                        const SVHCurrentSettings& current_settings)
 {
-  if ((channel != eSVH_ALL) && (channel >= 0 && channel < eSVH_DIMENSION))
+  if ((channel != E_SVH_ALL) && (channel >= 0 && channel < E_SVH_DIMENSION))
   {
     SVHSerialPacket serial_packet(0, SVH_SET_CURRENT_SETTINGS | static_cast<uint8_t>(channel << 4));
     ArrayBuilder ab;
@@ -554,7 +554,7 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
   {
     case SVH_GET_CONTROL_FEEDBACK:
     case SVH_SET_CONTROL_COMMAND:
-      if (channel >= 0 && channel < eSVH_DIMENSION)
+      if (channel >= 0 && channel < E_SVH_DIMENSION)
       {
         // std::cout << "Recieved: Controllerfeedback RAW Data: " << ab;
         ab >> m_controller_feedback[channel];
@@ -587,7 +587,7 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
       break;
     case SVH_GET_POSITION_SETTINGS:
     case SVH_SET_POSITION_SETTINGS:
-      if (channel >= 0 && channel < eSVH_DIMENSION)
+      if (channel >= 0 && channel < E_SVH_DIMENSION)
       {
         // std::cout << "Recieved: Postitionsettings RAW Data: " << ab; // for really intensive
         // debugging
@@ -615,7 +615,7 @@ void SVHController::receivedPacketCallback(const SVHSerialPacket& packet, unsign
       break;
     case SVH_GET_CURRENT_SETTINGS:
     case SVH_SET_CURRENT_SETTINGS:
-      if (channel >= 0 && channel < eSVH_DIMENSION)
+      if (channel >= 0 && channel < E_SVH_DIMENSION)
       {
         // std::cout << "Recieved: Current Settings RAW Data: " << ab; // for really intensive
         // debugging

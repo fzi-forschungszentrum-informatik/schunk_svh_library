@@ -45,8 +45,8 @@ struct SVHControlCommand
    * \brief Constructs a new control command to comandeer the position of the fingers
    * \param _position target position given in encoder ticks defaults to 0 if none is given
    **/
-  SVHControlCommand(const int32_t& _position = 0)
-    : position(_position)
+  SVHControlCommand(const int32_t& position = 0)
+    : position(position)
   {
   }
 
@@ -75,25 +75,25 @@ struct SVHControlCommandAllChannels
    * \param _position7 Target position for the Pinky
    * \param _position8 Target position for the Finger_Spread
    **/
-  SVHControlCommandAllChannels(const int32_t& _position0,
-                               const int32_t& _position1,
-                               const int32_t& _position2,
-                               const int32_t& _position3,
-                               const int32_t& _position4,
-                               const int32_t& _position5,
-                               const int32_t& _position6,
-                               const int32_t& _position7,
-                               const int32_t& _position8)
+  SVHControlCommandAllChannels(const int32_t& position0,
+                               const int32_t& position1,
+                               const int32_t& position2,
+                               const int32_t& position3,
+                               const int32_t& position4,
+                               const int32_t& position5,
+                               const int32_t& position6,
+                               const int32_t& position7,
+                               const int32_t& position8)
   {
-    commands.push_back(SVHControlCommand(_position0));
-    commands.push_back(SVHControlCommand(_position1));
-    commands.push_back(SVHControlCommand(_position2));
-    commands.push_back(SVHControlCommand(_position3));
-    commands.push_back(SVHControlCommand(_position4));
-    commands.push_back(SVHControlCommand(_position5));
-    commands.push_back(SVHControlCommand(_position6));
-    commands.push_back(SVHControlCommand(_position7));
-    commands.push_back(SVHControlCommand(_position8));
+    commands.push_back(SVHControlCommand(position0));
+    commands.push_back(SVHControlCommand(position1));
+    commands.push_back(SVHControlCommand(position2));
+    commands.push_back(SVHControlCommand(position3));
+    commands.push_back(SVHControlCommand(position4));
+    commands.push_back(SVHControlCommand(position5));
+    commands.push_back(SVHControlCommand(position6));
+    commands.push_back(SVHControlCommand(position7));
+    commands.push_back(SVHControlCommand(position8));
   }
 
   /*!

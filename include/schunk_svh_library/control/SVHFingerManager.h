@@ -54,17 +54,17 @@ public:
    */
   enum Hints
   {
-    eHT_DEVICE_NOT_FOUND,    /* ttyUSBx could not be found */
-    eHT_CONNECTION_FAILED,   /* ttyUSB could be opened but communication failed */
-    eHT_NOT_RESETTED,        /* the fingers of the hand are not resetted */
-    eHT_NOT_CONNECTED,       /* simply never called connect */
-    eHT_RESET_FAILED,        /* timeout during reset -> this is a serious failure */
-    eHT_CHANNEL_SWITCHED_OF, /* Not realy a problem, however a hint worth noting */
-    eHT_DANGEROUS_CURRENTS,  /* Current Values are set to dangerous levels */
-    eHT_DIMENSION            /* dummy entry indicating the size, not used as status */
+    E_HT_DEVICE_NOT_FOUND,    /* ttyUSBx could not be found */
+    E_HT_CONNECTION_FAILED,   /* ttyUSB could be opened but communication failed */
+    E_HT_NOT_RESETTED,        /* the fingers of the hand are not resetted */
+    E_HT_NOT_CONNECTED,       /* simply never called connect */
+    E_HT_RESET_FAILED,        /* timeout during reset -> this is a serious failure */
+    E_HT_CHANNEL_SWITCHED_OF, /* Not realy a problem, however a hint worth noting */
+    E_HT_DANGEROUS_CURRENTS,  /* Current Values are set to dangerous levels */
+    E_HT_DIMENSION            /* dummy entry indicating the size, not used as status */
   };
 
-  struct diagnostic_state
+  struct DiagnosticState
   {
     bool diagnostic_encoder_state;
     bool diagnostic_motor_state;
@@ -90,7 +90,7 @@ public:
    * _retry_count The number of times a connection is tried to be established if at least one
    * package was received \return true if connection was succesful
    */
-  bool connect(const std::string& dev_name = "/dev/ttyUSB0", const unsigned int& _retry_count = 3);
+  bool connect(const std::string& dev_name = "/dev/ttyUSB0", const unsigned int& retry_count = 3);
 
   //!
   //! \brief disconnect SCHUNK five finger hand
@@ -219,7 +219,7 @@ public:
   //! \param diagnostic_status diagnostic data of motor and encoder
   //! \return true if a valid result was requested (i.e. an existing channel)
   //!
-  bool getDiagnosticStatus(const SVHChannel& channel, struct diagnostic_state& diagnostic_status);
+  bool getDiagnosticStatus(const SVHChannel& channel, struct DiagnosticState& diagnostic_status);
 
   //!
   //! \brief overwrite current parameters
@@ -279,7 +279,7 @@ public:
   //! \brief setResetTimeout Helper function to set the timout durind rest of fingers
   //! \param resetTimeout timeout in Seconds. Values smaler than 0 will be interpreted as 0
   //!
-  void setResetTimeout(const int& resetTimeout);
+  void setResetTimeout(const int& reset_timeout);
 
   //!
   //! \brief setMaxForce set the max force / current as a persentage of the maximum possible current
@@ -312,8 +312,8 @@ public:
   //! established if at least one package was received \return the last firmware information read
   //! (this may not be the one currently requested)
   //!
-  SVHFirmwareInfo getFirmwareInfo(const std::string& dev_name      = "/dev/ttyUSB0",
-                                  const unsigned int& _retry_count = 3);
+  SVHFirmwareInfo getFirmwareInfo(const std::string& dev_name     = "/dev/ttyUSB0",
+                                  const unsigned int& retry_count = 3);
 
 
   // ----------------------------------------------------------------------
@@ -476,7 +476,7 @@ private:
   void pollFeedback();
 
   // DEBUG
-  SVHControllerFeedback debug_feedback;
+  SVHControllerFeedback m_debug_feedback;
 };
 
 } // namespace driver_svh

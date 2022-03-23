@@ -88,48 +88,48 @@ public:
     Returns 0 on success.
     Returns -status on failure.
    */
-  int ChangeBaudrate(SerialFlags::BaudRate speed);
+  int changeBaudrate(SerialFlags::BaudRate speed);
 
   /*!
    * Clears the serial port's receive buffer.
    */
-  int ClearReceiveBuffer();
+  int clearReceiveBuffer();
 
   /*!
    * Clears the serial port's send buffer.
    */
-  int ClearSendBuffer();
+  int clearSendBuffer();
 
   /*!
     Opens the serial interface with the given \a flags
    */
-  bool Open(const SerialFlags& flags)
+  bool open(const SerialFlags& flags)
   {
     m_serial_flags = flags;
-    return Open();
+    return open();
   }
 
   /*!
     Opens the serial interface.
    */
-  bool Open();
+  bool open();
 
   /*!
     Returns \c true if the serial interface is opened.
     \c false otherwhise.
    */
-  bool IsOpen() const;
+  bool isOpen() const;
 
   /*!
     Close the serial interface.
    */
-  void Close();
+  void close();
 
 
   /*!
     Write data to serial out.
    */
-  ssize_t Write(const void* data, ssize_t size);
+  ssize_t write(const void* data, ssize_t size);
   /*!
     Read data from device. This function waits until \param time us passed or
     the respected number of bytes are received via serial line.
@@ -138,7 +138,7 @@ public:
     If the parameter is false, data is only read from serial line, if at least
     \param size bytes are available.
    */
-  ssize_t Read(void* data, ssize_t size, unsigned long time = 100, bool return_on_less_data = true);
+  ssize_t read(void* data, ssize_t size, unsigned long time = 100, bool return_on_less_data = true);
   /*!
     All routines return a negavtiv number on error. Then the global errno is
     stored into a private variable. Use this funtion to ask for this value.
@@ -146,19 +146,19 @@ public:
     succesful opening of the device by calling this function. It returns 0, if
     no error occured.
    */
-  int Status() const { return m_status; }
+  int status() const { return m_status; }
 
-  std::string StatusText() const;
+  std::string statusText() const;
 
-  const char* DeviceName() const { return m_dev_name; }
+  const char* deviceName() const { return m_dev_name; }
 
   /*!
     Return the file descriptor of the serial class
   */
-  int FileDescriptor()
+  int fileDescriptor()
   {
 #ifdef _SYSTEM_POSIX_
-    return file_descr;
+    return m_file_descr;
 #else
     return 0;
 #endif
@@ -169,7 +169,7 @@ private:
   Serial(const Serial&);
   Serial& operator=(const Serial&);
 
-  void DumpData(void* data, size_t length);
+  void dumpData(void* data, size_t length);
 
 #ifdef _SYSTEM_WIN32_
   HANDLE m_com;
@@ -178,8 +178,8 @@ private:
 #endif
 
 #ifdef _SYSTEM_POSIX_
-  int file_descr;
-  termios io_set_old;
+  int m_file_descr;
+  termios m_io_set_old;
 #endif
 
   char* m_dev_name;

@@ -75,16 +75,16 @@ public:
   {
     size_t size = pos_settings.size();
 
-    wmn  = (size > 0) ? pos_settings[0] : 0.0;
-    wmx  = (size > 1) ? pos_settings[1] : 0.0;
-    dwmx = (size > 2) ? pos_settings[2] : 0.0;
-    ky   = (size > 3) ? pos_settings[3] : 0.0;
-    dt   = (size > 4) ? pos_settings[4] : 0.0;
-    imn  = (size > 5) ? pos_settings[5] : 0.0;
-    imx  = (size > 6) ? pos_settings[6] : 0.0;
-    kp   = (size > 7) ? pos_settings[7] : 0.0;
-    ki   = (size > 8) ? pos_settings[8] : 0.0;
-    kd   = (size > 9) ? pos_settings[9] : 0.0;
+    wmn  = (size > 0) ? pos_settings[0] : 0.0f;
+    wmx  = (size > 1) ? pos_settings[1] : 0.0f;
+    dwmx = (size > 2) ? pos_settings[2] : 0.0f;
+    ky   = (size > 3) ? pos_settings[3] : 0.0f;
+    dt   = (size > 4) ? pos_settings[4] : 0.0f;
+    imn  = (size > 5) ? pos_settings[5] : 0.0f;
+    imx  = (size > 6) ? pos_settings[6] : 0.0f;
+    kp   = (size > 7) ? pos_settings[7] : 0.0f;
+    ki   = (size > 8) ? pos_settings[8] : 0.0f;
+    kd   = (size > 9) ? pos_settings[9] : 0.0f;
   }
 
 

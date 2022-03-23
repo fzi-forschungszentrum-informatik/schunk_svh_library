@@ -75,16 +75,16 @@ struct SVHCurrentSettings
     size_t size = cur_settings.size();
 
     // is there a nicer way to do this? Please tell me if there is :)
-    wmn = (size > 0) ? cur_settings[0] : 0.0;
-    wmx = (size > 1) ? cur_settings[1] : 0.0;
-    ky  = (size > 2) ? cur_settings[2] : 0.0;
-    dt  = (size > 3) ? cur_settings[3] : 0.0;
-    imn = (size > 4) ? cur_settings[4] : 0.0;
-    imx = (size > 5) ? cur_settings[5] : 0.0;
-    kp  = (size > 6) ? cur_settings[6] : 0.0;
-    ki  = (size > 7) ? cur_settings[7] : 0.0;
-    umn = (size > 8) ? cur_settings[8] : 0.0;
-    umx = (size > 9) ? cur_settings[9] : 0.0;
+    wmn = (size > 0) ? cur_settings[0] : 0.0f;
+    wmx = (size > 1) ? cur_settings[1] : 0.0f;
+    ky  = (size > 2) ? cur_settings[2] : 0.0f;
+    dt  = (size > 3) ? cur_settings[3] : 0.0f;
+    imn = (size > 4) ? cur_settings[4] : 0.0f;
+    imx = (size > 5) ? cur_settings[5] : 0.0f;
+    kp  = (size > 6) ? cur_settings[6] : 0.0f;
+    ki  = (size > 7) ? cur_settings[7] : 0.0f;
+    umn = (size > 8) ? cur_settings[8] : 0.0f;
+    umx = (size > 9) ? cur_settings[9] : 0.0f;
   }
 
   //!

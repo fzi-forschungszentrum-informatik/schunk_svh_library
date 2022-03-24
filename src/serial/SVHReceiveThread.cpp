@@ -42,7 +42,7 @@ SVHReceiveThread::SVHReceiveThread(const std::chrono::microseconds& idle_sleep,
                                    ReceivedPacketCallback const& received_callback)
   : m_idle_sleep(idle_sleep)
   , m_serial_device(device)
-  , m_received_state(eRS_HEADER1)
+  , m_received_state(RS_HEADE_R1)
   , m_length(0)
   , m_data(0, 0)
   , m_ab(0)
@@ -58,7 +58,7 @@ void SVHReceiveThread::run()
   {
     if (m_serial_device) // != NULL)
     {
-      if (m_serial_device->IsOpen())
+      if (m_serial_device->isOpen())
       {
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -104,7 +104,7 @@ bool SVHReceiveThread::receiveData()
    * valid structure and all data fields present.
    */
   uint8_t data_byte;
-  int bytes = m_serial_device->Read(&data_byte, sizeof(uint8_t));
+  int bytes = m_serial_device->read(&data_byte, sizeof(uint8_t));
   if (bytes < 0)
   {
     SVH_LOG_DEBUG_STREAM("SVHReceiveThread", "Serial read error:" << bytes);
@@ -117,10 +117,10 @@ bool SVHReceiveThread::receiveData()
 
   switch (m_received_state)
   {
-    case eRS_HEADER1: {
+    case RS_HEADE_R1: {
       if (data_byte == PACKET_HEADER1)
       {
-        m_received_state = eRS_HEADER2;
+        m_received_state = RS_HEADE_R2;
       }
       else
       {
@@ -128,74 +128,74 @@ bool SVHReceiveThread::receiveData()
       }
       break;
     }
-    case eRS_HEADER2: {
+    case RS_HEADE_R2: {
       switch (data_byte)
       {
         case PACKET_HEADER2: {
-          m_received_state = eRS_INDEX;
+          m_received_state = RS_INDEX;
           break;
         }
         case PACKET_HEADER1: {
-          m_received_state = eRS_HEADER2;
+          m_received_state = RS_HEADE_R2;
           m_skipped_bytes++;
           break;
         }
         default: {
-          m_received_state = eRS_HEADER1;
+          m_received_state = RS_HEADE_R1;
           m_skipped_bytes += 2;
           break;
         }
       }
       break;
     }
-    case eRS_INDEX: {
+    case RS_INDEX: {
       // Reset Array Builder for each fresh packet
       m_ab.reset(0);
 
       // Data bytes are not cenverted in endianess at this point
       m_ab.appendWithoutConversion(data_byte);
-      m_received_state = eRS_ADDRESS;
+      m_received_state = RS_ADDRESS;
       break;
     }
-    case eRS_ADDRESS: {
+    case RS_ADDRESS: {
       // get the address
       m_ab.appendWithoutConversion(data_byte);
-      m_received_state = eRS_LENGTH1;
+      m_received_state = RS_LENGT_H1;
       break;
     }
-    case eRS_LENGTH1: {
+    case RS_LENGT_H1: {
       // get payload length
       m_ab.appendWithoutConversion(data_byte);
-      m_received_state = eRS_LENGTH2;
+      m_received_state = RS_LENGT_H2;
       break;
     }
-    case eRS_LENGTH2: {
+    case RS_LENGT_H2: {
       // get payload length
       m_ab.appendWithoutConversion(data_byte);
       m_length         = m_ab.readBack<uint16_t>();
-      m_received_state = eRS_DATA;
+      m_received_state = RS_DATA;
       m_data.clear();
       m_data.reserve(m_length);
       break;
     }
-    case eRS_DATA: {
+    case RS_DATA: {
       // get the payload itself
       // Some conversion due to legacy hardware calls
       m_data.push_back(data_byte);
       m_ab.appendWithoutConversion(data_byte);
       if (m_data.size() >= m_length)
       {
-        m_received_state = eRS_CHECKSUM1;
+        m_received_state = RS_CHECKSU_M1;
       }
       break;
     }
-    case eRS_CHECKSUM1: {
+    case RS_CHECKSU_M1: {
       m_checksum1      = data_byte;
       m_checksum2      = 0;
-      m_received_state = eRS_CHECKSUM2;
+      m_received_state = RS_CHECKSU_M2;
       break;
     }
-    case eRS_CHECKSUM2: {
+    case RS_CHECKSU_M2: {
       m_checksum2       = data_byte;
       uint8_t checksum1 = m_checksum1;
       uint8_t checksum2 = m_checksum2;
@@ -230,11 +230,11 @@ bool SVHReceiveThread::receiveData()
           m_received_callback(received_packet, m_packets_received);
         }
 
-        m_received_state = eRS_HEADER1;
+        m_received_state = RS_HEADE_R1;
       }
       else
       {
-        m_received_state = eRS_HEADER1;
+        m_received_state = RS_HEADE_R1;
 
         SVHSerialPacket received_packet(m_length);
         m_ab >> received_packet;

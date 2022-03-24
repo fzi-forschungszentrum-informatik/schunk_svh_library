@@ -38,8 +38,8 @@ namespace driver_svh {
 //===============
 
 // packet sizes
-const size_t cPACKET_APPENDIX_SIZE = 8;  //!< The packet overhead size in bytes
-const size_t cDEFAULT_PACKET_SIZE  = 48; //!< Default packet payload size in bytes
+const size_t C_PACKET_APPENDIX_SIZE = 8;  //!< The packet overhead size in bytes
+const size_t C_DEFAULT_PACKET_SIZE  = 48; //!< Default packet payload size in bytes
 
 // packet headers
 const uint8_t PACKET_HEADER1 = 0x4C; //!< Header sync byte 1
@@ -86,9 +86,9 @@ struct SVHSerialPacket
    * \param data_length initial size to set the data length to. NOTE: To deserialize a packet this
    * value HAS TO BE SET!
    */
-  SVHSerialPacket(size_t _data_length = 0, uint8_t _address = SVH_GET_CONTROL_FEEDBACK)
-    : address(_address)
-    , data(_data_length, 0)
+  SVHSerialPacket(size_t data_length = 0, uint8_t address = SVH_GET_CONTROL_FEEDBACK)
+    : address(address)
+    , data(data_length, 0)
   {
   }
 

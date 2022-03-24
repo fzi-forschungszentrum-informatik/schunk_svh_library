@@ -57,10 +57,10 @@ Serial::Serial(const char* dev_name, const SerialFlags& flags)
 #ifdef _SYSTEM_WIN32_
   m_com = INVALID_HANDLE_VALUE;
 #else
-  file_descr = -1;
+  m_file_descr = -1;
 #endif
 
-  Open();
+  open();
 }
 
 Serial::Serial(const char* dev_name, SerialFlags::BaudRate baud_rate, const SerialFlags& flags)
@@ -70,16 +70,16 @@ Serial::Serial(const char* dev_name, SerialFlags::BaudRate baud_rate, const Seri
 #ifdef _SYSTEM_WIN32_
   m_com = INVALID_HANDLE_VALUE;
 #else
-  file_descr = -1;
+  m_file_descr = -1;
 #endif
 
   m_serial_flags.setBaudRate(baud_rate);
-  Open();
+  open();
 }
 
-bool Serial::Open()
+bool Serial::open()
 {
-  Close();
+  close();
 
 #if defined _SYSTEM_LINUX_
   // Attention! The following code will be executed,
@@ -88,7 +88,7 @@ bool Serial::Open()
     termios io_set_new;
 
     // open device
-    if ((file_descr = open(m_dev_name, O_RDWR | O_NONBLOCK)) < 0)
+    if ((m_file_descr = ::open(m_dev_name, O_RDWR | O_NONBLOCK)) < 0)
     {
       m_status = -errno;
       SVH_LOG_DEBUG_STREAM("Serial",
@@ -102,7 +102,7 @@ bool Serial::Open()
       m_status = 0;
 
     // get device-settings
-    if (tcgetattr(file_descr, &io_set_old) < 0)
+    if (tcgetattr(m_file_descr, &m_io_set_old) < 0)
     {
       m_status = -errno;
       SVH_LOG_DEBUG_STREAM("Serial",
@@ -117,10 +117,10 @@ bool Serial::Open()
       m_status = 0;
 
     // copy settings from old settings
-    io_set_new = io_set_old;
+    io_set_new = m_io_set_old;
 
     // declare new settings
-    io_set_new.c_cflag     = m_serial_flags.CFlags();
+    io_set_new.c_cflag     = m_serial_flags.cFlags();
     io_set_new.c_oflag     = 0;
     io_set_new.c_iflag     = IGNPAR;
     io_set_new.c_lflag     = 0;
@@ -128,7 +128,7 @@ bool Serial::Open()
     io_set_new.c_cc[VTIME] = 0;
 
     // set new settings
-    if (tcsetattr(file_descr, TCSANOW, &io_set_new) < 0)
+    if (tcsetattr(m_file_descr, TCSANOW, &io_set_new) < 0)
     {
       m_status = -errno;
       SVH_LOG_DEBUG_STREAM("Serial",
@@ -141,7 +141,7 @@ bool Serial::Open()
     else
       m_status = 0;
 
-    if (m_serial_flags.getModemControlFlags() != SerialFlags::eMCF_UNDEFINED)
+    if (m_serial_flags.getModemControlFlags() != SerialFlags::MCF_UNDEFINED)
     {
       SVH_LOG_DEBUG_STREAM("Serial",
                            "Serial(" << m_dev_name << ") setting hardware modem control flags to 0x"
@@ -149,16 +149,16 @@ bool Serial::Open()
       // DEBUGMSG(DD_SYSTEM, DL_DEBUG, "Serial(%s) setting hardware modem control flags to 0x%x\n",
       // m_dev_name, m_serial_flags.getModemControlFlags());
       int modem_control_flags = 0;
-      if (m_serial_flags.getModemControlFlags() & SerialFlags::eMCF_DTR)
+      if (m_serial_flags.getModemControlFlags() & SerialFlags::MCF_DTR)
       {
         modem_control_flags |= TIOCM_DTR;
       }
-      if (m_serial_flags.getModemControlFlags() & SerialFlags::eMCF_RTS)
+      if (m_serial_flags.getModemControlFlags() & SerialFlags::MCF_RTS)
       {
         modem_control_flags |= TIOCM_RTS;
       }
 
-      ioctl(file_descr, TIOCMSET, modem_control_flags);
+      ioctl(m_file_descr, TIOCMSET, modem_control_flags);
     }
   }
 
@@ -229,7 +229,7 @@ bool Serial::Open()
   return m_status == 0;
 }
 
-void Serial::DumpData(void* data, size_t length)
+void Serial::dumpData(void* data, size_t length)
 {
   unsigned char* c_data = static_cast<unsigned char*>(data);
   printf("Serial::DumpData: ");
@@ -240,7 +240,7 @@ void Serial::DumpData(void* data, size_t length)
   printf("\n");
 }
 
-int Serial::ChangeBaudrate(SerialFlags::BaudRate speed)
+int Serial::changeBaudrate(SerialFlags::BaudRate speed)
 {
   // Nothing to be done here.
   if (m_serial_flags.getBaudRate() == speed)
@@ -252,13 +252,13 @@ int Serial::ChangeBaudrate(SerialFlags::BaudRate speed)
 
 #if defined _SYSTEM_LINUX_
   {
-    if (file_descr < 0)
+    if (m_file_descr < 0)
       return m_status;
 
     struct termios io_set;
 
     // Get device settings
-    if (tcgetattr(file_descr, &io_set) < 0)
+    if (tcgetattr(m_file_descr, &io_set) < 0)
     {
       m_status = -errno;
       SVH_LOG_DEBUG_STREAM("Serial",
@@ -272,10 +272,10 @@ int Serial::ChangeBaudrate(SerialFlags::BaudRate speed)
       // clear speed-settings
       io_set.c_cflag &= ~CBAUD;
       // add new speed-settings
-      io_set.c_cflag |= SerialFlags::CFlags(speed);
+      io_set.c_cflag |= SerialFlags::cFlags(speed);
 
       // set new device settings
-      if (tcsetattr(file_descr, TCSANOW, &io_set) < 0)
+      if (tcsetattr(m_file_descr, TCSANOW, &io_set) < 0)
       {
         m_status = -errno;
         SVH_LOG_DEBUG_STREAM("Serial",
@@ -350,7 +350,7 @@ int Serial::ChangeBaudrate(SerialFlags::BaudRate speed)
 #endif
 }
 
-int Serial::ClearReceiveBuffer()
+int Serial::clearReceiveBuffer()
 {
 #ifdef _SYSTEM_WIN32_
   m_status = 0;
@@ -372,7 +372,7 @@ int Serial::ClearReceiveBuffer()
   return m_status;
 #elif defined _SYSTEM_LINUX_
   // could not test for LXRT device, so return -1 to be on the safe side
-  if (tcflush(file_descr, TCIFLUSH) != 0)
+  if (tcflush(m_file_descr, TCIFLUSH) != 0)
   {
     SVH_LOG_WARN_STREAM("Serial", "tcflush failed :(");
     return -1;
@@ -383,7 +383,7 @@ int Serial::ClearReceiveBuffer()
   return 0;
 }
 
-int Serial::ClearSendBuffer()
+int Serial::clearSendBuffer()
 {
 #ifdef _SYSTEM_WIN32_
   m_status = 0;
@@ -405,7 +405,7 @@ int Serial::ClearSendBuffer()
   return m_status;
 #elif defined _SYSTEM_LINUX_
   // could not test for LXRT device, so return -1 to be on the safe side
-  if (tcflush(file_descr, TCOFLUSH) != 0)
+  if (tcflush(m_file_descr, TCOFLUSH) != 0)
   {
     SVH_LOG_WARN_STREAM("Serial", "tcflush failed :(");
     return -1;
@@ -416,17 +416,17 @@ int Serial::ClearSendBuffer()
   return 0;
 }
 
-ssize_t Serial::Write(const void* data, ssize_t size)
+ssize_t Serial::write(const void* data, ssize_t size)
 {
 #if defined _SYSTEM_LINUX_
-  if (file_descr < 0)
+  if (m_file_descr < 0)
     return m_status;
 
   int bytes_out = 0;
 
   {
     // just write it to device
-    if ((bytes_out = write(file_descr, (char*)data, size)) < 0)
+    if ((bytes_out = ::write(m_file_descr, (char*)data, size)) < 0)
     {
       m_status = -errno;
       SVH_LOG_DEBUG_STREAM("Serial",
@@ -472,13 +472,13 @@ ssize_t Serial::Write(const void* data, ssize_t size)
 #endif
 }
 
-ssize_t Serial::Read(void* data, ssize_t size, unsigned long time, bool return_on_less_data)
+ssize_t Serial::read(void* data, ssize_t size, unsigned long time, bool return_on_less_data)
 {
   // tTime end_time = tTime().FutureUSec(time);
   auto end_time = std::chrono::high_resolution_clock::now() + std::chrono::microseconds(time);
 
 #if defined _SYSTEM_LINUX_
-  if (file_descr < 0)
+  if (m_file_descr < 0)
     return m_status;
 
   std::chrono::duration<double, std::milli> tz;
@@ -507,14 +507,14 @@ ssize_t Serial::Read(void* data, ssize_t size, unsigned long time, bool return_o
       // LDM("Serial(%s) Check Read.\n", m_dev_name);
 
       FD_ZERO(&fds);
-      FD_SET(file_descr, &fds);
+      FD_SET(m_file_descr, &fds);
       // Look for received data:
       if ((select_return = select(FD_SETSIZE, &fds, 0, 0, (timeval*)&tz)) > 0)
       {
         // LDM("Serial(%s) Select successful.\n", m_dev_name);
         if (return_on_less_data)
         {
-          if ((bytes_read_inc = read(file_descr, &buffer[bytes_read], size - bytes_read)) < 0)
+          if ((bytes_read_inc = ::read(m_file_descr, &buffer[bytes_read], size - bytes_read)) < 0)
           {
             m_status = -errno;
             SVH_LOG_DEBUG_STREAM("Serial",
@@ -539,7 +539,7 @@ ssize_t Serial::Read(void* data, ssize_t size, unsigned long time, bool return_o
         {
           // LDM("serial:time left %lu\n",Time2Long(tz));
           // Are there already enough bytes received ?
-          if (ioctl(file_descr, FIONREAD, &bytes_read_inc) < 0)
+          if (ioctl(m_file_descr, FIONREAD, &bytes_read_inc) < 0)
           {
             m_status = -errno;
             SVH_LOG_DEBUG_STREAM("Serial",
@@ -555,7 +555,7 @@ ssize_t Serial::Read(void* data, ssize_t size, unsigned long time, bool return_o
             // Yes? then read data
             if (bytes_read_inc >= size)
             {
-              if ((bytes_read = read(file_descr, buffer, size)) < 0)
+              if ((bytes_read = ::read(m_file_descr, buffer, size)) < 0)
               {
                 m_status = -errno;
                 SVH_LOG_DEBUG_STREAM("Serial",
@@ -696,7 +696,7 @@ ssize_t Serial::Read(void* data, ssize_t size, unsigned long time, bool return_o
 #endif
 }
 
-std::string Serial::StatusText() const
+std::string Serial::statusText() const
 {
 #if defined _SYSTEM_LINUX_
   return strerror(-m_status);
@@ -726,10 +726,10 @@ std::string Serial::StatusText() const
 #endif
 }
 
-bool Serial::IsOpen() const
+bool Serial::isOpen() const
 {
 #ifdef _SYSTEM_LINUX_
-  return file_descr >= 0;
+  return m_file_descr >= 0;
 #elif defined _SYSTEM_WIN32_
   return m_com != INVALID_HANDLE_VALUE;
 #else
@@ -737,15 +737,15 @@ bool Serial::IsOpen() const
 #endif
 }
 
-void Serial::Close()
+void Serial::close()
 {
   // LDM("Serial::Close\n");
 #ifdef _SYSTEM_LINUX_
-  if (file_descr >= 0)
+  if (m_file_descr >= 0)
   {
     {
       // restore old setting
-      if (tcsetattr(file_descr, TCSANOW, &io_set_old) < 0)
+      if (tcsetattr(m_file_descr, TCSANOW, &m_io_set_old) < 0)
       {
         m_status = -errno;
         SVH_LOG_DEBUG_STREAM("Serial",
@@ -755,7 +755,7 @@ void Serial::Close()
         // m_dev_name, m_status, strerror(-m_status));
       }
       // close device
-      if (close(file_descr) < 0)
+      if (::close(m_file_descr) < 0)
       {
         m_status = -errno;
         SVH_LOG_DEBUG_STREAM("Serial",
@@ -767,7 +767,7 @@ void Serial::Close()
       }
     }
 
-    file_descr = -1;
+    m_file_descr = -1;
   }
 #endif
 
@@ -786,7 +786,7 @@ Serial::~Serial()
 {
   // LDM("~Serial start\n");
 
-  Close();
+  close();
   //    free(m_dev_name);
   m_dev_name = NULL;
 

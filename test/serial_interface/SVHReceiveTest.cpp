@@ -34,14 +34,14 @@ int main(int argc, const char* argv[])
 {
   std::string serial_device_name = "/dev/ttyUSB1";
 
-  Serial* serial_device = new Serial(serial_device_name.c_str(),
-                                     SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8));
-  serial_device->Open();
+  Serial* serial_device =
+    new Serial(serial_device_name.c_str(), SerialFlags(SerialFlags::BR_921600, SerialFlags::DB_8));
+  serial_device->open();
 
   uint8_t data = 0;
   while (true)
   {
-    if (serial_device->Read(&data, sizeof(uint8_t)))
+    if (serial_device->read(&data, sizeof(uint8_t)))
     {
       std::cout << "0x" << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(data)
                 << " " << std::flush;
@@ -52,5 +52,5 @@ int main(int argc, const char* argv[])
     }
   }
 
-  serial_device->Close();
+  serial_device->close();
 }

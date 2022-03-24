@@ -37,91 +37,91 @@ class DRIVER_SVH_IMPORT_EXPORT SerialFlags
 public:
   enum DataBits
   {
-    eDB_5 = 5,
-    eDB_6 = 6,
-    eDB_7 = 7,
-    eDB_8 = 8
+    DB_5 = 5,
+    DB_6 = 6,
+    DB_7 = 7,
+    DB_8 = 8
   };
 
   enum StopBits
   {
-    eSB_1,
-    eSB_1P5,
-    eSB_2
+    SB_1,
+    SB_1_P5,
+    SB_2
   };
 
   enum Parity
   {
-    eP_NONE,
-    eP_EVEN,
-    eP_ODD,
-    eP_MARK,
-    eP_SPACE
+    P_NONE,
+    P_EVEN,
+    P_ODD,
+    P_MARK,
+    P_SPACE
   };
 
   enum BaudRate
   {
-    eBR_0      = 0,
-    eBR_50     = 50,
-    eBR_75     = 75,
-    eBR_110    = 110,
-    eBR_134    = 134,
-    eBR_150    = 150,
-    eBR_200    = 200,
-    eBR_300    = 300,
-    eBR_600    = 600,
-    eBR_1200   = 1200,
-    eBR_1800   = 1800,
-    eBR_2400   = 2400,
-    eBR_4800   = 4800,
-    eBR_9600   = 9600,
-    eBR_19200  = 19200,
-    eBR_38400  = 38400,
-    eBR_57600  = 57600,
-    eBR_115200 = 115200,
-    eBR_230400 = 230400,
-    eBR_500000 = 500000,
-    eBR_921600 = 921600
+    BR_0      = 0,
+    BR_50     = 50,
+    BR_75     = 75,
+    BR_110    = 110,
+    BR_134    = 134,
+    BR_150    = 150,
+    BR_200    = 200,
+    BR_300    = 300,
+    BR_600    = 600,
+    BR_1200   = 1200,
+    BR_1800   = 1800,
+    BR_2400   = 2400,
+    BR_4800   = 4800,
+    BR_9600   = 9600,
+    BR_19200  = 19200,
+    BR_38400  = 38400,
+    BR_57600  = 57600,
+    BR_115200 = 115200,
+    BR_230400 = 230400,
+    BR_500000 = 500000,
+    BR_921600 = 921600
   };
 
   enum FlowControl
   {
-    eFC_FLOW,
-    eFC_HAND_SHAKE
+    FC_FLOW,
+    FC_HAND_SHAKE
   };
 
   enum ModemControlFlags
   {
-    eMCF_NULL      = 0x000,
-    eMCF_DTR       = 0x002,
-    eMCF_RTS       = 0x004,
-    eMCF_UNDEFINED = 0x800
+    MCF_NULL      = 0x000,
+    MCF_DTR       = 0x002,
+    MCF_RTS       = 0x004,
+    MCF_UNDEFINED = 0x800
   };
 
   SerialFlags()
-    : m_data_bits(eDB_8)
-    , m_stop_bits(eSB_1)
-    , m_parity(eP_NONE)
-    , m_baud_rate(eBR_9600)
-    , m_flow_control(eFC_HAND_SHAKE)
+    : m_data_bits(DB_8)
+    , m_stop_bits(SB_1)
+    , m_parity(P_NONE)
+    , m_baud_rate(BR_9600)
+    , m_flow_control(FC_HAND_SHAKE)
     , m_use_modem_control(true)
-    , m_modem_control_flags(eMCF_UNDEFINED)
+    , m_modem_control_flags(MCF_UNDEFINED)
     , m_enable_receiver(false)
     , m_enable_stop_on_receive(false)
   {
   }
 
   SerialFlags(DataBits data_bits,
-              Parity parity                         = eP_NONE,
+              Parity parity                         = P_NONE,
               bool use_modem_control                = false,
               bool enable_receiver                  = false,
               bool enable_stop_on_receive           = false,
-              ModemControlFlags modem_control_flags = eMCF_UNDEFINED)
+              ModemControlFlags modem_control_flags = MCF_UNDEFINED)
     : m_data_bits(data_bits)
-    , m_stop_bits(eSB_1)
+    , m_stop_bits(SB_1)
     , m_parity(parity)
-    , m_baud_rate(eBR_9600)
-    , m_flow_control(eFC_HAND_SHAKE)
+    , m_baud_rate(BR_9600)
+    , m_flow_control(FC_HAND_SHAKE)
     , m_use_modem_control(use_modem_control)
     , m_modem_control_flags(modem_control_flags)
     , m_enable_receiver(enable_receiver)
@@ -131,16 +131,16 @@ public:
 
   SerialFlags(BaudRate baud_rate,
               DataBits data_bits,
-              Parity parity                         = eP_NONE,
+              Parity parity                         = P_NONE,
               bool use_modem_control                = false,
               bool enable_receiver                  = false,
               bool enable_stop_on_receive           = false,
-              ModemControlFlags modem_control_flags = eMCF_UNDEFINED)
+              ModemControlFlags modem_control_flags = MCF_UNDEFINED)
     : m_data_bits(data_bits)
-    , m_stop_bits(eSB_1)
+    , m_stop_bits(SB_1)
     , m_parity(parity)
     , m_baud_rate(baud_rate)
-    , m_flow_control(eFC_HAND_SHAKE)
+    , m_flow_control(FC_HAND_SHAKE)
     , m_use_modem_control(use_modem_control)
     , m_modem_control_flags(modem_control_flags)
     , m_enable_receiver(enable_receiver)
@@ -155,12 +155,12 @@ public:
               bool use_modem_control                = false,
               bool enable_receiver                  = false,
               bool enable_stop_on_receive           = false,
-              ModemControlFlags modem_control_flags = eMCF_UNDEFINED)
+              ModemControlFlags modem_control_flags = MCF_UNDEFINED)
     : m_data_bits(data_bits)
     , m_stop_bits(stop_bits)
     , m_parity(parity)
     , m_baud_rate(baud_rate)
-    , m_flow_control(eFC_HAND_SHAKE)
+    , m_flow_control(FC_HAND_SHAKE)
     , m_use_modem_control(use_modem_control)
     , m_modem_control_flags(modem_control_flags)
     , m_enable_receiver(enable_receiver)
@@ -195,8 +195,8 @@ public:
   ModemControlFlags getModemControlFlags() const { return m_modem_control_flags; }
 
 #ifdef _SYSTEM_POSIX_
-  unsigned long CFlags() const;
-  static unsigned long CFlags(BaudRate baud_rate);
+  unsigned long cFlags() const;
+  static unsigned long cFlags(BaudRate baud_rate);
 #endif
 #ifdef _SYSTEM_WIN32_
   void GetDCB(LPDCB dcb) const;

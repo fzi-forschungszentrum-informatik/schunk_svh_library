@@ -47,9 +47,9 @@ struct SVHControllerFeedback
    * \param _position Intitial position value, defaults to 0
    * \param _current Initital current value, defaults to 0
    **/
-  SVHControllerFeedback(const int32_t& _position = 0, const int16_t& _current = 0)
-    : position(_position)
-    , current(_current)
+  SVHControllerFeedback(const int32_t& position = 0, const int16_t& current = 0)
+    : position(position)
+    , current(current)
   {
   }
 
@@ -78,25 +78,25 @@ struct SVHControllerFeedbackAllChannels
    * \param _feedback7 Feedback for the Pinky
    * \param _feedback8 Feedback for the Finger_Spread
    */
-  SVHControllerFeedbackAllChannels(const SVHControllerFeedback& _feedback0,
-                                   const SVHControllerFeedback& _feedback1,
-                                   const SVHControllerFeedback& _feedback2,
-                                   const SVHControllerFeedback& _feedback3,
-                                   const SVHControllerFeedback& _feedback4,
-                                   const SVHControllerFeedback& _feedback5,
-                                   const SVHControllerFeedback& _feedback6,
-                                   const SVHControllerFeedback& _feedback7,
-                                   const SVHControllerFeedback& _feedback8)
+  SVHControllerFeedbackAllChannels(const SVHControllerFeedback& feedback0,
+                                   const SVHControllerFeedback& feedback1,
+                                   const SVHControllerFeedback& feedback2,
+                                   const SVHControllerFeedback& feedback3,
+                                   const SVHControllerFeedback& feedback4,
+                                   const SVHControllerFeedback& feedback5,
+                                   const SVHControllerFeedback& feedback6,
+                                   const SVHControllerFeedback& feedback7,
+                                   const SVHControllerFeedback& feedback8)
   {
-    feedbacks.push_back(_feedback0);
-    feedbacks.push_back(_feedback1);
-    feedbacks.push_back(_feedback2);
-    feedbacks.push_back(_feedback3);
-    feedbacks.push_back(_feedback4);
-    feedbacks.push_back(_feedback5);
-    feedbacks.push_back(_feedback6);
-    feedbacks.push_back(_feedback7);
-    feedbacks.push_back(_feedback8);
+    feedbacks.push_back(feedback0);
+    feedbacks.push_back(feedback1);
+    feedbacks.push_back(feedback2);
+    feedbacks.push_back(feedback3);
+    feedbacks.push_back(feedback4);
+    feedbacks.push_back(feedback5);
+    feedbacks.push_back(feedback6);
+    feedbacks.push_back(feedback7);
+    feedbacks.push_back(feedback8);
   }
 
   /*!
@@ -106,9 +106,9 @@ struct SVHControllerFeedbackAllChannels
    * be rather pointles as we only have 9 chanels less than 9 channels will result in only partial
    * feedback
    */
-  SVHControllerFeedbackAllChannels(std::vector<SVHControllerFeedback> _feedbacks)
+  SVHControllerFeedbackAllChannels(std::vector<SVHControllerFeedback> feedbacks)
   {
-    feedbacks.insert(feedbacks.begin(), _feedbacks.begin(), _feedbacks.end());
+    feedbacks.insert(feedbacks.begin(), feedbacks.begin(), feedbacks.end());
   }
 
   /*!

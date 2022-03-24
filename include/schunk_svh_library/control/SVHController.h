@@ -56,17 +56,17 @@ namespace driver_svh {
 //! as it represents the hardware mapping
 enum
 {
-  eSVH_ALL           = -1, // this should be used with care as not all functions support it yet
-  eSVH_THUMB_FLEXION = 0,
-  eSVH_THUMB_OPPOSITION, // wrist
-  eSVH_INDEX_FINGER_DISTAL,
-  eSVH_INDEX_FINGER_PROXIMAL,
-  eSVH_MIDDLE_FINGER_DISTAL,
-  eSVH_MIDDLE_FINGER_PROXIMAL,
-  eSVH_RING_FINGER,
-  eSVH_PINKY,
-  eSVH_FINGER_SPREAD,
-  eSVH_DIMENSION // 9
+  SVH_ALL           = -1, // this should be used with care as not all functions support it yet
+  SVH_THUMB_FLEXION = 0,
+  SVH_THUMB_OPPOSITION, // wrist
+  SVH_INDEX_FINGER_DISTAL,
+  SVH_INDEX_FINGER_PROXIMAL,
+  SVH_MIDDLE_FINGER_DISTAL,
+  SVH_MIDDLE_FINGER_PROXIMAL,
+  SVH_RING_FINGER,
+  SVH_PINKY,
+  SVH_FINGER_SPREAD,
+  SVH_DIMENSION // 9
 } typedef SVHChannel;
 
 /*!
@@ -247,7 +247,7 @@ public:
   static const char* m_channel_description[];
 
   //! Effort multipliers to calculate the torque of the motors for the individual channels
-  static const float channel_effort_constants[9][2];
+  static const float CHANNEL_EFFORT_CONSTANTS[9][2];
 
   //! Get all currently available controllerfeedbacks
   void getControllerFeedbackAllChannels(SVHControllerFeedbackAllChannels& controller_feedback);

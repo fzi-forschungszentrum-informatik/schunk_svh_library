@@ -60,18 +60,18 @@ struct SVHControllerState
   uint16_t cur_ctrl;
 
   //! Default constructor with zero values for everything
-  SVHControllerState(uint16_t _pwm_fault  = 0,
-                     uint16_t _pwm_otw    = 0,
-                     uint16_t _pwm_reset  = 0,
-                     uint16_t _pwm_active = 0,
-                     uint16_t _pos_ctrl   = 0,
-                     uint16_t _cur_ctrl   = 0)
-    : pwm_fault(_pwm_fault)
-    , pwm_otw(_pwm_otw)
-    , pwm_reset(_pwm_reset)
-    , pwm_active(_pwm_active)
-    , pos_ctrl(_pos_ctrl)
-    , cur_ctrl(_cur_ctrl)
+  SVHControllerState(uint16_t pwm_fault  = 0,
+                     uint16_t pwm_otw    = 0,
+                     uint16_t pwm_reset  = 0,
+                     uint16_t pwm_active = 0,
+                     uint16_t pos_ctrl   = 0,
+                     uint16_t cur_ctrl   = 0)
+    : pwm_fault(pwm_fault)
+    , pwm_otw(pwm_otw)
+    , pwm_reset(pwm_reset)
+    , pwm_active(pwm_active)
+    , pos_ctrl(pos_ctrl)
+    , cur_ctrl(cur_ctrl)
   {
   }
 

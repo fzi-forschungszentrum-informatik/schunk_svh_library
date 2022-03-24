@@ -60,12 +60,12 @@ bool SVHSerialInterface::connect(const std::string& dev_name)
 
   // create serial device
   m_serial_device.reset(
-    new Serial(dev_name.c_str(), SerialFlags(SerialFlags::eBR_921600, SerialFlags::eDB_8)));
+    new Serial(dev_name.c_str(), SerialFlags(SerialFlags::BR_921600, SerialFlags::DB_8)));
 
   if (m_serial_device)
   {
     // open serial device
-    if (!m_serial_device->Open())
+    if (!m_serial_device->open())
     {
       SVH_LOG_ERROR_STREAM("SVHSerialInterface",
                            "Could not open serial device: " << dev_name.c_str());
@@ -117,7 +117,7 @@ void SVHSerialInterface::close()
   // close and delete serial device handler
   if (m_serial_device)
   {
-    m_serial_device->Close();
+    m_serial_device->close();
 
     m_serial_device.reset();
     SVH_LOG_DEBUG_STREAM("SVHSerialInterface", "Serial device handle was closed and terminated.");
@@ -144,10 +144,10 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
     // set packet counter
     packet.index = static_cast<uint8_t>(m_packets_transmitted % uint8_t(-1));
 
-    if (m_serial_device->IsOpen())
+    if (m_serial_device->isOpen())
     {
       // Prepare arraybuilder
-      size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
+      size_t size = packet.data.size() + C_PACKET_APPENDIX_SIZE;
       driver_svh::ArrayBuilder send_array(size);
       // Write header and packet information and checksum
       send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
@@ -157,7 +157,7 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
       while (bytes_send < size)
       {
         bytes_send +=
-          m_serial_device->Write(send_array.array.data() + bytes_send, size - bytes_send);
+          m_serial_device->write(send_array.array.data() + bytes_send, size - bytes_send);
       }
 
       // Small delay -> THIS SHOULD NOT BE NECESSARY as the communication speed should be handable
@@ -205,7 +205,7 @@ void SVHSerialInterface::printPacketOnConsole(SVHSerialPacket& packet)
 
 
   // Prepare arraybuilder
-  size_t size = packet.data.size() + cPACKET_APPENDIX_SIZE;
+  size_t size = packet.data.size() + C_PACKET_APPENDIX_SIZE;
   driver_svh::ArrayBuilder send_array(size);
   // Write header and packet information and checksum
   send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
@@ -218,7 +218,7 @@ void SVHSerialInterface::printPacketOnConsole(SVHSerialPacket& packet)
 void SVHSerialInterface::receivedPacketCallback(const SVHSerialPacket& packet,
                                                 unsigned int packet_count)
 {
-  last_index = packet.index;
+  m_last_index = packet.index;
   m_received_packet_callback(packet, packet_count);
 }
 

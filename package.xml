@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>schunk_svh_library</name>
+  <version>1.0.0</version>
+  <description>Standalone C++ library for accessing the Schunk five finger hand.</description>
+  <author>Georg Heppner</author>
+  <author>Lars Pfotzer</author>
+  <author>Felix Exner</author>
+  <author>Johannes Mangler</author>
+  <author>Stefan Scherzinger</author>
+  <author>Pascal Becker</author>
+  <maintainer email="pbecker@fzi.de">Pascal Becker</maintainer>
+  <license>LGPL</license>
+
+  <url type="website">http://wiki.ros.org/schunk_svh_library</url>
+  <url type="bugtracker">https://github.com/fzi-forschungszentrum-informatik/schunk_svh_library/issues</url>
+  <url type="repository">https://github.com/fzi-forschungszentrum-informatik/schunk_svh_library</url>
+
+  <build_depend>boost</build_depend>
+  <test_depend>boost</test_depend>
+
+  <buildtool_depend>cmake</buildtool_depend>
+
+  <exec_depend condition="$ROS_VERSION == 1">catkin</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 2">ament_cmake</exec_depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+
+</package>

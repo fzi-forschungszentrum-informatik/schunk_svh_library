@@ -1,0 +1,48 @@
+include:
+  - project: 'continuous_integration/ci_scripts'
+    ref: master
+    file: '/gitlab-ci-yml/catkin_pipeline.yml'
+
+pre-commit:
+  image: ids-git.fzi.de:5555/continuous_integration/ci_docker_images/ubuntu_20.04_workstation
+  stage: check
+  variables:
+    PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
+  script:
+    - apt-get update && apt-get install -y clang-format-10
+    - pip install pre-commit
+    - pre-commit run -a
+  cache:
+    paths:
+      - ${PRE_COMMIT_HOME}
+
+industrial_ci_foxy:
+  image: ids-git.fzi.de:5555/continuous_integration/ci_docker_images/ubuntu_20.04_ros2
+  extends: .industrial_ci
+  variables:
+    ROS_DISTRO: "foxy"
+    DO_TEST: "false"
+    CLANG_TIDY: "true"
+  except:
+    variables:
+      - $BUILD_FOXY == "false"
+
+create_deb_foxy:
+  image: ids-git.fzi.de:5555/continuous_integration/ci_docker_images/ubuntu_20.04_ros2
+  variables:
+    ROS_DISTRIBUTION: foxy
+    CI_SCRIPTS_REPO: https://gitlab-ci-token:${CI_JOB_TOKEN}@ids-git.fzi.de/continuous_integration/ci_scripts
+  extends: .create_deb_package
+  except:
+    variables:
+      - $BUILD_FOXY == "false"
+      - $DEB_BUILD == "false"
+
+upload_debs_foxy:
+  image: ids-git.fzi.de:5555/continuous_integration/ci_docker_images/ubuntu_20.04_ros2
+  variables:
+    ROS_DISTRIBUTION: foxy
+  extends: .upload_debs
+  dependencies:
+    - create_deb_foxy
+    - industrial_ci_foxy

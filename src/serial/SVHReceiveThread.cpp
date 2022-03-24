@@ -104,7 +104,7 @@ bool SVHReceiveThread::receiveData()
    * valid structure and all data fields present.
    */
   uint8_t data_byte;
-  int bytes = m_serial_device->read(&data_byte, sizeof(uint8_t));
+  ssize_t bytes = m_serial_device->read(&data_byte, sizeof(uint8_t));
   if (bytes < 0)
   {
     SVH_LOG_DEBUG_STREAM("SVHReceiveThread", "Serial read error:" << bytes);

@@ -1542,7 +1542,7 @@ float SVHFingerManager::setForceLimit(const SVHChannel& channel, float force_lim
   current_settings = m_current_settings[channel];
 
   current_settings.wmx = current;
-  current_settings.wmn = -current;
+  current_settings.wmn = -static_cast<float>(current);
 
   if (setCurrentSettings(channel, current_settings))
   {

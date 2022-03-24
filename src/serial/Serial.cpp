@@ -422,7 +422,7 @@ ssize_t Serial::write(const void* data, ssize_t size)
   if (m_file_descr < 0)
     return m_status;
 
-  int bytes_out = 0;
+  ssize_t bytes_out = 0;
 
   {
     // just write it to device
@@ -483,8 +483,8 @@ ssize_t Serial::read(void* data, ssize_t size, unsigned long time, bool return_o
 
   std::chrono::duration<double, std::milli> tz;
   fd_set fds;
-  int bytes_read = 0;
-  int bytes_read_inc;
+  ssize_t bytes_read = 0;
+  ssize_t bytes_read_inc;
   int select_return;
   char* buffer = (char*)data;
 

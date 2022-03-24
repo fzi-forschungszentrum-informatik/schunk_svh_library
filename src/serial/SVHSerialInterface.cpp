@@ -147,13 +147,13 @@ bool SVHSerialInterface::sendPacket(SVHSerialPacket& packet)
     if (m_serial_device->isOpen())
     {
       // Prepare arraybuilder
-      size_t size = packet.data.size() + C_PACKET_APPENDIX_SIZE;
+      ssize_t size = static_cast<ssize_t>(packet.data.size() + C_PACKET_APPENDIX_SIZE);
       driver_svh::ArrayBuilder send_array(size);
       // Write header and packet information and checksum
       send_array << PACKET_HEADER1 << PACKET_HEADER2 << packet << check_sum1 << check_sum2;
 
       // actual hardware call to send the packet
-      size_t bytes_send = 0;
+      ssize_t bytes_send = 0;
       while (bytes_send < size)
       {
         bytes_send +=

@@ -43,6 +43,6 @@ upload_debs_foxy:
   variables:
     ROS_DISTRIBUTION: foxy
   extends: .upload_debs
-  dependencies:
-    - create_deb_foxy
-    - industrial_ci_foxy
+  needs:
+    - "create_deb_foxy"
+    - "industrial_ci_foxy"

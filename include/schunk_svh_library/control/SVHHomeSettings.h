@@ -112,14 +112,14 @@ struct SVHHomeSettings
     size_t size          = home_settings.size();
     float temp_direction = 0.0;
 
-    temp_direction = (size > 0) ? home_settings[0] : 0.0;
+    temp_direction = (size > 0) ? home_settings[0] : 0.0f;
     direction      = temp_direction < 0.0 ? -1 : +1;
 
-    minimum_offset       = (size > 1) ? home_settings[1] : 0.0;
-    maximum_offset       = (size > 2) ? home_settings[2] : 0.0;
-    idle_position        = (size > 3) ? home_settings[3] : 0.0;
-    range_rad            = (size > 4) ? home_settings[4] : 0.0;
-    reset_current_factor = (size > 5) ? home_settings[5] : 0.5;
+    minimum_offset       = (size > 1) ? home_settings[1] : 0.0f;
+    maximum_offset       = (size > 2) ? home_settings[2] : 0.0f;
+    idle_position        = (size > 3) ? home_settings[3] : 0.0f;
+    range_rad            = (size > 4) ? home_settings[4] : 0.0f;
+    reset_current_factor = (size > 5) ? home_settings[5] : 0.5f;
 
     // Limit the resetCurrentFactor to allowed bounds
     reset_current_factor = std::max(std::min(reset_current_factor, 1.0f), 0.0f);

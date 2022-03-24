@@ -34,6 +34,7 @@
 #include <schunk_svh_library/control/SVHFingerManager.h>
 
 #include <chrono>
+#include <cmath>
 #include <functional>
 #include <memory>
 #include <thread>
@@ -141,7 +142,7 @@ bool SVHFingerManager::connect(const std::string& dev_name, const unsigned int& 
   {
     if (m_controller->connect(dev_name))
     {
-      unsigned int retry_count = retry_count;
+      unsigned int num_retries = retry_count;
       do
       {
         // Reset the package counts (in case a previous attempt was made)
@@ -204,17 +205,17 @@ bool SVHFingerManager::connect(const std::string& dev_name, const unsigned int& 
         // Try again, but ONLY if we at least got one package back, otherwise its futil
         if (!m_connected)
         {
-          if (received_count > 0 && retry_count >= 0)
+          if (received_count > 0 && num_retries >= 0)
           {
-            retry_count--;
+            num_retries--;
             SVH_LOG_ERROR_STREAM("SVHFingerManager",
                                  "Connection Failed! Send packages = "
                                    << send_count << ", received packages = " << received_count
-                                   << ". Retrying, count: " << retry_count);
+                                   << ". Retrying, count: " << num_retries);
           }
           else
           {
-            retry_count = 0;
+            num_retries = 0;
             SVH_LOG_ERROR_STREAM("SVHFingerManager",
                                  "Connection Failed! Send packages = "
                                    << send_count << ", received packages = " << received_count
@@ -222,10 +223,10 @@ bool SVHFingerManager::connect(const std::string& dev_name, const unsigned int& 
           }
         }
         // Keep trying to reconnect several times because the brainbox often makes problems
-      } while (!m_connected && retry_count > 0);
+      } while (!m_connected && num_retries > 0);
 
 
-      if (!m_connected && retry_count <= 0)
+      if (!m_connected && num_retries <= 0)
       {
         SVH_LOG_ERROR_STREAM("SVHFingerManager",
                              "A Stable connection could NOT be made, however some packages where "
@@ -399,9 +400,9 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
               m_diagnostic_current_maximum[channel]; // without deadlocks delta should be positiv
             if (delta <= -threshold)
             {
-              if (abs(delta) > m_diagnostic_deadlock[channel])
+              if (std::abs(delta) > m_diagnostic_deadlock[channel])
               {
-                m_diagnostic_deadlock[channel] = abs(delta);
+                m_diagnostic_deadlock[channel] = std::abs(delta);
               }
             }
           }
@@ -410,9 +411,9 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
             double delta = control_feedback.current - m_diagnostic_current_minimum[channel];
             if (delta >= threshold)
             {
-              if (abs(delta) > m_diagnostic_deadlock[channel])
+              if (std::abs(delta) > m_diagnostic_deadlock[channel])
               {
-                m_diagnostic_deadlock[channel] = abs(delta);
+                m_diagnostic_deadlock[channel] = std::abs(delta);
               }
             }
           }
@@ -1457,13 +1458,14 @@ uint16_t SVHFingerManager::convertNtomA(const SVHChannel& channel, const double&
   {
     // y = a*x + b -->  x = (y-b) / a
     // y = effort and x = current
-    current = static_cast<int>((effort - SVHController::CHANNEL_EFFORT_CONSTANTS[channel][1]) /
-                                 SVHController::CHANNEL_EFFORT_CONSTANTS[channel][0] +
-                               0.5);
+    current = static_cast<uint16_t>(
+      std::round((effort - SVHController::CHANNEL_EFFORT_CONSTANTS[channel][1]) /
+                 SVHController::CHANNEL_EFFORT_CONSTANTS[channel][0]));
   }
   else
   {
-    current = m_max_current_percentage * m_diagnostic_current_maximum[channel];
+    current =
+      static_cast<uint16_t>(m_max_current_percentage * m_diagnostic_current_maximum[channel]);
   }
 
   return current;
@@ -1581,7 +1583,7 @@ SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string& dev_name,
       m_feedback_thread.join();
     }
 
-    unsigned int retry_count = retry_count;
+    unsigned int num_retries = retry_count;
     do
     {
       // Tell the hardware to get the newest firmware information
@@ -1590,14 +1592,14 @@ SVHFirmwareInfo SVHFingerManager::getFirmwareInfo(const std::string& dev_name,
       std::this_thread::sleep_for(std::chrono::microseconds(100000));
       // Get the Version number if received yet, else 0.0
       m_firmware_info = m_controller->getFirmwareInfo();
-      --retry_count;
+      --num_retries;
 
       if (m_firmware_info.version_major == 0 && m_firmware_info.version_major == 0)
       {
         SVH_LOG_ERROR_STREAM("SVHFingerManager",
-                             "Getting Firmware Version failed,.Retrying, count: " << retry_count);
+                             "Getting Firmware Version failed,.Retrying, count: " << num_retries);
       }
-    } while (retry_count > 0 && m_firmware_info.version_major == 0 &&
+    } while (num_retries > 0 && m_firmware_info.version_major == 0 &&
              m_firmware_info.version_major == 0);
 
     // Start the feedback process aggain

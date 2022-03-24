@@ -488,8 +488,8 @@ ssize_t Serial::read(void* data, ssize_t size, unsigned long time, bool return_o
   int select_return;
   char* buffer = (char*)data;
 
-  if (time <= 0)
-    time = 1;
+  // if (time <= 0)
+  //   time = 1;
   // LDM("Serial(%s)::Read(%i) (time left %li us)\n", m_dev_name, size, time);
 
   m_status = 0;

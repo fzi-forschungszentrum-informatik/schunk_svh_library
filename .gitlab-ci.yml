@@ -3,6 +3,12 @@ include:
     ref: master
     file: '/gitlab-ci-yml/catkin_pipeline.yml'
 
+variables:
+  DOWNSTREAM_WORKSPACE: ".downstream_workspace_ros1.yml"
+
+before_script:
+  - sed -i 's/https\:\/\/ids-git\.fzi\.de/https\:\/\/gitlab-ci-token\:'${CI_JOB_TOKEN}'\@ids-git\.fzi\.de/g' ${CI_PROJECT_DIR}/${DOWNSTREAM_WORKSPACE}
+
 pre-commit:
   image: ids-git.fzi.de:5555/continuous_integration/ci_docker_images/ubuntu_20.04_workstation
   stage: check
@@ -23,6 +29,7 @@ industrial_ci_foxy:
     ROS_DISTRO: "foxy"
     DO_TEST: "false"
     CLANG_TIDY: "true"
+    DOWNSTREAM_WORKSPACE: ".downstream_workspace_ros2.yml"
   except:
     variables:
       - $BUILD_FOXY == "false"

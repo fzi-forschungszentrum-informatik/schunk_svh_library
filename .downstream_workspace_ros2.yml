@@ -1,0 +1,5 @@
+repositories:
+  schunk_svh_driver:
+    type: git
+    url: https://ids-git.fzi.de/ros/schunk_svh_driver.git
+    version: ros2-foxy-devel

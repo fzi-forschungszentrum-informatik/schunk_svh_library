@@ -34,6 +34,7 @@
 #include <schunk_svh_library/control/SVHFingerManager.h>
 
 #include <chrono>
+#include <cmath>
 #include <functional>
 #include <memory>
 #include <thread>
@@ -1457,13 +1458,14 @@ uint16_t SVHFingerManager::convertNtomA(const SVHChannel& channel, const double&
   {
     // y = a*x + b -->  x = (y-b) / a
     // y = effort and x = current
-    current = static_cast<int>((effort - SVHController::CHANNEL_EFFORT_CONSTANTS[channel][1]) /
-                                 SVHController::CHANNEL_EFFORT_CONSTANTS[channel][0] +
-                               0.5);
+    current = static_cast<uint16_t>(
+      std::round((effort - SVHController::CHANNEL_EFFORT_CONSTANTS[channel][1]) /
+                 SVHController::CHANNEL_EFFORT_CONSTANTS[channel][0]));
   }
   else
   {
-    current = m_max_current_percentage * m_diagnostic_current_maximum[channel];
+    current =
+      static_cast<uint16_t>(m_max_current_percentage * m_diagnostic_current_maximum[channel]);
   }
 
   return current;

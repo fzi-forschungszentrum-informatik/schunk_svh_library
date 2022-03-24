@@ -400,9 +400,9 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
               m_diagnostic_current_maximum[channel]; // without deadlocks delta should be positiv
             if (delta <= -threshold)
             {
-              if (abs(delta) > m_diagnostic_deadlock[channel])
+              if (std::abs(delta) > m_diagnostic_deadlock[channel])
               {
-                m_diagnostic_deadlock[channel] = abs(delta);
+                m_diagnostic_deadlock[channel] = std::abs(delta);
               }
             }
           }
@@ -411,9 +411,9 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
             double delta = control_feedback.current - m_diagnostic_current_minimum[channel];
             if (delta >= threshold)
             {
-              if (abs(delta) > m_diagnostic_deadlock[channel])
+              if (std::abs(delta) > m_diagnostic_deadlock[channel])
               {
-                m_diagnostic_deadlock[channel] = abs(delta);
+                m_diagnostic_deadlock[channel] = std::abs(delta);
               }
             }
           }

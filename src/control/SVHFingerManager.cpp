@@ -575,11 +575,11 @@ bool SVHFingerManager::resetChannel(const SVHChannel& channel)
       }
 
       // Check if this reset has trigger the reset of all the Fingers
-      bool reset_all_success = true;
-      for (size_t i = 0; i < SVH_DIMENSION; ++i)
-      {
-        reset_all_success == reset_all_success&& m_is_homed[channel];
-      }
+      // bool reset_all_success = true;
+      // for (size_t i = 0; i < SVH_DIMENSION; ++i)
+      // {
+      //   reset_all_success == reset_all_success&& m_is_homed[channel];
+      // }
 
       SVH_LOG_INFO_STREAM("SVHFingerManager", "Successfully homed channel " << channel);
 

@@ -10,7 +10,7 @@
   <author>Johannes Mangler</author>
   <author>Stefan Scherzinger</author>
   <author>Pascal Becker</author>
-  <maintainer email="pbecker@fzi.de">Pascal Becker</maintainer>
+  <maintainer email="scherzin@fzi.de">Stefan Scherzinger</maintainer>
   <license>GPL-3.0-or-later</license>
 
   <url type="website">http://wiki.ros.org/schunk_svh_library</url>

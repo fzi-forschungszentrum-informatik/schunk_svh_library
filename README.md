@@ -6,6 +6,12 @@ Users can develop custom wrappers on top in their preferred robotics framework.
 
 ## Installation
 
+---
+
+**Note:** Switch to [these instructions](https://github.com/fzi-forschungszentrum-informatik/schunk_svh_ros_driver) when working in a ROS1/ROS2 context.
+
+---
+
 Start an *out of source build* in the parent folder of this package with
 ```bash
 mkdir build && cd build

@@ -11,7 +11,7 @@
   <author>Stefan Scherzinger</author>
   <author>Pascal Becker</author>
   <maintainer email="pbecker@fzi.de">Pascal Becker</maintainer>
-  <license>LGPL</license>
+  <license>GPL-3.0-or-later</license>
 
   <url type="website">http://wiki.ros.org/schunk_svh_library</url>
   <url type="bugtracker">https://github.com/fzi-forschungszentrum-informatik/schunk_svh_library/issues</url>

@@ -1,3 +1,6 @@
+![build badge](https://github.com/fzi-forschungszentrum-informatik/schunk_svh_library/actions/workflows/industrial_ci_melodic_action.yml/badge.svg)
+![build badge](https://github.com/fzi-forschungszentrum-informatik/schunk_svh_library/actions/workflows/industrial_ci_noetic_action.yml/badge.svg)
+
 # Schunk SVH Library
 
 This is a standalone C++ library to control the Schunk SVH 5-finger hand.

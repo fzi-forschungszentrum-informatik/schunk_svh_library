@@ -127,18 +127,18 @@ add_test(NAME test_svh_send_packet COMMAND test_svh_send_packet)
 
 # --------------------------------------------------------------------------------
 
-add_executable(test_svh_receive
-        test/serial_interface/SVHReceiveTest.cpp
-        )
-target_include_directories(test_svh_receive PUBLIC
-        ${PROJECT_SOURCE_DIR}/include
-        )
-target_link_libraries(test_svh_receive
-        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-        svh-serial
-        )
-add_test(NAME test_svh_receive COMMAND test_svh_receive)
-set_tests_properties(test_svh_receive PROPERTIES TIMEOUT 10)
+#add_executable(test_svh_receive
+#        test/serial_interface/SVHReceiveTest.cpp
+#        )
+#target_include_directories(test_svh_receive PUBLIC
+#        ${PROJECT_SOURCE_DIR}/include
+#        )
+#target_link_libraries(test_svh_receive
+#        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+#        svh-serial
+#        )
+#add_test(NAME test_svh_receive COMMAND test_svh_receive)
+#set_tests_properties(test_svh_receive PROPERTIES TIMEOUT 10)
 
 # --------------------------------------------------------------------------------
 

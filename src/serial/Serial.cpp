@@ -525,8 +525,10 @@ ssize_t Serial::read(void* data, ssize_t size, unsigned long time, bool return_o
 
       FD_ZERO(&fds);
       FD_SET(m_file_descr, &fds);
+      timeval select_timeout = {0,
+                                std::chrono::duration_cast<std::chrono::microseconds>(tz).count()};
       // Look for received data:
-      if ((select_return = select(FD_SETSIZE, &fds, 0, 0, (timeval*)&tz)) > 0)
+      if ((select_return = select(FD_SETSIZE, &fds, 0, 0, &select_timeout)) > 0)
       {
         // LDM("Serial(%s) Select successful.\n", m_dev_name);
         if (return_on_less_data)

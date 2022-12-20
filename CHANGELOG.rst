@@ -2,8 +2,8 @@
 Changelog for package schunk_svh_library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2022-12-20)
+------------------
 * Fix Errno 22 `invalid argument` for reading serial devices on ARM PCs
   This fixes an unsafe cast in `select`'s timeout parameter, which somehow
   only seemed to cause issues on a recent Raspberry Pi 4.

@@ -4,6 +4,19 @@
 ![build badge](https://github.com/fzi-forschungszentrum-informatik/schunk_svh_library/actions/workflows/industrial_ci_humble_action.yml/badge.svg)
 [![License](https://img.shields.io/badge/License-GPLv3-orange)](https://opensource.org/licenses/gpl-license)
 
+---
+
+## ++ Deprecation Notice ++
+
+This repository has been moved to [Schunk's
+Github](https://github.com/SCHUNK-GmbH-Co-KG). You'll find the
+`schunk_svh_library` [here](https://github.com/SCHUNK-GmbH-Co-KG/schunk_svh_library).
+
+Please continue to file bugs and open pull requests there as usual.
+
+---
+
+
 # Schunk SVH Library
 
 This is a standalone C++ library to control the Schunk SVH 5-finger hand.
